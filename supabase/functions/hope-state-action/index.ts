@@ -5,11 +5,24 @@ const corsHeaders = {
 };
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const serviceRoleKey =
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+  readJsonSecret(Deno.env.get("SUPABASE_SECRET_KEYS")) ??
+  "";
 const adminKey = Deno.env.get("ADMIN_KEY") ?? "";
 const secretPepper = Deno.env.get("SECRET_PEPPER") ?? "";
 
 type JsonRecord = Record<string, unknown>;
+
+function readJsonSecret(value: string | undefined) {
+  if (!value) return "";
+  try {
+    const parsed = JSON.parse(value);
+    return String(parsed.service_role ?? parsed.serviceRole ?? parsed.secret ?? parsed.default ?? "");
+  } catch {
+    return value;
+  }
+}
 
 function json(body: JsonRecord, status = 200) {
   return new Response(JSON.stringify(body), {

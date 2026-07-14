@@ -1,9 +1,9 @@
 const storageKey = "hope_state_site_v2";
 
 const config = {
-  supabaseUrl: "",
-  anonKey: "",
-  actionUrl: ""
+  supabaseUrl: "https://trosjcbvfhnfkelflijc.supabase.co",
+  anonKey: "sb_publishable_sZYKAIzDJJYQgzC2Buzhyw_art6KnAS",
+  actionUrl: "https://trosjcbvfhnfkelflijc.supabase.co/functions/v1/hope-state-action"
 };
 
 const gods = [
