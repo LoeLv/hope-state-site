@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">希望之州徽记</title>
+  <desc id="desc">一枚由星环、城门和晨星组成的希望之州徽记。</desc>
+  <defs>
+    <linearGradient id="g" x1="22" x2="138" y1="18" y2="144" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f7d06a"/>
+      <stop offset=".46" stop-color="#3bbf9f"/>
+      <stop offset="1" stop-color="#2f6fa8"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="30" fill="#07130f"/>
+  <path d="M80 13 139 46v68l-59 33-59-33V46L80 13Z" fill="#0d211b" stroke="url(#g)" stroke-width="5"/>
+  <path d="M40 101c11-28 29-42 40-42s29 14 40 42" fill="none" stroke="#f7d06a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M54 112V80h52v32" fill="none" stroke="#3bbf9f" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M80 35v22M69 46h22" stroke="#f8f0ca" stroke-width="6" stroke-linecap="round" filter="url(#glow)"/>
+  <circle cx="80" cy="80" r="51" fill="none" stroke="#2f6fa8" stroke-width="2" stroke-dasharray="5 8"/>
+</svg>

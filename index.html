@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>希望之州 | 诸神愚戏</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient__line ambient__line--left"></div>
+    <div class="ambient__line ambient__line--right"></div>
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="#profile" data-view-link="profile" aria-label="希望之州个人界面">
+      <img src="assets/hope-state-sigil.svg" alt="" class="brand__sigil">
+      <span>
+        <strong>希望之州</strong>
+        <small>诸神愚戏 · 信徒档案局</small>
+      </span>
+    </a>
+    <nav class="nav" aria-label="主导航">
+      <button class="nav__item is-active" type="button" data-view-link="profile">个人界面</button>
+      <button class="nav__item" type="button" data-view-link="leaderboard">排行榜</button>
+      <button class="nav__item" type="button" data-view-link="scoring">打分系统</button>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="hero-panel">
+      <div>
+        <p class="eyebrow">Hope State Registry</p>
+        <h1>把群员的信仰、分数和登神记录集中到一张清晰的州民档案里。</h1>
+      </div>
+      <div class="status-card">
+        <span>当前档案</span>
+        <strong id="totalProfiles">0</strong>
+        <small>本地演示数据，可导出备份</small>
+      </div>
+    </section>
+
+    <section class="view is-active" id="profileView" aria-labelledby="profileTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Profile</p>
+          <h2 id="profileTitle">个人界面</h2>
+        </div>
+        <button class="btn btn--ghost" type="button" id="resetFormButton">清空表单</button>
+      </div>
+
+      <div class="profile-grid">
+        <form class="panel form-panel" id="profileForm">
+          <label>
+            州民昵称
+            <input id="nameInput" name="name" maxlength="18" required placeholder="例如：白昼旅人">
+          </label>
+          <label>
+            信仰神明
+            <select id="godInput" name="god" required></select>
+          </label>
+          <label>
+            命途
+            <select id="pathInput" name="path" required>
+              <option value="生命">生命</option>
+              <option value="存在">存在</option>
+              <option value="文明">文明</option>
+              <option value="虚无">虚无</option>
+              <option value="混沌">混沌</option>
+              <option value="沉沦">沉沦</option>
+            </select>
+          </label>
+          <label>
+            职业 / 身份
+            <input id="classInput" name="className" maxlength="18" placeholder="例如：小丑、织命师、德鲁伊">
+          </label>
+          <label class="span-2">
+            州民短记
+            <textarea id="noteInput" name="note" maxlength="120" rows="4" placeholder="记录这个人在希望之州里的设定、常用玩法或群内身份。"></textarea>
+          </label>
+          <div class="form-actions span-2">
+            <button class="btn btn--primary" type="submit">保存档案</button>
+            <button class="btn btn--ghost" type="button" id="exportButton">导出数据</button>
+            <label class="import-button">
+              导入数据
+              <input type="file" id="importInput" accept="application/json">
+            </label>
+          </div>
+        </form>
+
+        <aside class="panel profile-preview">
+          <p class="eyebrow">Current Pilgrim</p>
+          <div class="avatar-orbit" id="previewSigil">希</div>
+          <h3 id="previewName">尚未登记</h3>
+          <p id="previewMeta">选择神明与命途后生成档案。</p>
+          <dl class="score-strip">
+            <div>
+              <dt>登神分</dt>
+              <dd id="previewAscension">1000</dd>
+            </div>
+            <div>
+              <dt>觐见分</dt>
+              <dd id="previewAudience">0</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+
+      <div class="section-head section-head--compact">
+        <h3>州民档案</h3>
+        <div class="toolbar">
+          <input class="search" id="profileSearch" placeholder="搜索昵称、神明、职业">
+          <select class="search" id="pathFilter">
+            <option value="all">全部命途</option>
+            <option value="生命">生命</option>
+            <option value="存在">存在</option>
+            <option value="文明">文明</option>
+            <option value="虚无">虚无</option>
+            <option value="混沌">混沌</option>
+            <option value="沉沦">沉沦</option>
+          </select>
+        </div>
+      </div>
+      <div class="cards" id="profileList"></div>
+    </section>
+
+    <section class="view" id="leaderboardView" aria-labelledby="leaderboardTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Leaderboard</p>
+          <h2 id="leaderboardTitle">排行榜</h2>
+        </div>
+        <div class="segmented" role="group" aria-label="排行榜模式">
+          <button class="is-active" type="button" data-rank-mode="total">总榜</button>
+          <button type="button" data-rank-mode="ascension">登神分</button>
+          <button type="button" data-rank-mode="audience">觐见分</button>
+        </div>
+      </div>
+      <div class="leaderboard" id="leaderboardList"></div>
+    </section>
+
+    <section class="view" id="scoringView" aria-labelledby="scoringTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Scoring</p>
+          <h2 id="scoringTitle">打分系统</h2>
+        </div>
+        <button class="btn btn--ghost" type="button" id="clearLogButton">清空结算记录</button>
+      </div>
+
+      <div class="scoring-layout">
+        <form class="panel score-form" id="scoreForm">
+          <label>
+            结算对象
+            <select id="scoreTarget" required></select>
+          </label>
+          <div class="score-inputs">
+            <label>
+              登神分变化
+              <input id="ascensionDelta" type="number" min="-20" max="20" value="0">
+            </label>
+            <label>
+              觐见分变化
+              <input id="audienceDelta" type="number" min="0" max="3" value="0">
+            </label>
+          </div>
+          <label>
+            结算理由
+            <textarea id="scoreReason" rows="5" maxlength="160" placeholder="例如：完成本周核心试炼，给予登神分 +3。"></textarea>
+          </label>
+          <button class="btn btn--primary" type="submit">提交结算</button>
+        </form>
+
+        <div class="panel">
+          <h3>结算记录</h3>
+          <div class="settlement-log" id="settlementLog"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
