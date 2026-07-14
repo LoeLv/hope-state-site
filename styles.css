@@ -203,13 +203,22 @@ h3 { margin-bottom: 1rem; }
   box-shadow: var(--shadow);
 }
 
-.profile-grid, .scoring-layout {
+.profile-grid, .scoring-layout, .private-layout, .admin-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, .75fr);
   gap: 1rem;
 }
 
-.form-panel, .score-form { padding: 1rem; }
+.private-layout {
+  align-items: start;
+}
+
+.admin-grid {
+  grid-template-columns: minmax(0, 1.4fr) minmax(300px, .8fr);
+  align-items: start;
+}
+
+.form-panel, .score-form, .access-panel { padding: 1rem; }
 
 .form-panel {
   display: grid;
@@ -248,6 +257,15 @@ input:focus, select:focus, textarea:focus {
   flex-wrap: wrap;
 }
 
+.toolbar--between {
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.search {
+  max-width: 280px;
+}
+
 .score-inputs > label { flex: 1 1 150px; }
 
 .btn, .import-button {
@@ -277,6 +295,11 @@ input:focus, select:focus, textarea:focus {
   place-items: center;
   text-align: center;
   padding: 1.4rem;
+}
+
+.profile-preview--wide {
+  align-content: start;
+  min-height: 360px;
 }
 
 .avatar-orbit {
@@ -366,6 +389,18 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   padding: .95rem 1rem;
 }
 
+.rank-row--button {
+  width: 100%;
+  color: var(--ink);
+  text-align: left;
+  border: 1px solid var(--line);
+}
+
+.rank-row--button:hover {
+  border-color: rgba(241, 198, 91, .56);
+  transform: translateY(-1px);
+}
+
 .rank-index {
   color: var(--gold);
   font-size: 1.8rem;
@@ -391,6 +426,88 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 .log-item { padding: .85rem; }
 .log-item strong { color: var(--gold); }
 .log-item time { display: block; color: var(--muted); font-size: .78rem; margin-top: .35rem; }
+
+.talent-section {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .04);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.talent-section h4 {
+  margin: 0 0 .65rem;
+  color: var(--gold);
+}
+
+.talent-section ul {
+  display: grid;
+  gap: .45rem;
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--ink);
+}
+
+.private-card {
+  width: 100%;
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .62);
+  backdrop-filter: blur(10px);
+}
+
+.modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(620px, 100%);
+  padding: 1rem;
+}
+
+.modal__close {
+  position: absolute;
+  top: .65rem;
+  right: .65rem;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: rgba(0, 0, 0, .32);
+  border-radius: 50%;
+}
+
+.profile-card--modal {
+  margin-bottom: 1rem;
+}
+
+.export-card {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 520px;
+  padding: 1rem;
+  color: var(--ink);
+  background: #0d1f19;
+}
 
 .toast {
   position: fixed;
@@ -418,7 +535,7 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   .topbar { position: static; }
   .nav { width: 100%; overflow-x: auto; }
   .nav__item { flex: 1 0 auto; }
-  .hero-panel, .profile-grid, .scoring-layout { grid-template-columns: 1fr; }
+  .hero-panel, .profile-grid, .scoring-layout, .private-layout, .admin-grid { grid-template-columns: 1fr; }
   .form-panel { grid-template-columns: 1fr; }
   .span-2 { grid-column: auto; }
   .rank-row {

@@ -13,17 +13,17 @@
   </div>
 
   <header class="topbar">
-    <a class="brand" href="#profile" data-view-link="profile" aria-label="希望之州个人界面">
+    <a class="brand" href="#leaderboard" data-view-link="leaderboard" aria-label="希望之州排行榜">
       <img src="assets/hope-state-sigil.svg" alt="" class="brand__sigil">
       <span>
         <strong>希望之州</strong>
-        <small>诸神愚戏 · 信徒档案局</small>
+        <small>诸神愚戏 · 州民档案局</small>
       </span>
     </a>
     <nav class="nav" aria-label="主导航">
-      <button class="nav__item is-active" type="button" data-view-link="profile">个人界面</button>
-      <button class="nav__item" type="button" data-view-link="leaderboard">排行榜</button>
-      <button class="nav__item" type="button" data-view-link="scoring">打分系统</button>
+      <button class="nav__item is-active" type="button" data-view-link="leaderboard">排行榜</button>
+      <button class="nav__item" type="button" data-view-link="private">我的面板</button>
+      <button class="nav__item" type="button" data-view-link="admin">管理录入</button>
     </nav>
   </header>
 
@@ -31,100 +31,16 @@
     <section class="hero-panel">
       <div>
         <p class="eyebrow">Hope State Registry</p>
-        <h1>把群员的信仰、分数和登神记录集中到一张清晰的州民档案里。</h1>
+        <h1>公开排名只展示基础职业信息，完整天赋面板只给本人暗语查看。</h1>
       </div>
       <div class="status-card">
-        <span>当前档案</span>
+        <span>公开档案</span>
         <strong id="totalProfiles">0</strong>
-        <small>本地演示数据，可导出备份</small>
+        <small id="dataModeLabel">本地演示模式</small>
       </div>
     </section>
 
-    <section class="view is-active" id="profileView" aria-labelledby="profileTitle">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Profile</p>
-          <h2 id="profileTitle">个人界面</h2>
-        </div>
-        <button class="btn btn--ghost" type="button" id="resetFormButton">清空表单</button>
-      </div>
-
-      <div class="profile-grid">
-        <form class="panel form-panel" id="profileForm">
-          <label>
-            州民昵称
-            <input id="nameInput" name="name" maxlength="18" required placeholder="例如：白昼旅人">
-          </label>
-          <label>
-            信仰神明
-            <select id="godInput" name="god" required></select>
-          </label>
-          <label>
-            命途
-            <select id="pathInput" name="path" required>
-              <option value="生命">生命</option>
-              <option value="存在">存在</option>
-              <option value="文明">文明</option>
-              <option value="虚无">虚无</option>
-              <option value="混沌">混沌</option>
-              <option value="沉沦">沉沦</option>
-            </select>
-          </label>
-          <label>
-            职业 / 身份
-            <input id="classInput" name="className" maxlength="18" placeholder="例如：小丑、织命师、德鲁伊">
-          </label>
-          <label class="span-2">
-            州民短记
-            <textarea id="noteInput" name="note" maxlength="120" rows="4" placeholder="记录这个人在希望之州里的设定、常用玩法或群内身份。"></textarea>
-          </label>
-          <div class="form-actions span-2">
-            <button class="btn btn--primary" type="submit">保存档案</button>
-            <button class="btn btn--ghost" type="button" id="exportButton">导出数据</button>
-            <label class="import-button">
-              导入数据
-              <input type="file" id="importInput" accept="application/json">
-            </label>
-          </div>
-        </form>
-
-        <aside class="panel profile-preview">
-          <p class="eyebrow">Current Pilgrim</p>
-          <div class="avatar-orbit" id="previewSigil">希</div>
-          <h3 id="previewName">尚未登记</h3>
-          <p id="previewMeta">选择神明与命途后生成档案。</p>
-          <dl class="score-strip">
-            <div>
-              <dt>登神分</dt>
-              <dd id="previewAscension">1000</dd>
-            </div>
-            <div>
-              <dt>觐见分</dt>
-              <dd id="previewAudience">0</dd>
-            </div>
-          </dl>
-        </aside>
-      </div>
-
-      <div class="section-head section-head--compact">
-        <h3>州民档案</h3>
-        <div class="toolbar">
-          <input class="search" id="profileSearch" placeholder="搜索昵称、神明、职业">
-          <select class="search" id="pathFilter">
-            <option value="all">全部命途</option>
-            <option value="生命">生命</option>
-            <option value="存在">存在</option>
-            <option value="文明">文明</option>
-            <option value="虚无">虚无</option>
-            <option value="混沌">混沌</option>
-            <option value="沉沦">沉沦</option>
-          </select>
-        </div>
-      </div>
-      <div class="cards" id="profileList"></div>
-    </section>
-
-    <section class="view" id="leaderboardView" aria-labelledby="leaderboardTitle">
+    <section class="view is-active" id="leaderboardView" aria-labelledby="leaderboardTitle">
       <div class="section-head">
         <div>
           <p class="eyebrow">Leaderboard</p>
@@ -136,19 +52,117 @@
           <button type="button" data-rank-mode="audience">觐见分</button>
         </div>
       </div>
+      <div class="toolbar toolbar--between">
+        <input class="search" id="leaderboardSearch" placeholder="搜索昵称、神明、职业">
+        <select class="search" id="pathFilter">
+          <option value="all">全部命途</option>
+          <option value="生命">生命</option>
+          <option value="存在">存在</option>
+          <option value="文明">文明</option>
+          <option value="虚无">虚无</option>
+          <option value="混沌">混沌</option>
+          <option value="沉沦">沉沦</option>
+        </select>
+      </div>
       <div class="leaderboard" id="leaderboardList"></div>
     </section>
 
-    <section class="view" id="scoringView" aria-labelledby="scoringTitle">
+    <section class="view" id="privateView" aria-labelledby="privateTitle">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Scoring</p>
-          <h2 id="scoringTitle">打分系统</h2>
+          <p class="eyebrow">Private Panel</p>
+          <h2 id="privateTitle">我的个人职业面板</h2>
         </div>
-        <button class="btn btn--ghost" type="button" id="clearLogButton">清空结算记录</button>
+        <button class="btn btn--ghost" type="button" id="logoutButton" hidden>退出面板</button>
+      </div>
+      <div class="private-layout">
+        <form class="panel access-panel" id="secretForm">
+          <label>
+            州民昵称
+            <input id="secretName" maxlength="24" required placeholder="输入你告诉管理员的名字">
+          </label>
+          <label>
+            私密暗语
+            <input id="secretPhrase" maxlength="80" required type="password" placeholder="输入你自己设置的那句话">
+          </label>
+          <button class="btn btn--primary" type="submit">查看我的完整面板</button>
+        </form>
+        <div id="privatePanel" class="panel profile-preview profile-preview--wide">
+          <p class="eyebrow">My Dossier</p>
+          <div class="avatar-orbit">希</div>
+          <h3>等待暗语验证</h3>
+          <p>排行榜只公开基础信息。验证后，这里会显示你的完整天赋和私密备注。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="adminView" aria-labelledby="adminTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Admin Desk</p>
+          <h2 id="adminTitle">管理录入与打分</h2>
+        </div>
+        <button class="btn btn--ghost" type="button" id="refreshButton">刷新数据</button>
       </div>
 
-      <div class="scoring-layout">
+      <div class="admin-grid">
+        <form class="panel form-panel" id="adminProfileForm">
+          <label class="span-2">
+            管理密钥
+            <input id="adminKey" type="password" autocomplete="off" placeholder="Supabase Edge Function 的 ADMIN_KEY">
+          </label>
+          <label>
+            州民昵称
+            <input id="nameInput" maxlength="24" required placeholder="例如：白昼旅人">
+          </label>
+          <label>
+            私密暗语
+            <input id="phraseInput" maxlength="80" placeholder="首次录入或重置时填写">
+          </label>
+          <label>
+            信仰神明
+            <select id="godInput" required></select>
+          </label>
+          <label>
+            命途
+            <select id="pathInput" required>
+              <option value="生命">生命</option>
+              <option value="存在">存在</option>
+              <option value="文明">文明</option>
+              <option value="虚无">虚无</option>
+              <option value="混沌">混沌</option>
+              <option value="沉沦">沉沦</option>
+            </select>
+          </label>
+          <label>
+            职业 / 身份
+            <input id="classInput" maxlength="24" placeholder="例如：小丑、织命师、德鲁伊">
+          </label>
+          <label>
+            是否公开上榜
+            <select id="publicInput">
+              <option value="true">公开</option>
+              <option value="false">隐藏</option>
+            </select>
+          </label>
+          <label class="span-2">
+            公开短记
+            <textarea id="publicNoteInput" maxlength="160" rows="3" placeholder="排行榜点击后可见，不写天赋。"></textarea>
+          </label>
+          <label class="span-2">
+            私密备注
+            <textarea id="privateNoteInput" maxlength="240" rows="3" placeholder="只有本人暗语验证后可见。"></textarea>
+          </label>
+          <label class="span-2">
+            天赋列表
+            <textarea id="talentsInput" rows="5" placeholder="一行一个天赋，例如：&#10;B · 逆命骰&#10;C · 微光护符"></textarea>
+          </label>
+          <div class="form-actions span-2">
+            <button class="btn btn--primary" type="submit">保存/更新档案</button>
+            <button class="btn btn--ghost" type="button" id="clearAdminFormButton">清空表单</button>
+          </div>
+        </form>
+
         <form class="panel score-form" id="scoreForm">
           <label>
             结算对象
@@ -169,15 +183,16 @@
             <textarea id="scoreReason" rows="5" maxlength="160" placeholder="例如：完成本周核心试炼，给予登神分 +3。"></textarea>
           </label>
           <button class="btn btn--primary" type="submit">提交结算</button>
-        </form>
-
-        <div class="panel">
-          <h3>结算记录</h3>
           <div class="settlement-log" id="settlementLog"></div>
-        </div>
+        </form>
       </div>
     </section>
   </main>
+
+  <div class="modal" id="publicModal" hidden>
+    <div class="modal__backdrop" data-close-public></div>
+    <article class="modal__panel panel" id="publicPanel"></article>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="app.js"></script>
