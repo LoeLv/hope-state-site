@@ -731,13 +731,28 @@ function parseDelimitedLine(line) {
   return cells;
 }
 
+function normalizeBulkHeader(header) {
+  const compact = String(header || "").replace(/\s+/g, "");
+  if (!compact) return "";
+  if (compact.includes("昵称")) return "昵称";
+  if (compact.includes("职业")) return "职业";
+  if (compact.includes("暗语")) return "暗语";
+  if (compact.includes("宣言")) return "公开短记";
+  if (compact.includes("私密备注")) return "私密备注";
+  if (compact.includes("天赋")) return "天赋";
+  if (compact.includes("登神")) return "登神分";
+  if (compact.includes("觐见")) return "觐见分";
+  return compact;
+}
+
 function parseBulkInput(text) {
   const lines = String(text || "").split(/\r?\n/).filter((line) => line.trim());
   if (!lines.length) return { rows: [], errors: [{ row: 1, error: "没有可导入内容" }] };
-  const headers = parseDelimitedLine(lines[0]);
+  const rawHeaders = parseDelimitedLine(lines[0]);
+  const headers = rawHeaders.map(normalizeBulkHeader);
   const required = ["昵称", "暗语", "职业"];
   const missing = required.filter((header) => !headers.includes(header));
-  if (missing.length) return { rows: [], errors: [{ row: 1, error: `缺少字段：${missing.join("、")}` }] };
+  if (missing.length) return { rows: [], errors: [{ row: 1, error: `缺少字段：${missing.join("、")}。当前支持表单字段：昵称(信仰+昵称)、职业(命途职业)、暗语(个人信息保存专用，不公开)、宣言(显示:类似签名)、私密备注(建议填写谕行词)、天赋。` }] };
   const rows = [];
   const errors = [];
   lines.slice(1).forEach((line, index) => {
