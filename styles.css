@@ -214,7 +214,7 @@ h3 { margin-bottom: 1rem; }
 }
 
 .admin-grid {
-  grid-template-columns: minmax(0, 1.4fr) minmax(300px, .8fr);
+  grid-template-columns: minmax(0, 1.28fr) minmax(320px, .9fr);
   align-items: start;
 }
 
@@ -257,6 +257,11 @@ input:focus, select:focus, textarea:focus {
   flex-wrap: wrap;
 }
 
+.side-stack {
+  display: grid;
+  gap: 1rem;
+}
+
 .toolbar--between {
   justify-content: space-between;
   margin-bottom: 1rem;
@@ -289,6 +294,30 @@ input:focus, select:focus, textarea:focus {
 
 .btn--ghost:hover, .import-button:hover { border-color: var(--gold); }
 .import-button input { display: none; }
+
+.secret-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .5rem;
+  align-items: center;
+}
+
+.secret-input .mini-btn {
+  min-height: 100%;
+  white-space: nowrap;
+}
+
+.is-secret-hidden {
+  -webkit-text-security: disc;
+  text-security: disc;
+}
+
+.form-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: .84rem;
+  line-height: 1.55;
+}
 
 .profile-preview {
   display: grid;
@@ -383,8 +412,8 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .rank-row {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) repeat(3, minmax(88px, auto));
-  gap: 1rem;
+  grid-template-columns: 72px minmax(0, 1fr) repeat(4, minmax(76px, auto));
+  gap: .85rem;
   align-items: center;
   padding: .95rem 1rem;
 }
@@ -410,6 +439,10 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 .rank-name strong { display: block; }
 .rank-name span, .rank-metric span { color: var(--muted); font-size: .82rem; }
 .rank-metric strong { display: block; color: var(--ink); font-size: 1.2rem; }
+
+.rank-metric {
+  min-width: 0;
+}
 
 .scoring-layout { align-items: start; }
 .score-form { display: grid; gap: 1rem; }
@@ -448,6 +481,41 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   margin: 0;
   padding-left: 1.2rem;
   color: var(--ink);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .7rem;
+  width: 100%;
+  margin: 1rem 0 0;
+}
+
+.stat-grid div {
+  min-width: 0;
+  padding: .75rem;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .04);
+  border-radius: 8px;
+}
+
+.stat-grid dd {
+  overflow-wrap: anywhere;
+  font-size: 1.05rem;
+}
+
+.import-results {
+  display: grid;
+  gap: .5rem;
+}
+
+.import-results ul {
+  display: grid;
+  gap: .35rem;
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--danger);
+  font-size: .86rem;
 }
 
 .private-card {
@@ -509,6 +577,10 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   background: #0d1f19;
 }
 
+.export-card .profile-card {
+  background: #0d1f19;
+}
+
 .toast {
   position: fixed;
   left: 50%;
@@ -543,5 +615,11 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   }
   .rank-metric {
     grid-column: 2;
+  }
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+  .secret-input {
+    grid-template-columns: 1fr;
   }
 }

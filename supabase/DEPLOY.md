@@ -1,12 +1,20 @@
 # 希望之州 Supabase 部署步骤
 
-## 1. 建表
+## 1. 建表与职业资料
 
 在 Supabase SQL Editor 执行：
 
 ```sql
 -- 复制执行 supabase/schema.sql 的全部内容
 ```
+
+然后继续执行：
+
+```sql
+-- 复制执行 supabase/hope_professions_seed.sql 的全部内容
+```
+
+顺序不能反：`schema.sql` 先创建 `hope_professions` 和 `hope_base_classes`，职业 seed 再写入 96 个职业。
 
 ## 2. 创建 Edge Function
 
@@ -55,8 +63,9 @@ const config = {
 
 1. 打开“管理录入”。
 2. 输入 `ADMIN_KEY`。
-3. 给玩家录入昵称、暗语、职业、公开短记、私密备注、天赋。
-4. 打分时也使用同一个 `ADMIN_KEY`。
+3. 给玩家录入昵称、暗语、职业、公开短记、私密备注、天赋。职业必须能匹配 `hope_professions`。
+4. 批量导入可直接粘贴 Excel 表格，字段为：昵称、暗语、职业、登神分、觐见分、公开短记、私密备注、天赋。
+5. 打分时也使用同一个 `ADMIN_KEY`。
 
 玩家：
 

@@ -83,7 +83,10 @@
           </label>
           <label>
             私密暗语
-            <input id="secretPhrase" maxlength="80" required type="password" placeholder="输入你自己设置的那句话">
+            <span class="secret-input">
+              <input id="secretPhrase" maxlength="80" required type="text" data-secret-field placeholder="输入你自己设置的那句话">
+              <button class="mini-btn" type="button" data-toggle-secret="secretPhrase">隐藏</button>
+            </span>
           </label>
           <button class="btn btn--primary" type="submit">查看我的完整面板</button>
         </form>
@@ -111,13 +114,17 @@
             管理密钥
             <input id="adminKey" type="password" autocomplete="off" placeholder="Supabase Edge Function 的 ADMIN_KEY">
           </label>
+          <div class="form-note span-2" id="professionLibraryStatus">职业资料库等待读取。</div>
           <label>
             州民昵称
             <input id="nameInput" maxlength="24" required placeholder="例如：白昼旅人">
           </label>
           <label>
             私密暗语
-            <input id="phraseInput" maxlength="80" placeholder="首次录入或重置时填写">
+            <span class="secret-input">
+              <input id="phraseInput" maxlength="80" type="text" data-secret-field placeholder="首次录入或重置时填写">
+              <button class="mini-btn" type="button" data-toggle-secret="phraseInput">隐藏</button>
+            </span>
           </label>
           <label>
             信仰神明
@@ -136,7 +143,16 @@
           </label>
           <label>
             职业 / 身份
-            <input id="classInput" maxlength="24" placeholder="例如：小丑、织命师、德鲁伊">
+            <input id="classInput" maxlength="24" list="professionOptions" placeholder="例如：小丑、织命师、德鲁伊">
+            <datalist id="professionOptions"></datalist>
+          </label>
+          <label>
+            登神分
+            <input id="ascensionInput" type="number" min="0" value="1000">
+          </label>
+          <label>
+            觐见分
+            <input id="audienceInput" type="number" min="0" value="0">
           </label>
           <label>
             是否公开上榜
@@ -163,28 +179,44 @@
           </div>
         </form>
 
-        <form class="panel score-form" id="scoreForm">
-          <label>
-            结算对象
-            <select id="scoreTarget" required></select>
-          </label>
-          <div class="score-inputs">
+        <div class="side-stack">
+          <form class="panel score-form" id="scoreForm">
             <label>
-              登神分变化
-              <input id="ascensionDelta" type="number" min="-20" max="20" value="0">
+              结算对象
+              <select id="scoreTarget" required></select>
             </label>
+            <div class="score-inputs">
+              <label>
+                登神分变化
+                <input id="ascensionDelta" type="number" min="-20" max="20" value="0">
+              </label>
+              <label>
+                觐见分变化
+                <input id="audienceDelta" type="number" min="0" max="3" value="0">
+              </label>
+            </div>
             <label>
-              觐见分变化
-              <input id="audienceDelta" type="number" min="0" max="3" value="0">
+              结算理由
+              <textarea id="scoreReason" rows="5" maxlength="160" placeholder="例如：完成本周核心试炼，给予登神分 +3。"></textarea>
             </label>
-          </div>
-          <label>
-            结算理由
-            <textarea id="scoreReason" rows="5" maxlength="160" placeholder="例如：完成本周核心试炼，给予登神分 +3。"></textarea>
-          </label>
-          <button class="btn btn--primary" type="submit">提交结算</button>
-          <div class="settlement-log" id="settlementLog"></div>
-        </form>
+            <button class="btn btn--primary" type="submit">提交结算</button>
+            <div class="settlement-log" id="settlementLog"></div>
+          </form>
+
+          <section class="panel score-form" aria-labelledby="bulkImportTitle">
+            <div>
+              <p class="eyebrow">Bulk Import</p>
+              <h3 id="bulkImportTitle">批量导入</h3>
+            </div>
+            <p class="form-note">第一行字段：昵称、暗语、职业、登神分、觐见分、公开短记、私密备注、天赋。支持从 Excel 直接复制粘贴。</p>
+            <textarea id="bulkImportInput" rows="9" placeholder="昵称	暗语	职业	登神分	觐见分	公开短记	私密备注	天赋"></textarea>
+            <div class="form-actions">
+              <button class="btn btn--primary" type="button" id="bulkPreviewButton">检查内容</button>
+              <button class="btn btn--ghost" type="button" id="bulkImportButton">导入有效行</button>
+            </div>
+            <div class="import-results" id="bulkImportResult"></div>
+          </section>
+        </div>
       </div>
     </section>
   </main>

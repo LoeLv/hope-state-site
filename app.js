@@ -1,4 +1,4 @@
-const storageKey = "hope_state_site_v2";
+const storageKey = "hope_state_site_v3";
 
 const config = {
   supabaseUrl: "https://trosjcbvfhnfkelflijc.supabase.co",
@@ -15,9 +15,57 @@ const gods = [
   ["污堕", "沉沦"], ["腐朽", "沉沦"], ["湮灭", "沉沦"]
 ];
 
+const pathByGod = Object.fromEntries(gods);
+
+const baseClassRules = {
+  战士: {
+    baseHp: 115,
+    baseAttack: 8,
+    attackInterval: "1 轮",
+    combatRule: "嘲讽吸引本轮所有攻击，本回合内获得 5 点护盾，CD 3 轮。"
+  },
+  刺客: {
+    baseHp: 80,
+    baseAttack: 10,
+    attackInterval: "1 轮",
+    combatRule: "背袭造成 18 点伤害，偷袭间隔 3 轮。普攻和背袭无法同时使用。"
+  },
+  法师: {
+    baseHp: 80,
+    baseAttack: 5,
+    attackInterval: "1 轮",
+    combatRule: "火球术召唤 3 个火球，每个对指定敌人造成 8 点伤害，CD 3 轮。火球和普攻无法同时使用。"
+  },
+  猎人: {
+    baseHp: 80,
+    baseAttack: 7,
+    attackInterval: "1 轮",
+    combatRule: "三段直接伤害：掷骰 1-2 造成 8 点，3-4 造成 12 点，5-6 造成 16 点。"
+  },
+  牧师: {
+    baseHp: 105,
+    baseAttack: 2,
+    attackInterval: "1 轮",
+    combatRule: "治疗术单体 +25 血，CD 3 轮；群体治疗所有友方 +10 血，和治疗术共用 CD。普攻和治疗无法同时发动。"
+  },
+  歌者: {
+    baseHp: 90,
+    baseAttack: 2,
+    attackInterval: "1 轮",
+    combatRule: "强化术为一名目标攻击 +8，持续 3 次，CD 4 轮；群体祝福为全队除自己外攻击 +3，持续 3 次，CD 4 轮。强化、祝福和普攻无法同时发动。"
+  }
+};
+
+const fallbackProfessions = [
+  { profession: "德鲁伊", faithGod: "繁荣", path: "生命", baseClass: "战士", featureText: "可以横跨多物种变换形体的尚战职业。" },
+  { profession: "小丑", faithGod: "欺诈", path: "虚无", baseClass: "战士", featureText: "职业特性以职业资料库为准。" },
+  { profession: "织命师", faithGod: "命运", path: "虚无", baseClass: "战士", featureText: "职业特性以职业资料库为准。" }
+];
+
 let state = loadState();
 let rankMode = "total";
 let currentPrivateProfile = null;
+let professionLibrary = fallbackProfessions;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -35,9 +83,13 @@ function loadState() {
         id: crypto.randomUUID(),
         name: "晨星守望者",
         secretPhrase: "希望不会熄灭",
+        faithGod: "繁荣",
         god: "繁荣",
         path: "生命",
+        profession: "德鲁伊",
         className: "德鲁伊",
+        baseClass: "战士",
+        featureText: "可以横跨多物种变换形体的尚战职业。",
         publicNote: "希望之州样例档案。公开面板只显示基础职业信息。",
         privateNote: "这里是本人暗语验证后才显示的私密备注。",
         talents: ["B · 晨露复苏", "C · 枝叶庇护"],
@@ -71,30 +123,80 @@ function normalizeName(value) {
 
 function normalizeTalents(value) {
   if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
-  return String(value || "").split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+  return String(value || "")
+    .split(/\r?\n|；|;/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
-function totalScore(profile) {
-  return Number(profile.ascension || profile.ascension_score || 0) + Number(profile.audience || profile.audience_score || 0) * 10;
+function normalizeProfessionName(value) {
+  return String(value || "").trim().replace(/\s+/g, "");
 }
 
-function publicProfiles() {
-  return state.profiles.filter((profile) => profile.isPublic !== false);
+function getFaithGod(profile) {
+  return profile.faithGod || profile.faith_god || profile.god || "";
+}
+
+function getProfession(profile) {
+  return profile.profession || profile.className || profile.class_name || "";
+}
+
+function getBaseClass(profile) {
+  return profile.baseClass || profile.base_class || "";
+}
+
+function getFeatureText(profile) {
+  return profile.featureText || profile.feature_text || "";
 }
 
 function getAscension(profile) {
-  return Number(profile.ascension ?? profile.ascension_score ?? 0);
+  return Number(profile.ascension ?? profile.ascension_score ?? 1000);
 }
 
 function getAudience(profile) {
   return Number(profile.audience ?? profile.audience_score ?? 0);
 }
 
+function totalScore(profile) {
+  return getAscension(profile) + getAudience(profile) * 10;
+}
+
+function publicProfiles() {
+  return state.profiles.filter((profile) => profile.isPublic !== false && profile.is_public !== false);
+}
+
+function baseRuleFor(profile) {
+  return baseClassRules[getBaseClass(profile)] || {
+    baseHp: 0,
+    baseAttack: 0,
+    attackInterval: "未定",
+    combatRule: "暂无基础职业战斗规则。"
+  };
+}
+
+function maxHp(profile) {
+  const rule = baseRuleFor(profile);
+  const bonus = Math.max(0, Math.floor((getAscension(profile) - 1000) / 100)) * 10;
+  return Number(rule.baseHp || 0) + bonus;
+}
+
+function getTotalRank(profile) {
+  const ranked = [...publicProfiles()].sort((a, b) => totalScore(b) - totalScore(a) || getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a));
+  return ranked.findIndex((item) => item.id === profile.id || item.name === profile.name) + 1;
+}
+
+function getPathRank(profile) {
+  const ranked = publicProfiles()
+    .filter((item) => item.path === profile.path)
+    .sort((a, b) => totalScore(b) - totalScore(a) || getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a));
+  return ranked.findIndex((item) => item.id === profile.id || item.name === profile.name) + 1;
+}
+
 function getRankedProfiles() {
   return [...publicProfiles()].sort((a, b) => {
     if (rankMode === "ascension") return getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a);
     if (rankMode === "audience") return getAudience(b) - getAudience(a) || getAscension(b) - getAscension(a);
-    return totalScore(b) - totalScore(a);
+    return totalScore(b) - totalScore(a) || getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a);
   });
 }
 
@@ -109,7 +211,7 @@ function showToast(message) {
   toast.textContent = message;
   toast.classList.add("is-visible");
   clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 1900);
+  showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
 }
 
 async function callAction(action, payload = {}) {
@@ -139,7 +241,13 @@ async function callAction(action, payload = {}) {
 }
 
 async function localAction(action, payload) {
+  if (action === "listProfessions") return { professions: professionLibrary, baseClasses: baseClassRules };
   if (action === "listPublicProfiles") return { profiles: publicProfiles().map(toPublicProfile) };
+  if (action === "getPublicProfile") {
+    const profile = publicProfiles().find((item) => item.id === payload.id || item.name === payload.name);
+    if (!profile) throw new Error("找不到公开档案");
+    return { profile: toPublicProfile(profile) };
+  }
   if (action === "verifySecret") {
     const name = normalizeName(payload.name);
     const phrase = String(payload.phrase || "");
@@ -149,36 +257,32 @@ async function localAction(action, payload) {
   }
   if (action === "adminUpsertProfile") {
     const profile = payload.profile || {};
-    const name = normalizeName(profile.name);
-    if (!name) throw new Error("缺少昵称");
-    const existing = state.profiles.find((item) => item.name === name);
-    const next = {
-      id: existing?.id || crypto.randomUUID(),
-      name,
-      secretPhrase: profile.secretPhrase || existing?.secretPhrase || "",
-      god: profile.god || "命运",
-      path: profile.path || "虚无",
-      className: profile.className || "",
-      publicNote: profile.publicNote || "",
-      privateNote: profile.privateNote || "",
-      talents: normalizeTalents(profile.talents),
-      ascension: Number(profile.ascension ?? existing?.ascension ?? 1000),
-      audience: Number(profile.audience ?? existing?.audience ?? 0),
-      isPublic: profile.isPublic !== false,
-      updatedAt: new Date().toISOString()
-    };
-    if (existing) Object.assign(existing, next);
-    else state.profiles.push({ ...next, createdAt: new Date().toISOString() });
-    saveState();
-    return { profile: toPublicProfile(next) };
+    const normalized = normalizeProfileInput(profile, true);
+    upsertLocalProfile(normalized);
+    return { profile: toPublicProfile(normalized) };
+  }
+  if (action === "adminBulkImportProfiles") {
+    const rows = Array.isArray(payload.rows) ? payload.rows : [];
+    const imported = [];
+    const errors = [];
+    rows.forEach((row, index) => {
+      try {
+        const normalized = normalizeProfileInput(row, true);
+        upsertLocalProfile(normalized);
+        imported.push(toPublicProfile(normalized));
+      } catch (error) {
+        errors.push({ row: index + 2, name: row.name || row["昵称"] || "", error: error.message });
+      }
+    });
+    return { imported, errors };
   }
   if (action === "submitScore") {
     const profile = state.profiles.find((item) => item.id === payload.profileId || item.name === payload.name);
     if (!profile) throw new Error("找不到结算对象");
     const ascensionDelta = clampNumber(payload.ascensionDelta, -20, 20);
     const audienceDelta = clampNumber(payload.audienceDelta, 0, 3);
-    profile.ascension = Math.max(0, Number(profile.ascension || 0) + ascensionDelta);
-    profile.audience = Math.max(0, Number(profile.audience || 0) + audienceDelta);
+    profile.ascension = Math.max(0, getAscension(profile) + ascensionDelta);
+    profile.audience = Math.max(0, getAudience(profile) + audienceDelta);
     state.settlements.unshift({
       id: crypto.randomUUID(),
       profileId: profile.id,
@@ -195,13 +299,68 @@ async function localAction(action, payload) {
   throw new Error("未知操作");
 }
 
+function upsertLocalProfile(profile) {
+  const existing = state.profiles.find((item) => item.name === profile.name);
+  const next = {
+    ...existing,
+    ...profile,
+    id: existing?.id || profile.id || crypto.randomUUID(),
+    updatedAt: new Date().toISOString()
+  };
+  if (existing) Object.assign(existing, next);
+  else state.profiles.push({ ...next, createdAt: new Date().toISOString() });
+  saveState();
+}
+
+function findProfession(professionName) {
+  const normalized = normalizeProfessionName(professionName);
+  return professionLibrary.find((item) => normalizeProfessionName(item.profession) === normalized);
+}
+
+function normalizeProfileInput(profile, requireSecret) {
+  const name = normalizeName(profile.name || profile["昵称"]);
+  const profession = normalizeName(profile.profession || profile.className || profile["职业"]);
+  const secretPhrase = String(profile.secretPhrase ?? profile["暗语"] ?? "");
+  if (!name) throw new Error("缺少昵称");
+  if (!profession) throw new Error("缺少职业");
+  if (requireSecret && !secretPhrase) throw new Error("缺少暗语");
+  const professionInfo = findProfession(profession);
+  if (!professionInfo) throw new Error(`职业未匹配：${profession}`);
+  return {
+    id: profile.id,
+    name,
+    secretPhrase,
+    faithGod: professionInfo.faithGod,
+    god: professionInfo.faithGod,
+    path: professionInfo.path,
+    profession: professionInfo.profession,
+    className: professionInfo.profession,
+    baseClass: professionInfo.baseClass,
+    featureText: professionInfo.featureText,
+    publicNote: String(profile.publicNote ?? profile["公开短记"] ?? "").trim(),
+    privateNote: String(profile.privateNote ?? profile["私密备注"] ?? "").trim(),
+    talents: normalizeTalents(profile.talents ?? profile["天赋"] ?? ""),
+    ascension: Number(profile.ascension ?? profile.ascensionScore ?? profile["登神分"] ?? 1000),
+    audience: Number(profile.audience ?? profile.audienceScore ?? profile["觐见分"] ?? 0),
+    isPublic: profile.isPublic !== false
+  };
+}
+
 function toPublicProfile(profile) {
+  const profession = getProfession(profile);
+  const info = findProfession(profession);
+  const faithGod = getFaithGod(profile) || info?.faithGod || "";
+  const baseClass = getBaseClass(profile) || info?.baseClass || "";
   return {
     id: profile.id,
     name: profile.name || profile.display_name,
-    god: profile.god,
-    path: profile.path,
-    className: profile.className || profile.profession,
+    faithGod,
+    god: faithGod,
+    path: profile.path || info?.path || pathByGod[faithGod] || "",
+    profession,
+    className: profession,
+    baseClass,
+    featureText: getFeatureText(profile) || info?.featureText || "",
     publicNote: profile.publicNote || profile.public_note || "",
     ascension: getAscension(profile),
     audience: getAudience(profile),
@@ -227,6 +386,23 @@ function setupGodOptions() {
   });
 }
 
+async function loadProfessionLibrary() {
+  const result = await callAction("listProfessions");
+  if (!result.error && Array.isArray(result.data.professions) && result.data.professions.length) {
+    professionLibrary = result.data.professions.map((item) => ({
+      profession: item.profession,
+      faithGod: item.faithGod || item.faith_god,
+      path: item.path,
+      baseClass: item.baseClass || item.base_class,
+      featureText: item.featureText || item.feature_text || ""
+    }));
+  }
+  $("#professionLibraryStatus").textContent = `职业资料库：${professionLibrary.length} 个职业。单人录入和批量导入会按职业名自动补信仰、命途、基础职业与职业特性。`;
+  $("#professionOptions").innerHTML = professionLibrary
+    .map((item) => `<option value="${escapeHtml(item.profession)}">${escapeHtml(item.faithGod)} · ${escapeHtml(item.path)} · ${escapeHtml(item.baseClass)}</option>`)
+    .join("");
+}
+
 async function refreshPublicData() {
   const result = await callAction("listPublicProfiles");
   if (result.error) {
@@ -235,7 +411,7 @@ async function refreshPublicData() {
   }
   state.profiles = (result.data.profiles || []).map((profile) => {
     const existing = state.profiles.find((item) => item.id === profile.id || item.name === profile.name);
-    return { ...existing, ...profile, isPublic: profile.isPublic !== false };
+    return { ...existing, ...toPublicProfile(profile), isPublic: profile.isPublic !== false };
   });
   renderAll();
 }
@@ -244,7 +420,7 @@ function filteredProfiles() {
   const search = $("#leaderboardSearch").value.trim().toLowerCase();
   const path = $("#pathFilter").value;
   return getRankedProfiles().filter((profile) => {
-    const text = `${profile.name} ${profile.god} ${profile.path} ${profile.className} ${profile.publicNote}`.toLowerCase();
+    const text = `${profile.name} ${getFaithGod(profile)} ${profile.path} ${getProfession(profile)} ${getBaseClass(profile)} ${profile.publicNote}`.toLowerCase();
     return (!search || text.includes(search)) && (path === "all" || profile.path === path);
   });
 }
@@ -258,11 +434,12 @@ function renderLeaderboard() {
       <span class="rank-index">#${index + 1}</span>
       <span class="rank-name">
         <strong>${escapeHtml(profile.name)}</strong>
-        <span>${escapeHtml(profile.god)} · ${escapeHtml(profile.path)} · ${escapeHtml(profile.className || "未定身份")}</span>
+        <span>${escapeHtml(getFaithGod(profile))} · ${escapeHtml(profile.path)} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
       </span>
-      <span class="rank-metric"><span>总评</span><strong>${totalScore(profile)}</strong></span>
+      <span class="rank-metric"><span>命途</span><strong>${escapeHtml(profile.path || "未定")}</strong></span>
       <span class="rank-metric"><span>登神分</span><strong>${getAscension(profile)}</strong></span>
       <span class="rank-metric"><span>觐见分</span><strong>${getAudience(profile)}</strong></span>
+      <span class="rank-metric"><span>总评</span><strong>${totalScore(profile)}</strong></span>
     </button>
   `).join("");
   $$("[data-public-id]").forEach((button) => button.addEventListener("click", () => openPublicPanel(button.dataset.publicId)));
@@ -272,36 +449,75 @@ function renderLeaderboard() {
 function renderScoreTargets() {
   const select = $("#scoreTarget");
   const current = select.value;
-  select.innerHTML = publicProfiles().map((profile) => `<option value="${profile.id}">${escapeHtml(profile.name)} · ${profile.god}</option>`).join("");
+  select.innerHTML = publicProfiles().map((profile) => `<option value="${profile.id}">${escapeHtml(profile.name)} · ${escapeHtml(getFaithGod(profile))}</option>`).join("");
   if (publicProfiles().some((profile) => profile.id === current)) select.value = current;
 }
 
-function openPublicPanel(id) {
-  const profile = publicProfiles().find((item) => item.id === id);
+async function openPublicPanel(id) {
+  let profile = publicProfiles().find((item) => item.id === id);
+  const result = await callAction("getPublicProfile", { id });
+  if (!result.error && result.data.profile) profile = toPublicProfile(result.data.profile);
   if (!profile) return;
   $("#publicPanel").innerHTML = `
     <button class="modal__close" type="button" data-close-public aria-label="关闭">×</button>
-    <p class="eyebrow">Public Dossier</p>
-    <div class="profile-card profile-card--modal" data-card="public">
-      <div class="profile-card__top">
-        <div>
-          <h3>${escapeHtml(profile.name)}</h3>
-          <p>${escapeHtml(profile.god)} · ${escapeHtml(profile.path)} · ${escapeHtml(profile.className || "未定身份")}</p>
-        </div>
-        <span class="badge">${totalScore(profile)}</span>
-      </div>
-      <p>${escapeHtml(profile.publicNote || "暂无公开短记。")}</p>
-      ${scoreStrip(profile)}
-    </div>
+    <p class="eyebrow">Public Combat Dossier</p>
+    ${publicProfileCard(profile, "public")}
     <button class="btn btn--primary" type="button" data-export-card="public">导出公开图片</button>
   `;
   $("#publicModal").hidden = false;
-  $("[data-export-card='public']").addEventListener("click", () => exportPanelImage($("#publicPanel .profile-card"), `${profile.name}-公开面板`));
+  $("[data-export-card='public']").addEventListener("click", () => exportPanelImage($("#publicPanel .profile-card"), `${profile.name}-公开职业面板`));
   $$("[data-close-public]").forEach((item) => item.addEventListener("click", closePublicPanel));
 }
 
 function closePublicPanel() {
   $("#publicModal").hidden = true;
+}
+
+function profileStats(profile) {
+  const rule = baseRuleFor(profile);
+  return `
+    <dl class="stat-grid">
+      <div><dt>总榜排名</dt><dd>#${getTotalRank(profile) || "-"}</dd></div>
+      <div><dt>命途排名</dt><dd>#${getPathRank(profile) || "-"}</dd></div>
+      <div><dt>信仰神明</dt><dd>${escapeHtml(getFaithGod(profile) || "未定")}</dd></div>
+      <div><dt>命途</dt><dd>${escapeHtml(profile.path || "未定")}</dd></div>
+      <div><dt>职业</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
+      <div><dt>基础职业</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
+      <div><dt>血量</dt><dd>${maxHp(profile) || "-"}</dd></div>
+      <div><dt>攻击</dt><dd>${rule.baseAttack || "-"}</dd></div>
+      <div><dt>登神分</dt><dd>${getAscension(profile)}</dd></div>
+      <div><dt>觐见分</dt><dd>${getAudience(profile)}</dd></div>
+    </dl>
+  `;
+}
+
+function publicProfileCard(profile, mode = "public") {
+  const rule = baseRuleFor(profile);
+  return `
+    <div class="profile-card profile-card--modal ${mode === "private-public" ? "export-card-skin" : ""}" data-card="${mode}">
+      <div class="profile-card__top">
+        <div>
+          <h3>${escapeHtml(profile.name)}</h3>
+          <p>${escapeHtml(getFaithGod(profile) || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
+        </div>
+        <span class="badge">总评 ${totalScore(profile)}</span>
+      </div>
+      ${profileStats(profile)}
+      <section class="talent-section">
+        <h4>公开短记</h4>
+        <p>${escapeHtml(profile.publicNote || "暂无公开短记。")}</p>
+      </section>
+      <section class="talent-section">
+        <h4>职业特性说明</h4>
+        <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
+      </section>
+      <section class="talent-section">
+        <h4>基础职业战斗规则</h4>
+        <p>${escapeHtml(rule.combatRule)}</p>
+        <p class="form-note">攻击间隔：${escapeHtml(rule.attackInterval || "未定")}</p>
+      </section>
+    </div>
+  `;
 }
 
 function scoreStrip(profile) {
@@ -322,8 +538,8 @@ function renderPrivatePanel(profile) {
     <div class="private-card" data-card="private">
       <div class="avatar-orbit">${escapeHtml((profile.name || "希").slice(0, 1))}</div>
       <h3>${escapeHtml(profile.name)}</h3>
-      <p>${escapeHtml(profile.god)} · ${escapeHtml(profile.path)} · ${escapeHtml(profile.className || "未定身份")}</p>
-      ${scoreStrip(profile)}
+      <p>${escapeHtml(getFaithGod(profile) || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
+      ${profileStats(profile)}
       <section class="talent-section">
         <h4>天赋</h4>
         ${talents.length ? `<ul>${talents.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>暂无天赋记录。</p>"}
@@ -331,6 +547,11 @@ function renderPrivatePanel(profile) {
       <section class="talent-section">
         <h4>私密备注</h4>
         <p>${escapeHtml(profile.privateNote || "暂无私密备注。")}</p>
+      </section>
+      <section class="talent-section">
+        <h4>职业特性与战斗规则</h4>
+        <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
+        <p>${escapeHtml(baseRuleFor(profile).combatRule)}</p>
       </section>
     </div>
     <div class="form-actions">
@@ -341,20 +562,10 @@ function renderPrivatePanel(profile) {
   $("[data-export-card='private']").addEventListener("click", () => exportPanelImage($("#privatePanel [data-card='private']"), `${profile.name}-私密面板`));
   $("[data-export-card='private-public']").addEventListener("click", () => {
     const clone = document.createElement("div");
-    clone.className = "profile-card export-card";
-    clone.innerHTML = `
-      <div class="profile-card__top">
-        <div>
-          <h3>${escapeHtml(profile.name)}</h3>
-          <p>${escapeHtml(profile.god)} · ${escapeHtml(profile.path)} · ${escapeHtml(profile.className || "未定身份")}</p>
-        </div>
-        <span class="badge">${totalScore(profile)}</span>
-      </div>
-      <p>${escapeHtml(profile.publicNote || "暂无公开短记。")}</p>
-      ${scoreStrip(profile)}
-    `;
+    clone.className = "export-card";
+    clone.innerHTML = publicProfileCard(profile, "private-public");
     document.body.appendChild(clone);
-    exportPanelImage(clone, `${profile.name}-公开面板`).finally(() => clone.remove());
+    exportPanelImage(clone.firstElementChild, `${profile.name}-公开职业面板`).finally(() => clone.remove());
   });
 }
 
@@ -417,25 +628,27 @@ async function handleSecretSubmit(event) {
     phrase: $("#secretPhrase").value
   });
   if (result.error) return showToast(`验证失败：${result.error}`);
-  renderPrivatePanel(result.data.profile);
+  renderPrivatePanel(toPrivateProfile(result.data.profile));
   showToast("已进入你的私密面板");
 }
 
 async function handleAdminProfileSubmit(event) {
   event.preventDefault();
+  const professionInfo = findProfession($("#classInput").value);
+  if (!professionInfo) return showToast("职业未匹配，请先确认职业资料库中存在该职业");
   const profile = {
     name: $("#nameInput").value.trim(),
     secretPhrase: $("#phraseInput").value,
-    god: $("#godInput").value,
-    path: $("#pathInput").value,
-    className: $("#classInput").value.trim(),
+    profession: $("#classInput").value.trim(),
     publicNote: $("#publicNoteInput").value.trim(),
     privateNote: $("#privateNoteInput").value.trim(),
     talents: normalizeTalents($("#talentsInput").value),
+    ascension: Math.max(0, Number($("#ascensionInput").value || 1000)),
+    audience: Math.max(0, Number($("#audienceInput").value || 0)),
     isPublic: $("#publicInput").value === "true"
   };
   const result = await callAction("adminUpsertProfile", {
-    adminKey: $("#adminKey").value,
+    adminKey: $("#adminKey").value.trim(),
     profile
   });
   if (result.error) return showToast(`保存失败：${result.error}`);
@@ -448,7 +661,7 @@ async function handleScoreSubmit(event) {
   const profile = publicProfiles().find((item) => item.id === $("#scoreTarget").value);
   if (!profile) return showToast("请先建立档案");
   const result = await callAction("submitScore", {
-    adminKey: $("#adminKey").value,
+    adminKey: $("#adminKey").value.trim(),
     profileId: profile.id,
     ascensionDelta: clampNumber($("#ascensionDelta").value, -20, 20),
     audienceDelta: clampNumber($("#audienceDelta").value, 0, 3),
@@ -464,10 +677,86 @@ async function handleScoreSubmit(event) {
 }
 
 async function refreshScoreLogs() {
-  const adminKey = $("#adminKey").value;
+  const adminKey = $("#adminKey").value.trim();
   if (!adminKey && onlineEnabled) return;
   const result = await callAction("listScoreLogs", { adminKey });
   if (!result.error) renderSettlements(result.data.logs || []);
+}
+
+function parseDelimitedLine(line) {
+  const delimiter = line.includes("\t") ? "\t" : ",";
+  const cells = [];
+  let current = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    if (char === '"') {
+      if (quoted && line[i + 1] === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (char === delimiter && !quoted) {
+      cells.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  cells.push(current.trim());
+  return cells;
+}
+
+function parseBulkInput(text) {
+  const lines = String(text || "").split(/\r?\n/).filter((line) => line.trim());
+  if (!lines.length) return { rows: [], errors: [{ row: 1, error: "没有可导入内容" }] };
+  const headers = parseDelimitedLine(lines[0]);
+  const required = ["昵称", "暗语", "职业"];
+  const missing = required.filter((header) => !headers.includes(header));
+  if (missing.length) return { rows: [], errors: [{ row: 1, error: `缺少字段：${missing.join("、")}` }] };
+  const rows = [];
+  const errors = [];
+  lines.slice(1).forEach((line, index) => {
+    const cells = parseDelimitedLine(line);
+    const row = Object.fromEntries(headers.map((header, cellIndex) => [header, cells[cellIndex] ?? ""]));
+    try {
+      rows.push(normalizeProfileInput(row, true));
+    } catch (error) {
+      errors.push({ row: index + 2, name: row["昵称"] || "", error: error.message });
+    }
+  });
+  return { rows, errors };
+}
+
+function renderBulkResult(result, imported = []) {
+  const validCount = result.rows?.length || imported.length || 0;
+  const errors = result.errors || [];
+  $("#bulkImportResult").innerHTML = `
+    <div class="form-note">有效行：${validCount}，错误：${errors.length}${imported.length ? `，已导入：${imported.length}` : ""}</div>
+    ${errors.length ? `<ul>${errors.map((item) => `<li>第 ${item.row} 行：${escapeHtml(item.name ? `${item.name} - ` : "")}${escapeHtml(item.error)}</li>`).join("")}</ul>` : ""}
+  `;
+}
+
+function handleBulkPreview() {
+  const result = parseBulkInput($("#bulkImportInput").value);
+  renderBulkResult(result);
+}
+
+async function handleBulkImport() {
+  const parsed = parseBulkInput($("#bulkImportInput").value);
+  if (parsed.errors.length) {
+    renderBulkResult(parsed);
+    return showToast("存在错误行，未导入");
+  }
+  const result = await callAction("adminBulkImportProfiles", {
+    adminKey: $("#adminKey").value.trim(),
+    rows: parsed.rows
+  });
+  if (result.error) return showToast(`批量导入失败：${result.error}`);
+  renderBulkResult({ rows: parsed.rows, errors: result.data.errors || [] }, result.data.imported || []);
+  showToast(`已导入 ${result.data.imported?.length || 0} 行`);
+  await refreshPublicData();
 }
 
 function showView(view) {
@@ -488,6 +777,13 @@ function renderAll() {
   renderSettlements();
 }
 
+function toggleSecretField(id) {
+  const input = $(`#${id}`);
+  const button = $(`[data-toggle-secret="${id}"]`);
+  const hidden = input.classList.toggle("is-secret-hidden");
+  button.textContent = hidden ? "显示" : "隐藏";
+}
+
 function bindEvents() {
   $$("[data-view-link]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.viewLink)));
   $$("[data-rank-mode]").forEach((button) => {
@@ -497,13 +793,23 @@ function bindEvents() {
       renderLeaderboard();
     });
   });
+  $$("[data-toggle-secret]").forEach((button) => button.addEventListener("click", () => toggleSecretField(button.dataset.toggleSecret)));
   $("#leaderboardSearch").addEventListener("input", renderLeaderboard);
   $("#pathFilter").addEventListener("change", renderLeaderboard);
   $("#secretForm").addEventListener("submit", handleSecretSubmit);
   $("#adminProfileForm").addEventListener("submit", handleAdminProfileSubmit);
   $("#scoreForm").addEventListener("submit", handleScoreSubmit);
   $("#clearAdminFormButton").addEventListener("click", clearAdminForm);
+  $("#bulkPreviewButton").addEventListener("click", handleBulkPreview);
+  $("#bulkImportButton").addEventListener("click", handleBulkImport);
+  $("#classInput").addEventListener("change", () => {
+    const info = findProfession($("#classInput").value);
+    if (!info) return;
+    $("#godInput").value = info.faithGod;
+    $("#pathInput").value = info.path;
+  });
   $("#refreshButton").addEventListener("click", async () => {
+    await loadProfessionLibrary();
     await refreshPublicData();
     await refreshScoreLogs();
     showToast("已刷新");
@@ -512,6 +818,8 @@ function bindEvents() {
     currentPrivateProfile = null;
     $("#logoutButton").hidden = true;
     $("#secretForm").reset();
+    $("#secretPhrase").classList.remove("is-secret-hidden");
+    $("[data-toggle-secret='secretPhrase']").textContent = "隐藏";
     $("#privatePanel").innerHTML = `
       <p class="eyebrow">My Dossier</p>
       <div class="avatar-orbit">希</div>
@@ -523,7 +831,12 @@ function bindEvents() {
   $("#adminKey").addEventListener("change", refreshScoreLogs);
 }
 
-setupGodOptions();
-bindEvents();
-clearAdminForm();
-refreshPublicData();
+async function boot() {
+  setupGodOptions();
+  bindEvents();
+  clearAdminForm();
+  await loadProfessionLibrary();
+  await refreshPublicData();
+}
+
+boot();
