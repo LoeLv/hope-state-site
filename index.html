@@ -215,8 +215,8 @@
               <p class="eyebrow">Bulk Import</p>
               <h3 id="bulkImportTitle">批量导入</h3>
             </div>
-            <p class="form-note">可直接粘贴表单导出表格。支持字段：昵称(信仰+昵称)、职业(命途职业)、暗语(个人信息保存专用，不公开)、宣言(显示:类似签名)、私密备注(建议填写谕行词)、天赋。未提供分数时默认登神分 1000、觐见分 0。</p>
-            <textarea id="bulkImportInput" rows="9" placeholder="昵称(信仰+昵称)	职业(命途职业)	暗语(个人信息保存专用，不公开)	宣言(显示:类似签名)	私密备注(建议填写谕行词)	天赋"></textarea>
+            <p class="form-note">可直接粘贴数据行，不强制表头。推荐顺序：昵称、暗语、职业、登神分、觐见分、公开短记、私密备注、天赋。也兼容表单导出的长字段名。</p>
+            <textarea id="bulkImportInput" rows="9" placeholder="墨水	我生而求索	格斗专家	1068	55	啧？	洞窥本质，行见真理	格斗家的本意 B级 发出致命一击"></textarea>
             <div class="form-actions">
               <button class="btn btn--primary" type="button" id="bulkPreviewButton">检查内容</button>
               <button class="btn btn--ghost" type="button" id="bulkImportButton">导入有效行</button>

@@ -761,23 +761,83 @@ function normalizeBulkHeader(header) {
   return compact;
 }
 
+const defaultBulkHeaders = ["昵称", "暗语", "职业", "登神分", "觐见分", "公开短记", "私密备注", "天赋"];
+
+function hasBulkHeader(headers) {
+  const required = ["昵称", "暗语", "职业"];
+  return required.every((header) => headers.includes(header));
+}
+
+function rowFromCells(cells, headers = defaultBulkHeaders) {
+  return Object.fromEntries(headers.map((header, cellIndex) => [header, cells[cellIndex] ?? ""]));
+}
+
+function findLooseProfessionIndex(tokens) {
+  for (let index = 1; index < tokens.length; index += 1) {
+    if (findProfession(tokens[index])) return index;
+  }
+  return -1;
+}
+
+function findLooseTalentStart(parts) {
+  const gradeIndex = parts.findIndex((part) => /[A-FＳS]?级|[A-FＳS]\s*級/i.test(part));
+  if (gradeIndex > 0) return gradeIndex - 1;
+  if (gradeIndex === 0) return 0;
+  const keywordIndex = parts.findIndex((part) => /天赋|权柄|流场|本意|祝福|庇护|骰|护符/.test(part));
+  if (keywordIndex >= 0) return keywordIndex;
+  return parts.length > 1 ? 1 : 0;
+}
+
+function parseLooseBulkLine(line) {
+  const tokens = String(line || "").trim().split(/\s+/).filter(Boolean);
+  if (tokens.length < 5) throw new Error("这一行字段太少，请至少包含昵称、暗语、职业、登神分、觐见分");
+  const professionIndex = findLooseProfessionIndex(tokens);
+  if (professionIndex < 0) throw new Error("找不到可匹配的职业，请确认职业名在职业资料库中");
+  const scoreIndexes = [];
+  for (let index = professionIndex + 1; index < tokens.length; index += 1) {
+    if (/^-?\d+$/.test(tokens[index])) scoreIndexes.push(index);
+    if (scoreIndexes.length === 2) break;
+  }
+  if (scoreIndexes.length < 2) throw new Error("找不到登神分和觐见分，请在职业后填写两个数字");
+  const [ascensionIndex, audienceIndex] = scoreIndexes;
+  const publicNote = tokens[audienceIndex + 1] || "";
+  const tail = tokens.slice(audienceIndex + 2);
+  const talentStart = findLooseTalentStart(tail);
+  return {
+    "昵称": tokens[0],
+    "暗语": tokens.slice(1, professionIndex).join(" "),
+    "职业": tokens[professionIndex],
+    "登神分": tokens[ascensionIndex],
+    "觐见分": tokens[audienceIndex],
+    "公开短记": publicNote,
+    "私密备注": tail.slice(0, talentStart).join(" "),
+    "天赋": tail.slice(talentStart).join(" ")
+  };
+}
+
+function parseBulkDataLine(line, headers = defaultBulkHeaders) {
+  const cells = parseDelimitedLine(line);
+  if (cells.length > 1) return rowFromCells(cells, headers);
+  return parseLooseBulkLine(line);
+}
+
 function parseBulkInput(text) {
   const lines = String(text || "").split(/\r?\n/).filter((line) => line.trim());
   if (!lines.length) return { rows: [], errors: [{ row: 1, error: "没有可导入内容" }] };
   const rawHeaders = parseDelimitedLine(lines[0]);
   const headers = rawHeaders.map(normalizeBulkHeader);
-  const required = ["昵称", "暗语", "职业"];
-  const missing = required.filter((header) => !headers.includes(header));
-  if (missing.length) return { rows: [], errors: [{ row: 1, error: `缺少字段：${missing.join("、")}。当前支持表单字段：昵称(信仰+昵称)、职业(命途职业)、暗语(个人信息保存专用，不公开)、宣言(显示:类似签名)、私密备注(建议填写谕行词)、天赋。` }] };
+  const hasHeader = hasBulkHeader(headers);
+  const dataLines = hasHeader ? lines.slice(1) : lines;
+  const activeHeaders = hasHeader ? headers : defaultBulkHeaders;
   const rows = [];
   const errors = [];
-  lines.slice(1).forEach((line, index) => {
-    const cells = parseDelimitedLine(line);
-    const row = Object.fromEntries(headers.map((header, cellIndex) => [header, cells[cellIndex] ?? ""]));
+  dataLines.forEach((line, index) => {
+    let row = {};
     try {
+      row = parseBulkDataLine(line, activeHeaders);
       rows.push(normalizeProfileInput(row, true));
     } catch (error) {
-      errors.push({ row: index + 2, name: row["昵称"] || "", error: error.message });
+      errors.push({ row: index + (hasHeader ? 2 : 1), name: row["昵称"] || "", error: error.message });
     }
   });
   return { rows, errors };
