@@ -80,6 +80,22 @@ function normalizeProfessionName(value: unknown) {
   return cleanText(value, 120).replace(/\s+/g, "");
 }
 
+function normalizeCollectedName(value: unknown) {
+  const text = cleanText(value, 80);
+  const parts = text.split(/[，,、/|]+/).map((item) => item.trim()).filter(Boolean);
+  return parts.length > 1 ? parts[parts.length - 1] : text;
+}
+
+function professionSearchKeys(value: unknown) {
+  const normalized = normalizeProfessionName(value);
+  const keys = new Set<string>([normalized]);
+  const bracketMatch = normalized.match(/[（(]([^（）()]+)[）)]/);
+  if (bracketMatch?.[1]) keys.add(normalizeProfessionName(bracketMatch[1]));
+  const withoutBracket = normalized.replace(/[（(].*?[）)]/g, "");
+  if (withoutBracket) keys.add(withoutBracket);
+  return [...keys].filter(Boolean);
+}
+
 function cleanTalents(value: unknown) {
   if (Array.isArray(value)) return value.map((item) => cleanText(item, 160)).filter(Boolean);
   return String(value ?? "")
@@ -247,11 +263,13 @@ async function listAllProfiles() {
 }
 
 async function upsertProfileFromPayload(profile: JsonRecord, references: Awaited<ReturnType<typeof loadReferenceData>>) {
-  const name = cleanText(profile.name || profile["昵称"], 80);
+  const name = normalizeCollectedName(profile.name || profile["昵称"]);
   const professionName = cleanText(profile.profession || profile.className || profile["职业"], 120);
   if (!name) throw new Error("缺少昵称");
   if (!professionName) throw new Error("缺少职业");
-  const profession = references.professionMap.get(normalizeProfessionName(professionName));
+  const profession = professionSearchKeys(professionName)
+    .map((key) => references.professionMap.get(key))
+    .find(Boolean);
   if (!profession) throw new Error(`职业未匹配：${professionName}`);
 
   const existingRows = await supabaseFetch(`hope_profiles?display_name=eq.${encodeURIComponent(name)}&select=id,secret_hash`);

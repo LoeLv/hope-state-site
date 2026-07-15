@@ -133,6 +133,22 @@ function normalizeProfessionName(value) {
   return String(value || "").trim().replace(/\s+/g, "");
 }
 
+function normalizeCollectedName(value) {
+  const text = normalizeName(value);
+  const parts = text.split(/[，,、/|]+/).map((item) => item.trim()).filter(Boolean);
+  return parts.length > 1 ? parts[parts.length - 1] : text;
+}
+
+function professionSearchKeys(value) {
+  const normalized = normalizeProfessionName(value);
+  const keys = new Set([normalized]);
+  const bracketMatch = normalized.match(/[（(]([^（）()]+)[）)]/);
+  if (bracketMatch?.[1]) keys.add(normalizeProfessionName(bracketMatch[1]));
+  const withoutBracket = normalized.replace(/[（(].*?[）)]/g, "");
+  if (withoutBracket) keys.add(withoutBracket);
+  return [...keys].filter(Boolean);
+}
+
 function getFaithGod(profile) {
   return profile.faithGod || profile.faith_god || profile.god || "";
 }
@@ -313,12 +329,12 @@ function upsertLocalProfile(profile) {
 }
 
 function findProfession(professionName) {
-  const normalized = normalizeProfessionName(professionName);
-  return professionLibrary.find((item) => normalizeProfessionName(item.profession) === normalized);
+  const keys = professionSearchKeys(professionName);
+  return professionLibrary.find((item) => keys.includes(normalizeProfessionName(item.profession)));
 }
 
 function normalizeProfileInput(profile, requireSecret) {
-  const name = normalizeName(profile.name || profile["昵称"]);
+  const name = normalizeCollectedName(profile.name || profile["昵称"]);
   const profession = normalizeName(profile.profession || profile.className || profile["职业"]);
   const secretPhrase = String(profile.secretPhrase ?? profile["暗语"] ?? "");
   if (!name) throw new Error("缺少昵称");
