@@ -192,7 +192,7 @@
               </label>
               <label>
                 觐见分变化
-                <input id="audienceDelta" type="number" min="0" max="3" value="0">
+                <input id="audienceDelta" type="number" min="-3" max="3" value="0">
               </label>
             </div>
             <label>
@@ -200,6 +200,19 @@
               <textarea id="scoreReason" rows="5" maxlength="160" placeholder="例如：完成本周核心试炼，给予登神分 +3。"></textarea>
             </label>
             <button class="btn btn--primary" type="submit">提交结算</button>
+            <section class="bulk-score-box" aria-labelledby="bulkScoreTitle">
+              <div>
+                <p class="eyebrow">Bulk Score</p>
+                <h3 id="bulkScoreTitle">批量分数结算</h3>
+              </div>
+              <p class="form-note">每行格式：信仰 职业 昵称 +登神分 +觐见分。例：真理 格斗专家 墨水 +3 -1。登神范围 -20 到 20，觐见范围 -3 到 3。</p>
+              <textarea id="bulkScoreInput" rows="7" placeholder="真理 格斗专家 墨水 +3 -1&#10;时间 驯风游侠 阿幻 -2 +1"></textarea>
+              <div class="form-actions">
+                <button class="btn btn--primary" type="button" id="bulkScorePreviewButton">检查结算</button>
+                <button class="btn btn--ghost" type="button" id="bulkScoreSubmitButton">提交有效结算</button>
+              </div>
+              <div class="import-results" id="bulkScoreResult"></div>
+            </section>
             <div class="settlement-log" id="settlementLog"></div>
           </form>
 

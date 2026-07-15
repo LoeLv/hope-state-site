@@ -425,7 +425,7 @@ Deno.serve(async (request) => {
       requireAdmin(payload);
       const profileId = cleanText(payload.profileId, 80);
       const ascensionDelta = Math.max(-20, Math.min(20, Number(payload.ascensionDelta ?? 0)));
-      const audienceDelta = Math.max(0, Math.min(3, Number(payload.audienceDelta ?? 0)));
+      const audienceDelta = Math.max(-3, Math.min(3, Number(payload.audienceDelta ?? 0)));
       const rows = await supabaseFetch(`hope_profiles?id=eq.${encodeURIComponent(profileId)}&select=*`);
       const profile = rows[0];
       if (!profile) return json({ error: "找不到结算对象" }, 404);
@@ -446,6 +446,56 @@ Deno.serve(async (request) => {
         }),
       });
       return json({ ok: true });
+    }
+
+    if (action === "bulkSubmitScores") {
+      requireAdmin(payload);
+      const entries = Array.isArray(payload.entries) ? payload.entries as JsonRecord[] : [];
+      const applied: JsonRecord[] = [];
+      const errors: JsonRecord[] = [];
+      for (let index = 0; index < entries.length; index += 1) {
+        const entry = entries[index];
+        const rowNumber = Number(entry.row ?? index + 1);
+        const profileId = cleanText(entry.profileId, 80);
+        const name = cleanText(entry.name, 80);
+        const ascensionDelta = Number(entry.ascensionDelta ?? 0);
+        const audienceDelta = Number(entry.audienceDelta ?? 0);
+        if (!Number.isInteger(ascensionDelta) || ascensionDelta < -20 || ascensionDelta > 20) {
+          errors.push({ row: rowNumber, name, error: "登神之路分数范围必须在 -20 到 20" });
+          continue;
+        }
+        if (!Number.isInteger(audienceDelta) || audienceDelta < -3 || audienceDelta > 3) {
+          errors.push({ row: rowNumber, name, error: "觐见之梯分数范围必须在 -3 到 3" });
+          continue;
+        }
+        const query = profileId
+          ? `hope_profiles?id=eq.${encodeURIComponent(profileId)}&select=*`
+          : `hope_profiles?display_name=eq.${encodeURIComponent(name)}&select=*`;
+        const rows = await supabaseFetch(query);
+        const profile = rows[0];
+        if (!profile) {
+          errors.push({ row: rowNumber, name, error: "找不到结算对象" });
+          continue;
+        }
+        const nextAscension = Math.max(0, Number(profile.ascension_score) + ascensionDelta);
+        const nextAudience = Math.max(0, Number(profile.audience_score) + audienceDelta);
+        await supabaseFetch(`hope_profiles?id=eq.${encodeURIComponent(profile.id)}`, {
+          method: "PATCH",
+          body: JSON.stringify({ ascension_score: nextAscension, audience_score: nextAudience }),
+        });
+        const logRows = await supabaseFetch("hope_score_logs", {
+          method: "POST",
+          body: JSON.stringify({
+            profile_id: profile.id,
+            target_name: profile.display_name,
+            ascension_delta: ascensionDelta,
+            audience_delta: audienceDelta,
+            reason: cleanText(entry.reason, 240) || "批量分数结算",
+          }),
+        });
+        applied.push(logRows[0]);
+      }
+      return json({ applied, errors });
     }
 
     if (action === "listScoreLogs") {

@@ -312,7 +312,7 @@ async function localAction(action, payload) {
     const profile = state.profiles.find((item) => item.id === payload.profileId || item.name === payload.name);
     if (!profile) throw new Error("找不到结算对象");
     const ascensionDelta = clampNumber(payload.ascensionDelta, -20, 20);
-    const audienceDelta = clampNumber(payload.audienceDelta, 0, 3);
+    const audienceDelta = clampNumber(payload.audienceDelta, -3, 3);
     profile.ascension = Math.max(0, getAscension(profile) + ascensionDelta);
     profile.audience = Math.max(0, getAudience(profile) + audienceDelta);
     state.settlements.unshift({
@@ -326,6 +326,35 @@ async function localAction(action, payload) {
     });
     saveState();
     return { ok: true };
+  }
+  if (action === "bulkSubmitScores") {
+    const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    const applied = [];
+    const errors = [];
+    entries.forEach((entry, index) => {
+      const profile = state.profiles.find((item) => item.id === entry.profileId || item.name === entry.name);
+      if (!profile) {
+        errors.push({ row: entry.row || index + 1, name: entry.name || "", error: "找不到结算对象" });
+        return;
+      }
+      const ascensionDelta = clampNumber(entry.ascensionDelta, -20, 20);
+      const audienceDelta = clampNumber(entry.audienceDelta, -3, 3);
+      profile.ascension = Math.max(0, getAscension(profile) + ascensionDelta);
+      profile.audience = Math.max(0, getAudience(profile) + audienceDelta);
+      const log = {
+        id: crypto.randomUUID(),
+        profileId: profile.id,
+        name: profile.name,
+        ascensionDelta,
+        audienceDelta,
+        reason: entry.reason || "批量分数结算",
+        createdAt: new Date().toISOString()
+      };
+      state.settlements.unshift(log);
+      applied.push(log);
+    });
+    saveState();
+    return { applied, errors };
   }
   if (action === "listScoreLogs") return { logs: state.settlements };
   throw new Error("未知操作");
@@ -767,7 +796,7 @@ async function handleScoreSubmit(event) {
     adminKey: $("#adminKey").value.trim(),
     profileId: profile.id,
     ascensionDelta: clampNumber($("#ascensionDelta").value, -20, 20),
-    audienceDelta: clampNumber($("#audienceDelta").value, 0, 3),
+    audienceDelta: clampNumber($("#audienceDelta").value, -3, 3),
     reason: $("#scoreReason").value.trim()
   });
   if (result.error) return showToast(`结算失败：${result.error}`);
@@ -775,6 +804,87 @@ async function handleScoreSubmit(event) {
   $("#ascensionDelta").value = 0;
   $("#audienceDelta").value = 0;
   showToast("结算已提交");
+  await refreshPublicData();
+  await refreshScoreLogs();
+}
+
+function parseSignedInteger(value) {
+  if (!/^[+-]?\d+$/.test(String(value || "").trim())) return null;
+  return Number(value);
+}
+
+function findProfileByNameSuffix(text) {
+  const normalizedText = String(text || "").trim();
+  const candidates = publicProfiles()
+    .filter((profile) => normalizedText === profile.name || normalizedText.endsWith(profile.name))
+    .sort((a, b) => String(b.name).length - String(a.name).length);
+  return candidates[0] || null;
+}
+
+function parseBulkScoreLine(line, rowNumber) {
+  const tokens = String(line || "").trim().split(/\s+/).filter(Boolean);
+  if (tokens.length < 5) throw new Error("格式不足，应为：信仰 职业 昵称 +登神分 +觐见分");
+  const audienceDelta = parseSignedInteger(tokens.at(-1));
+  const ascensionDelta = parseSignedInteger(tokens.at(-2));
+  if (ascensionDelta === null || audienceDelta === null) throw new Error("最后两项必须是加减分数字，例如 +3 -1");
+  if (ascensionDelta < -20 || ascensionDelta > 20) throw new Error("登神之路分数范围必须在 -20 到 20");
+  if (audienceDelta < -3 || audienceDelta > 3) throw new Error("觐见之梯分数范围必须在 -3 到 3");
+  const identityText = tokens.slice(0, -2).join(" ");
+  const profile = findProfileByNameSuffix(identityText);
+  if (!profile) throw new Error(`找不到昵称：${identityText}`);
+  const prefix = identityText.slice(0, Math.max(0, identityText.length - String(profile.name).length)).trim();
+  return {
+    row: rowNumber,
+    profileId: profile.id,
+    name: profile.name,
+    ascensionDelta,
+    audienceDelta,
+    reason: prefix ? `批量分数结算：${prefix}` : "批量分数结算"
+  };
+}
+
+function parseBulkScoreInput(text) {
+  const lines = String(text || "").split(/\r?\n/).filter((line) => line.trim());
+  if (!lines.length) return { entries: [], errors: [{ row: 1, error: "没有可结算内容" }] };
+  const entries = [];
+  const errors = [];
+  lines.forEach((line, index) => {
+    try {
+      entries.push(parseBulkScoreLine(line, index + 1));
+    } catch (error) {
+      errors.push({ row: index + 1, line, error: error.message });
+    }
+  });
+  return { entries, errors };
+}
+
+function renderBulkScoreResult(result, applied = []) {
+  const entries = result.entries || [];
+  const errors = result.errors || [];
+  $("#bulkScoreResult").innerHTML = `
+    <div class="form-note">有效结算：${entries.length || applied.length}，错误：${errors.length}${applied.length ? `，已提交：${applied.length}` : ""}</div>
+    ${entries.length ? `<ul class="success-list">${entries.map((entry) => `<li>${escapeHtml(entry.name)}：登神 ${entry.ascensionDelta >= 0 ? "+" : ""}${entry.ascensionDelta}，觐见 ${entry.audienceDelta >= 0 ? "+" : ""}${entry.audienceDelta}</li>`).join("")}</ul>` : ""}
+    ${errors.length ? `<ul>${errors.map((item) => `<li>第 ${item.row} 行：${escapeHtml(item.error)}</li>`).join("")}</ul>` : ""}
+  `;
+}
+
+function handleBulkScorePreview() {
+  renderBulkScoreResult(parseBulkScoreInput($("#bulkScoreInput").value));
+}
+
+async function handleBulkScoreSubmit() {
+  const parsed = parseBulkScoreInput($("#bulkScoreInput").value);
+  if (parsed.errors.length) {
+    renderBulkScoreResult(parsed);
+    return showToast("存在错误行，未提交");
+  }
+  const result = await callAction("bulkSubmitScores", {
+    adminKey: $("#adminKey").value.trim(),
+    entries: parsed.entries
+  });
+  if (result.error) return showToast(`批量结算失败：${result.error}`);
+  renderBulkScoreResult({ entries: parsed.entries, errors: result.data.errors || [] }, result.data.applied || []);
+  showToast(`已提交 ${result.data.applied?.length || 0} 条结算`);
   await refreshPublicData();
   await refreshScoreLogs();
 }
@@ -981,6 +1091,8 @@ function bindEvents() {
   $("#clearAdminFormButton").addEventListener("click", clearAdminForm);
   $("#bulkPreviewButton").addEventListener("click", handleBulkPreview);
   $("#bulkImportButton").addEventListener("click", handleBulkImport);
+  $("#bulkScorePreviewButton").addEventListener("click", handleBulkScorePreview);
+  $("#bulkScoreSubmitButton").addEventListener("click", handleBulkScoreSubmit);
   $("#classInput").addEventListener("change", () => {
     const info = findProfession($("#classInput").value);
     if (!info) return;

@@ -556,6 +556,18 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   font-size: .86rem;
 }
 
+.bulk-score-box {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.import-results .success-list {
+  color: var(--green);
+}
+
 .private-card {
   width: 100%;
 }
