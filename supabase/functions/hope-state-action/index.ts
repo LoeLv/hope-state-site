@@ -237,7 +237,7 @@ function enrichPrivateProfile(row: JsonRecord, references: Awaited<ReturnType<ty
 }
 
 function buildRanks(rows: JsonRecord[], references: Awaited<ReturnType<typeof loadReferenceData>>) {
-  const publicRows = rows.filter((row) => row.is_public !== false);
+  const publicRows = rows;
   const sorted = [...publicRows].sort((a, b) => totalScore(b) - totalScore(a) || Number(b.ascension_score) - Number(a.ascension_score) || Number(b.audience_score) - Number(a.audience_score));
   const ranks = new Map<string, number>();
   sorted.forEach((row, index) => ranks.set(String(row.id), index + 1));
@@ -290,7 +290,7 @@ async function upsertProfileFromPayload(profile: JsonRecord, references: Awaited
     talents: cleanTalents(profile.talents ?? profile["天赋"]),
     ascension_score: Math.max(0, Number(profile.ascension ?? profile.ascensionScore ?? profile["登神分"] ?? 1000)),
     audience_score: Math.max(0, Number(profile.audience ?? profile.audienceScore ?? profile["觐见分"] ?? 0)),
-    is_public: profile.isPublic !== false,
+    is_public: true,
   };
   const rows = await supabaseFetch("hope_profiles?on_conflict=display_name", {
     method: "POST",
@@ -333,7 +333,7 @@ Deno.serve(async (request) => {
 
     if (action === "listPublicProfiles") {
       const references = await loadReferenceData();
-      const rows = (await listAllProfiles()).filter((row: JsonRecord) => row.is_public !== false);
+      const rows = await listAllProfiles();
       const { ranks, pathRanks } = buildRanks(rows, references);
       return json({ profiles: rows.map((row: JsonRecord) => enrichPublicProfile(row, references, ranks, pathRanks)) });
     }
@@ -343,8 +343,7 @@ Deno.serve(async (request) => {
       if (!id) return json({ error: "缺少档案 ID" }, 400);
       const references = await loadReferenceData();
       const rows = await listAllProfiles();
-      const publicRows = rows.filter((row: JsonRecord) => row.is_public !== false);
-      const row = publicRows.find((item: JsonRecord) => String(item.id) === id);
+      const row = rows.find((item: JsonRecord) => String(item.id) === id);
       if (!row) return json({ error: "找不到公开档案" }, 404);
       const { ranks, pathRanks } = buildRanks(rows, references);
       return json({ profile: enrichPublicProfile(row, references, ranks, pathRanks) });
@@ -360,6 +359,32 @@ Deno.serve(async (request) => {
       if (!row || row.secret_hash !== await sha256(phrase)) return json({ error: "名字或暗语不正确" }, 401);
       const { ranks, pathRanks } = buildRanks(rows, references);
       return json({ profile: enrichPrivateProfile(row, references, ranks, pathRanks) });
+    }
+
+    if (action === "selfUpdateProfile") {
+      const name = cleanText(payload.name, 80);
+      const phrase = cleanText(payload.phrase, 240);
+      const updates = (payload.updates ?? {}) as JsonRecord;
+      if (!name || !phrase) return json({ error: "请输入名字和暗语" }, 400);
+      const references = await loadReferenceData();
+      const rows = await listAllProfiles();
+      const row = rows.find((item: JsonRecord) => item.display_name === name);
+      if (!row || row.secret_hash !== await sha256(phrase)) return json({ error: "名字或暗语不正确" }, 401);
+      const nextSecret = cleanText(updates.secretPhrase, 240);
+      const patch: JsonRecord = {
+        public_note: cleanText(updates.publicNote, 300),
+        private_note: cleanText(updates.privateNote, 600),
+        talents: cleanTalents(updates.talents),
+        is_public: true,
+      };
+      if (nextSecret) patch.secret_hash = await sha256(nextSecret);
+      const patchedRows = await supabaseFetch(`hope_profiles?id=eq.${encodeURIComponent(String(row.id))}`, {
+        method: "PATCH",
+        body: JSON.stringify(patch),
+      });
+      const allRows = await listAllProfiles();
+      const { ranks, pathRanks } = buildRanks(allRows, references);
+      return json({ profile: enrichPrivateProfile(patchedRows[0], references, ranks, pathRanks) });
     }
 
     if (action === "adminUpsertProfile") {

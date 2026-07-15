@@ -65,6 +65,7 @@ const fallbackProfessions = [
 let state = loadState();
 let rankMode = "total";
 let currentPrivateProfile = null;
+let currentPrivatePhrase = "";
 let professionLibrary = fallbackProfessions;
 
 const $ = (selector) => document.querySelector(selector);
@@ -178,7 +179,7 @@ function totalScore(profile) {
 }
 
 function publicProfiles() {
-  return state.profiles.filter((profile) => profile.isPublic !== false && profile.is_public !== false);
+  return state.profiles;
 }
 
 function baseRuleFor(profile) {
@@ -271,6 +272,21 @@ async function localAction(action, payload) {
     if (!profile) throw new Error("名字或暗语不正确");
     return { profile: toPrivateProfile(profile) };
   }
+  if (action === "selfUpdateProfile") {
+    const name = normalizeName(payload.name);
+    const phrase = String(payload.phrase || "");
+    const profile = state.profiles.find((item) => item.name === name && item.secretPhrase === phrase);
+    if (!profile) throw new Error("名字或暗语不正确");
+    const updates = payload.updates || {};
+    if (String(updates.secretPhrase || "")) profile.secretPhrase = String(updates.secretPhrase);
+    profile.publicNote = String(updates.publicNote ?? profile.publicNote ?? "").trim();
+    profile.privateNote = String(updates.privateNote ?? profile.privateNote ?? "").trim();
+    profile.talents = normalizeTalents(updates.talents ?? profile.talents);
+    profile.isPublic = true;
+    profile.updatedAt = new Date().toISOString();
+    saveState();
+    return { profile: toPrivateProfile(profile) };
+  }
   if (action === "adminUpsertProfile") {
     const profile = payload.profile || {};
     const normalized = normalizeProfileInput(profile, true);
@@ -358,7 +374,7 @@ function normalizeProfileInput(profile, requireSecret) {
     talents: normalizeTalents(profile.talents ?? profile["天赋"] ?? ""),
     ascension: Number(profile.ascension ?? profile.ascensionScore ?? profile["登神分"] ?? 1000),
     audience: Number(profile.audience ?? profile.audienceScore ?? profile["觐见分"] ?? 0),
-    isPublic: profile.isPublic !== false
+    isPublic: true
   };
 }
 
@@ -380,7 +396,7 @@ function toPublicProfile(profile) {
     publicNote: profile.publicNote || profile.public_note || "",
     ascension: getAscension(profile),
     audience: getAudience(profile),
-    isPublic: profile.isPublic ?? profile.is_public ?? true
+    isPublic: true
   };
 }
 
@@ -427,7 +443,7 @@ async function refreshPublicData() {
   }
   state.profiles = (result.data.profiles || []).map((profile) => {
     const existing = state.profiles.find((item) => item.id === profile.id || item.name === profile.name);
-    return { ...existing, ...toPublicProfile(profile), isPublic: profile.isPublic !== false };
+    return { ...existing, ...toPublicProfile(profile), isPublic: true };
   });
   renderAll();
 }
@@ -592,12 +608,36 @@ function renderPrivatePanel(profile) {
         <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
         <p>${escapeHtml(baseRuleFor(profile).combatRule)}</p>
       </section>
+      <form class="self-edit-form" id="selfEditForm">
+        <div>
+          <p class="eyebrow">Self Edit</p>
+          <h4>自助修改</h4>
+        </div>
+        <label>
+          新暗语
+          <input id="selfSecretPhrase" maxlength="80" type="text" placeholder="不修改暗语就留空">
+        </label>
+        <label>
+          公开短记
+          <textarea id="selfPublicNote" maxlength="160" rows="3">${escapeHtml(profile.publicNote || "")}</textarea>
+        </label>
+        <label>
+          私密备注
+          <textarea id="selfPrivateNote" maxlength="240" rows="3">${escapeHtml(profile.privateNote || "")}</textarea>
+        </label>
+        <label>
+          天赋
+          <textarea id="selfTalents" rows="5">${escapeHtml(talents.join("\n"))}</textarea>
+        </label>
+        <button class="btn btn--primary" type="submit">保存自助修改</button>
+      </form>
       <footer class="dossier-actions">
         <button class="btn btn--primary" type="button" data-export-card="private">导出私密图片</button>
         <button class="btn btn--ghost" type="button" data-export-card="private-public">导出公开图片</button>
       </footer>
     </div>
   `;
+  $("#selfEditForm").addEventListener("submit", handleSelfEditSubmit);
   $("[data-export-card='private']").addEventListener("click", () => exportPanelImage($("#privatePanel [data-card='private']"), `${profile.name}-私密面板`));
   $("[data-export-card='private-public']").addEventListener("click", () => {
     const clone = document.createElement("div");
@@ -662,13 +702,37 @@ function clearAdminForm() {
 
 async function handleSecretSubmit(event) {
   event.preventDefault();
+  currentPrivatePhrase = $("#secretPhrase").value;
   const result = await callAction("verifySecret", {
     name: $("#secretName").value.trim(),
-    phrase: $("#secretPhrase").value
+    phrase: currentPrivatePhrase
   });
   if (result.error) return showToast(`验证失败：${result.error}`);
   renderPrivatePanel(toPrivateProfile(result.data.profile));
   showToast("已进入你的私密面板");
+}
+
+async function handleSelfEditSubmit(event) {
+  event.preventDefault();
+  if (!currentPrivateProfile || !currentPrivatePhrase) return showToast("请先用暗语进入面板");
+  const nextSecret = $("#selfSecretPhrase").value;
+  const result = await callAction("selfUpdateProfile", {
+    name: currentPrivateProfile.name,
+    phrase: currentPrivatePhrase,
+    updates: {
+      secretPhrase: nextSecret,
+      publicNote: $("#selfPublicNote").value.trim(),
+      privateNote: $("#selfPrivateNote").value.trim(),
+      talents: normalizeTalents($("#selfTalents").value)
+    }
+  });
+  if (result.error) return showToast(`保存失败：${result.error}`);
+  if (nextSecret) currentPrivatePhrase = nextSecret;
+  $("#selfSecretPhrase").value = "";
+  const profile = toPrivateProfile(result.data.profile);
+  renderPrivatePanel(profile);
+  await refreshPublicData();
+  showToast("自助修改已保存");
 }
 
 async function handleAdminProfileSubmit(event) {
@@ -684,7 +748,7 @@ async function handleAdminProfileSubmit(event) {
     talents: normalizeTalents($("#talentsInput").value),
     ascension: Math.max(0, Number($("#ascensionInput").value || 1000)),
     audience: Math.max(0, Number($("#audienceInput").value || 0)),
-    isPublic: $("#publicInput").value === "true"
+    isPublic: true
   };
   const result = await callAction("adminUpsertProfile", {
     adminKey: $("#adminKey").value.trim(),
@@ -931,6 +995,7 @@ function bindEvents() {
   });
   $("#logoutButton").addEventListener("click", () => {
     currentPrivateProfile = null;
+    currentPrivatePhrase = "";
     $("#logoutButton").hidden = true;
     $("#secretForm").reset();
     $("#secretPhrase").classList.remove("is-secret-hidden");

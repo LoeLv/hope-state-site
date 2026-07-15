@@ -38,6 +38,10 @@ set faith_god = coalesce(nullif(faith_god, ''), nullif(god, ''), '命运'),
     god = coalesce(nullif(god, ''), nullif(faith_god, ''), '命运')
 where faith_god = '' or god = '';
 
+update public.hope_profiles
+set is_public = true
+where is_public = false;
+
 create table if not exists public.hope_professions (
   id uuid primary key default gen_random_uuid(),
   profession text not null unique,
@@ -105,7 +109,7 @@ drop policy if exists "public can read public hope profiles" on public.hope_prof
 create policy "public can read public hope profiles"
   on public.hope_profiles
   for select
-  using (is_public = true);
+  using (true);
 
 drop policy if exists "public can read hope profession library" on public.hope_professions;
 create policy "public can read hope profession library"
