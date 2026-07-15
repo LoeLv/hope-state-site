@@ -534,29 +534,52 @@ function renderPrivatePanel(profile) {
   $("#logoutButton").hidden = false;
   const talents = normalizeTalents(profile.talents);
   $("#privatePanel").innerHTML = `
-    <p class="eyebrow">Private Dossier</p>
-    <div class="private-card" data-card="private">
+    <div class="private-card dossier-card__inner" data-card="private">
+      <header class="dossier-head">
       <div class="avatar-orbit">${escapeHtml((profile.name || "希").slice(0, 1))}</div>
-      <h3>${escapeHtml(profile.name)}</h3>
-      <p>${escapeHtml(getFaithGod(profile) || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
-      ${profileStats(profile)}
-      <section class="talent-section">
-        <h4>天赋</h4>
-        ${talents.length ? `<ul>${talents.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>暂无天赋记录。</p>"}
+        <div>
+          <p class="eyebrow">Private Dossier</p>
+          <h3>${escapeHtml(profile.name)}</h3>
+          <p>${escapeHtml(getFaithGod(profile) || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
+        </div>
+      </header>
+      <section class="dossier-section">
+        <h4>圣榜排位</h4>
+        <dl class="dossier-grid dossier-grid--four">
+          <div><dt>总榜排名</dt><dd>#${getTotalRank(profile) || "-"}</dd></div>
+          <div><dt>命途排名</dt><dd>#${getPathRank(profile) || "-"}</dd></div>
+          <div><dt>信仰神明</dt><dd>${escapeHtml(getFaithGod(profile) || "未定")}</dd></div>
+          <div><dt>命途</dt><dd>${escapeHtml(profile.path || "未定")}</dd></div>
+        </dl>
       </section>
-      <section class="talent-section">
-        <h4>私密备注</h4>
+      <section class="dossier-section">
+        <h4>职阶与试炼属性</h4>
+        <dl class="dossier-grid dossier-grid--two">
+          <div><dt>基础职业</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
+          <div><dt>职业</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
+          <div><dt>生命力</dt><dd>${maxHp(profile) || "-"}</dd></div>
+          <div><dt>权柄伤害</dt><dd>${baseRuleFor(profile).baseAttack || "-"}</dd></div>
+          <div><dt>试炼积分</dt><dd>${getAscension(profile)}</dd></div>
+          <div><dt>信仰馈赐</dt><dd>${getAudience(profile)}</dd></div>
+        </dl>
+      </section>
+      <section class="dossier-section dossier-section--talents">
+        <h4>解锁权柄</h4>
+        ${talents.length ? `<ul class="talent-list">${talents.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>暂无天赋记录。</p>"}
+      </section>
+      <section class="dossier-section">
+        <h4>个人祷注</h4>
         <p>${escapeHtml(profile.privateNote || "暂无私密备注。")}</p>
       </section>
-      <section class="talent-section">
+      <section class="dossier-section dossier-section--rule">
         <h4>职业特性和职业技能</h4>
         <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
         <p>${escapeHtml(baseRuleFor(profile).combatRule)}</p>
       </section>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn--primary" type="button" data-export-card="private">导出私密图片</button>
-      <button class="btn btn--ghost" type="button" data-export-card="private-public">导出公开图片</button>
+      <footer class="dossier-actions">
+        <button class="btn btn--primary" type="button" data-export-card="private">导出私密图片</button>
+        <button class="btn btn--ghost" type="button" data-export-card="private-public">导出公开图片</button>
+      </footer>
     </div>
   `;
   $("[data-export-card='private']").addEventListener("click", () => exportPanelImage($("#privatePanel [data-card='private']"), `${profile.name}-私密面板`));
@@ -781,7 +804,8 @@ function toggleSecretField(id) {
   const input = $(`#${id}`);
   const button = $(`[data-toggle-secret="${id}"]`);
   const hidden = input.classList.toggle("is-secret-hidden");
-  button.textContent = hidden ? "显示" : "隐藏";
+  if (id === "secretName") button.textContent = hidden ? "显露称谓" : "隐匿称谓";
+  else button.textContent = hidden ? "显露暗语" : "隐匿暗语";
 }
 
 function bindEvents() {
@@ -819,12 +843,18 @@ function bindEvents() {
     $("#logoutButton").hidden = true;
     $("#secretForm").reset();
     $("#secretPhrase").classList.remove("is-secret-hidden");
-    $("[data-toggle-secret='secretPhrase']").textContent = "隐藏";
+    $("#secretName").classList.remove("is-secret-hidden");
+    $("[data-toggle-secret='secretPhrase']").textContent = "隐匿暗语";
+    $("[data-toggle-secret='secretName']").textContent = "隐匿称谓";
     $("#privatePanel").innerHTML = `
-      <p class="eyebrow">My Dossier</p>
-      <div class="avatar-orbit">希</div>
-      <h3>等待暗语验证</h3>
-      <p>排行榜只公开基础信息。验证后，这里会显示你的完整天赋和私密备注。</p>
+      <div class="dossier-head">
+        <div class="avatar-orbit">希</div>
+        <div>
+          <p class="eyebrow">Faith Dossier</p>
+          <h3>等待暗语验证</h3>
+          <p>排行榜只公开基础信息。验证后，这里会显示你的完整天赋和私密备注。</p>
+        </div>
+      </div>
     `;
     showToast("已退出私密面板");
   });

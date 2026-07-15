@@ -21,9 +21,9 @@
       </span>
     </a>
     <nav class="nav" aria-label="主导航">
-      <button class="nav__item is-active" type="button" data-view-link="leaderboard">排行榜</button>
-      <button class="nav__item" type="button" data-view-link="private">我的面板</button>
-      <button class="nav__item" type="button" data-view-link="admin">管理录入</button>
+      <button class="nav__item is-active" type="button" data-view-link="leaderboard">诸神圣榜</button>
+      <button class="nav__item" type="button" data-view-link="private">信徒档案</button>
+      <button class="nav__item" type="button" data-view-link="admin">神谕登记</button>
     </nav>
   </header>
 
@@ -68,33 +68,40 @@
     </section>
 
     <section class="view" id="privateView" aria-labelledby="privateTitle">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Private Panel</p>
-          <h2 id="privateTitle">我的个人职业面板</h2>
-        </div>
-        <button class="btn btn--ghost" type="button" id="logoutButton" hidden>退出面板</button>
-      </div>
       <div class="private-layout">
-        <form class="panel access-panel" id="secretForm">
-          <label>
-            州民昵称
-            <input id="secretName" maxlength="24" required placeholder="输入你告诉管理员的名字">
+        <form class="panel access-panel access-panel--sealed" id="secretForm">
+          <div class="access-panel__head">
+            <div>
+              <p class="eyebrow">Private Seal</p>
+              <h2 id="privateTitle">私藏暗语封印匣</h2>
+            </div>
+            <button class="mini-btn" type="button" id="logoutButton" hidden>切断神谕链接</button>
+          </div>
+          <label class="secret-name-row">
+            <span>信徒称谓</span>
+            <span class="secret-input">
+              <input id="secretName" maxlength="24" required type="text" data-secret-field placeholder="输入你告诉管理员的名字">
+              <button class="mini-btn" type="button" data-toggle-secret="secretName">隐匿称谓</button>
+            </span>
           </label>
-          <label>
+          <label class="unlock-row">
             私密暗语
             <span class="secret-input">
               <input id="secretPhrase" maxlength="80" required type="text" data-secret-field placeholder="输入你自己设置的那句话">
-              <button class="mini-btn" type="button" data-toggle-secret="secretPhrase">隐藏</button>
+              <button class="mini-btn" type="button" data-toggle-secret="secretPhrase">隐匿暗语</button>
             </span>
           </label>
-          <button class="btn btn--primary" type="submit">查看我的完整面板</button>
+          <button class="btn btn--primary btn--unlock" type="submit">启封天赋卷宗</button>
         </form>
-        <div id="privatePanel" class="panel profile-preview profile-preview--wide">
-          <p class="eyebrow">My Dossier</p>
-          <div class="avatar-orbit">希</div>
-          <h3>等待暗语验证</h3>
-          <p>排行榜只公开基础信息。验证后，这里会显示你的完整天赋和私密备注。</p>
+        <div id="privatePanel" class="panel profile-preview profile-preview--wide dossier-card dossier-card--empty">
+          <div class="dossier-head">
+            <div class="avatar-orbit">希</div>
+            <div>
+              <p class="eyebrow">Faith Dossier</p>
+              <h3>等待暗语验证</h3>
+              <p>排行榜只公开基础信息。验证后，这里会显示你的完整天赋和私密备注。</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -123,7 +130,7 @@
             私密暗语
             <span class="secret-input">
               <input id="phraseInput" maxlength="80" type="text" data-secret-field placeholder="首次录入或重置时填写">
-              <button class="mini-btn" type="button" data-toggle-secret="phraseInput">隐藏</button>
+              <button class="mini-btn" type="button" data-toggle-secret="phraseInput">隐匿暗语</button>
             </span>
           </label>
           <label>
