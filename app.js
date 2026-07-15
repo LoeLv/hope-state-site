@@ -170,7 +170,7 @@ function baseRuleFor(profile) {
     baseHp: 0,
     baseAttack: 0,
     attackInterval: "未定",
-    combatRule: "暂无基础职业战斗规则。"
+    combatRule: "暂无职业技能说明。"
   };
 }
 
@@ -508,11 +508,11 @@ function publicProfileCard(profile, mode = "public") {
         <p>${escapeHtml(profile.publicNote || "暂无公开短记。")}</p>
       </section>
       <section class="talent-section">
-        <h4>职业特性说明</h4>
+        <h4>职业特性</h4>
         <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
       </section>
       <section class="talent-section">
-        <h4>基础职业战斗规则</h4>
+        <h4>职业技能</h4>
         <p>${escapeHtml(rule.combatRule)}</p>
         <p class="form-note">攻击间隔：${escapeHtml(rule.attackInterval || "未定")}</p>
       </section>
@@ -549,7 +549,7 @@ function renderPrivatePanel(profile) {
         <p>${escapeHtml(profile.privateNote || "暂无私密备注。")}</p>
       </section>
       <section class="talent-section">
-        <h4>职业特性与战斗规则</h4>
+        <h4>职业特性和职业技能</h4>
         <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
         <p>${escapeHtml(baseRuleFor(profile).combatRule)}</p>
       </section>
