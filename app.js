@@ -58,8 +58,8 @@ const baseClassRules = {
 
 const fallbackProfessions = [
   { profession: "德鲁伊", faithGod: "繁荣", path: "生命", baseClass: "战士", featureText: "可以横跨多物种变换形体的尚战职业。" },
-  { profession: "小丑", faithGod: "欺诈", path: "虚无", baseClass: "战士", featureText: "职业特性以职业资料库为准。" },
-  { profession: "织命师", faithGod: "命运", path: "虚无", baseClass: "战士", featureText: "职业特性以职业资料库为准。" }
+  { profession: "小丑", faithGod: "欺诈", path: "虚无", baseClass: "战士", featureText: "" },
+  { profession: "织命师", faithGod: "命运", path: "虚无", baseClass: "战士", featureText: "" }
 ];
 
 let state = loadState();
@@ -91,8 +91,8 @@ function loadState() {
         className: "德鲁伊",
         baseClass: "战士",
         featureText: "可以横跨多物种变换形体的尚战职业。",
-        publicNote: "希望之州样例档案。公开面板只显示基础职业信息。",
-        privateNote: "这里是本人暗语验证后才显示的私密备注。",
+        publicNote: "",
+        privateNote: "",
         talents: ["B · 晨露复苏", "C · 枝叶庇护"],
         ascension: 1000,
         audience: 0,
@@ -187,7 +187,7 @@ function baseRuleFor(profile) {
     baseHp: 0,
     baseAttack: 0,
     attackInterval: "未定",
-    combatRule: "暂无职业技能说明。"
+    combatRule: ""
   };
 }
 
@@ -458,7 +458,7 @@ async function loadProfessionLibrary() {
       featureText: item.featureText || item.feature_text || ""
     }));
   }
-  $("#professionLibraryStatus").textContent = `职业资料库：${professionLibrary.length} 个职业。单人录入和批量导入会按职业名自动补信仰、命途、基础职业与职业特性。`;
+  $("#professionLibraryStatus").textContent = `职业资料库：${professionLibrary.length}`;
   $("#professionOptions").innerHTML = professionLibrary
     .map((item) => `<option value="${escapeHtml(item.profession)}">${escapeHtml(item.faithGod)} · ${escapeHtml(item.path)} · ${escapeHtml(item.baseClass)}</option>`)
     .join("");
@@ -489,7 +489,7 @@ function filteredProfiles() {
 function renderLeaderboard() {
   const profiles = filteredProfiles();
   $("#totalProfiles").textContent = publicProfiles().length;
-  $("#dataModeLabel").textContent = onlineEnabled ? "Supabase 在线模式" : "本地演示模式";
+  $("#dataModeLabel").textContent = "";
   $("#leaderboardList").innerHTML = profiles.map((profile, index) => `
     <button class="rank-row rank-row--button" type="button" data-public-id="${profile.id}">
       <span class="rank-index">#${index + 1}</span>
@@ -566,16 +566,15 @@ function publicProfileCard(profile, mode = "public") {
       ${profileStats(profile)}
       <section class="talent-section">
         <h4>公开短记</h4>
-        <p>${escapeHtml(profile.publicNote || "暂无公开短记。")}</p>
+      <p>${escapeHtml(profile.publicNote || "")}</p>
       </section>
       <section class="talent-section">
         <h4>职业特性</h4>
-        <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
+        <p>${escapeHtml(getFeatureText(profile) || "")}</p>
       </section>
       <section class="talent-section">
         <h4>职业技能</h4>
         <p>${escapeHtml(rule.combatRule)}</p>
-        <p class="form-note">攻击间隔：${escapeHtml(rule.attackInterval || "未定")}</p>
       </section>
     </div>
   `;
@@ -626,15 +625,15 @@ function renderPrivatePanel(profile) {
       </section>
       <section class="dossier-section dossier-section--talents">
         <h4>解锁权柄</h4>
-        ${talents.length ? `<ul class="talent-list">${talents.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>暂无天赋记录。</p>"}
+        ${talents.length ? `<ul class="talent-list">${talents.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p></p>"}
       </section>
       <section class="dossier-section">
         <h4>个人祷注</h4>
-        <p>${escapeHtml(profile.privateNote || "暂无私密备注。")}</p>
+        <p>${escapeHtml(profile.privateNote || "")}</p>
       </section>
       <section class="dossier-section dossier-section--rule">
         <h4>职业特性和职业技能</h4>
-        <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
+        <p>${escapeHtml(getFeatureText(profile) || "")}</p>
         <p>${escapeHtml(baseRuleFor(profile).combatRule)}</p>
       </section>
       <form class="self-edit-form dossier-edit-zone" id="selfEditForm">
@@ -644,7 +643,7 @@ function renderPrivatePanel(profile) {
         </div>
         <label>
           新暗语
-          <input id="selfSecretPhrase" maxlength="80" type="text" placeholder="不修改暗语就留空">
+          <input id="selfSecretPhrase" maxlength="80" type="text">
         </label>
         <label>
           公开短记
@@ -717,7 +716,7 @@ function renderSettlements(logs = state.settlements) {
     <article class="log-item">
       <strong>${escapeHtml(entry.name || entry.target_name || "未知成员")}</strong>
       <p>登神分 ${Number(entry.ascensionDelta ?? entry.ascension_delta) >= 0 ? "+" : ""}${entry.ascensionDelta ?? entry.ascension_delta}，觐见分 +${entry.audienceDelta ?? entry.audience_delta}</p>
-      <p>${escapeHtml(entry.reason || "无备注")}</p>
+      <p>${escapeHtml(entry.reason || "")}</p>
       <time>${new Date(entry.createdAt || entry.created_at).toLocaleString("zh-CN")}</time>
     </article>
   `).join("");
@@ -1119,8 +1118,7 @@ function bindEvents() {
         <div class="avatar-orbit">希</div>
         <div>
           <p class="eyebrow">Faith Dossier</p>
-          <h3>等待暗语验证</h3>
-          <p>排行榜只公开基础信息。验证后，这里会显示你的完整天赋和私密备注。</p>
+          <h3>未启封</h3>
         </div>
       </div>
     `;

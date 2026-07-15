@@ -31,12 +31,12 @@
     <section class="hero-panel">
       <div>
         <p class="eyebrow">Hope State Registry</p>
-        <h1>公开排名只展示基础职业信息，完整天赋面板只给本人暗语查看。</h1>
+        <h1>希望之州</h1>
       </div>
       <div class="status-card">
         <span>公开档案</span>
         <strong id="totalProfiles">0</strong>
-        <small id="dataModeLabel">本地演示模式</small>
+        <small id="dataModeLabel"></small>
       </div>
     </section>
 
@@ -53,7 +53,7 @@
         </div>
       </div>
       <div class="toolbar toolbar--between">
-        <input class="search" id="leaderboardSearch" placeholder="搜索昵称、神明、职业">
+        <input class="search" id="leaderboardSearch" placeholder="搜索">
         <select class="search" id="pathFilter">
           <option value="all">全部命途</option>
           <option value="生命">生命</option>
@@ -80,14 +80,14 @@
           <label class="secret-name-row">
             <span>信徒称谓</span>
             <span class="secret-input">
-              <input id="secretName" maxlength="24" required type="text" data-secret-field placeholder="输入你告诉管理员的名字">
+              <input id="secretName" maxlength="24" required type="text" data-secret-field>
               <button class="mini-btn" type="button" data-toggle-secret="secretName">隐匿称谓</button>
             </span>
           </label>
           <label class="unlock-row">
             私密暗语
             <span class="secret-input">
-              <input id="secretPhrase" maxlength="80" required type="text" data-secret-field placeholder="输入你自己设置的那句话">
+              <input id="secretPhrase" maxlength="80" required type="text" data-secret-field>
               <button class="mini-btn" type="button" data-toggle-secret="secretPhrase">隐匿暗语</button>
             </span>
           </label>
@@ -98,8 +98,7 @@
             <div class="avatar-orbit">希</div>
             <div>
               <p class="eyebrow">Faith Dossier</p>
-              <h3>等待暗语验证</h3>
-              <p>排行榜只公开基础信息。验证后，这里会显示你的完整天赋和私密备注。</p>
+              <h3>未启封</h3>
             </div>
           </div>
         </div>
@@ -119,17 +118,17 @@
         <form class="panel form-panel" id="adminProfileForm">
           <label class="span-2">
             管理密钥
-            <input id="adminKey" type="password" autocomplete="off" placeholder="Supabase Edge Function 的 ADMIN_KEY">
+            <input id="adminKey" type="password" autocomplete="off">
           </label>
-          <div class="form-note span-2" id="professionLibraryStatus">职业资料库等待读取。</div>
+          <div class="form-note span-2" id="professionLibraryStatus"></div>
           <label>
             州民昵称
-            <input id="nameInput" maxlength="24" required placeholder="例如：白昼旅人">
+            <input id="nameInput" maxlength="24" required>
           </label>
           <label>
             私密暗语
             <span class="secret-input">
-              <input id="phraseInput" maxlength="80" type="text" data-secret-field placeholder="首次录入或重置时填写">
+              <input id="phraseInput" maxlength="80" type="text" data-secret-field>
               <button class="mini-btn" type="button" data-toggle-secret="phraseInput">隐匿暗语</button>
             </span>
           </label>
@@ -150,7 +149,7 @@
           </label>
           <label>
             职业 / 身份
-            <input id="classInput" maxlength="24" list="professionOptions" placeholder="例如：小丑、织命师、德鲁伊">
+            <input id="classInput" maxlength="24" list="professionOptions">
             <datalist id="professionOptions"></datalist>
           </label>
           <label>
@@ -163,15 +162,15 @@
           </label>
           <label class="span-2">
             公开短记
-            <textarea id="publicNoteInput" maxlength="160" rows="3" placeholder="排行榜点击后可见，不写天赋。"></textarea>
+            <textarea id="publicNoteInput" maxlength="160" rows="3"></textarea>
           </label>
           <label class="span-2">
             私密备注
-            <textarea id="privateNoteInput" maxlength="240" rows="3" placeholder="只有本人暗语验证后可见。"></textarea>
+            <textarea id="privateNoteInput" maxlength="240" rows="3"></textarea>
           </label>
           <label class="span-2">
             天赋列表
-            <textarea id="talentsInput" rows="5" placeholder="一行一个天赋，例如：&#10;B · 逆命骰&#10;C · 微光护符"></textarea>
+            <textarea id="talentsInput" rows="5"></textarea>
           </label>
           <div class="form-actions span-2">
             <button class="btn btn--primary" type="submit">保存/更新档案</button>
@@ -197,7 +196,7 @@
             </div>
             <label>
               结算理由
-              <textarea id="scoreReason" rows="5" maxlength="160" placeholder="例如：完成本周核心试炼，给予登神分 +3。"></textarea>
+              <textarea id="scoreReason" rows="5" maxlength="160"></textarea>
             </label>
             <button class="btn btn--primary" type="submit">提交结算</button>
             <section class="bulk-score-box" aria-labelledby="bulkScoreTitle">
@@ -205,8 +204,7 @@
                 <p class="eyebrow">Bulk Score</p>
                 <h3 id="bulkScoreTitle">批量分数结算</h3>
               </div>
-              <p class="form-note">每行格式：信仰 职业 昵称 +登神分 +觐见分。例：真理 格斗专家 墨水 +3 -1。登神范围 -20 到 20，觐见范围 -3 到 3。</p>
-              <textarea id="bulkScoreInput" rows="7" placeholder="真理 格斗专家 墨水 +3 -1&#10;时间 驯风游侠 阿幻 -2 +1"></textarea>
+              <textarea id="bulkScoreInput" rows="7"></textarea>
               <div class="form-actions">
                 <button class="btn btn--primary" type="button" id="bulkScorePreviewButton">检查结算</button>
                 <button class="btn btn--ghost" type="button" id="bulkScoreSubmitButton">提交有效结算</button>
@@ -221,8 +219,7 @@
               <p class="eyebrow">Bulk Import</p>
               <h3 id="bulkImportTitle">批量导入</h3>
             </div>
-            <p class="form-note">可直接粘贴数据行，不强制表头。推荐顺序：昵称、暗语、职业、登神分、觐见分、公开短记、私密备注、天赋。也兼容表单导出的长字段名。</p>
-            <textarea id="bulkImportInput" rows="9" placeholder="墨水	我生而求索	格斗专家	1068	55	啧？	洞窥本质，行见真理	格斗家的本意 B级 发出致命一击"></textarea>
+            <textarea id="bulkImportInput" rows="9"></textarea>
             <div class="form-actions">
               <button class="btn btn--primary" type="button" id="bulkPreviewButton">检查内容</button>
               <button class="btn btn--ghost" type="button" id="bulkImportButton">导入有效行</button>
