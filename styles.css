@@ -136,6 +136,7 @@ button { cursor: pointer; }
   grid-template-columns: minmax(0, 7fr) minmax(160px, 3fr);
   gap: 1rem;
   align-items: center;
+  width: 100%;
   min-height: 120px;
   padding: 24px 32px;
   border: 1px solid var(--line);
@@ -223,6 +224,7 @@ h3 { margin-bottom: 1rem; }
   grid-template-columns: minmax(280px, 3fr) minmax(0, 7fr);
   align-items: stretch;
   gap: 32px;
+  min-height: 720px;
 }
 
 .admin-grid {
@@ -237,16 +239,16 @@ h3 { margin-bottom: 1rem; }
   flex-direction: column;
   justify-content: center;
   gap: 24px;
-  min-height: 100%;
+  min-height: 720px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(200, 178, 120, .05);
 }
 
 .access-panel__head {
-  display: flex;
+  display: inline-flex;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-start;
+  gap: 12px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--line);
 }
@@ -340,13 +342,21 @@ input:focus, select:focus, textarea:focus {
 .secret-input {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: .5rem;
+  gap: 8px;
   align-items: center;
 }
 
 .secret-input .mini-btn {
-  min-height: 100%;
+  min-height: 44px;
   white-space: nowrap;
+}
+
+.access-panel--sealed label {
+  gap: 8px;
+}
+
+.self-edit-form label {
+  gap: 8px;
 }
 
 .is-secret-hidden {
@@ -366,7 +376,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .profile-preview--wide {
-  min-height: 560px;
+  min-height: 720px;
+  max-height: calc(100vh - 220px);
+  overflow: auto;
 }
 
 .avatar-orbit {
@@ -608,8 +620,8 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .dossier-section {
   display: grid;
-  gap: 12px;
-  padding-top: 2px;
+  gap: 16px;
+  padding-top: 0;
 }
 
 .dossier-section h4 {
@@ -637,9 +649,9 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .dossier-grid div {
   display: grid;
-  gap: 4px;
+  gap: 8px;
   min-width: 0;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-right: 1px solid rgba(241, 198, 91, .15);
   border-bottom: 1px solid rgba(241, 198, 91, .15);
   background: rgba(255, 255, 255, .035);
@@ -699,10 +711,17 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 .self-edit-form {
   display: grid;
   gap: 16px;
-  padding: 16px;
+  padding: 20px;
   border: 1px solid rgba(241, 198, 91, .18);
   border-radius: 8px;
   background: rgba(255, 255, 255, .035);
+}
+
+.dossier-edit-zone {
+  margin-top: 8px;
+  border-color: rgba(241, 198, 91, .28);
+  background:
+    linear-gradient(180deg, rgba(241, 198, 91, .055), rgba(255, 255, 255, .025));
 }
 
 .self-edit-form h4 {
@@ -715,18 +734,34 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   margin-bottom: .35rem;
 }
 
+.self-edit-submit {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 8px;
+}
+
 .dossier-actions {
   display: flex;
   justify-content: center;
   gap: 24px;
   margin-top: 8px;
-  padding-top: 24px;
+  padding-top: 32px;
   border-top: 1px solid rgba(241, 198, 91, .15);
 }
 
 .dossier-actions .btn {
   width: 160px;
   min-height: 40px;
+}
+
+.dossier-actions .dossier-export-primary {
+  width: 200px;
+  min-height: 44px;
+}
+
+.dossier-actions .dossier-export-secondary {
+  width: 148px;
+  opacity: .78;
 }
 
 .modal[hidden] {
@@ -845,6 +880,17 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
     padding: 16px;
   }
 
+  .private-layout,
+  .access-panel--sealed,
+  .profile-preview--wide {
+    min-height: auto;
+  }
+
+  .profile-preview--wide {
+    max-height: none;
+    overflow: visible;
+  }
+
   .dossier-grid--four {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -860,5 +906,10 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   .dossier-actions .btn {
     width: auto;
     flex: 1 1 0;
+  }
+
+  .dossier-actions .dossier-export-primary,
+  .dossier-actions .dossier-export-secondary {
+    width: auto;
   }
 }

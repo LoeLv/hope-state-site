@@ -637,7 +637,7 @@ function renderPrivatePanel(profile) {
         <p>${escapeHtml(getFeatureText(profile) || "暂无职业特性说明。")}</p>
         <p>${escapeHtml(baseRuleFor(profile).combatRule)}</p>
       </section>
-      <form class="self-edit-form" id="selfEditForm">
+      <form class="self-edit-form dossier-edit-zone" id="selfEditForm">
         <div>
           <p class="eyebrow">Self Edit</p>
           <h4>自助修改</h4>
@@ -658,11 +658,11 @@ function renderPrivatePanel(profile) {
           天赋
           <textarea id="selfTalents" rows="5">${escapeHtml(talents.join("\n"))}</textarea>
         </label>
-        <button class="btn btn--primary" type="submit">保存自助修改</button>
+        <button class="btn btn--primary self-edit-submit" type="submit">保存自助修改</button>
       </form>
       <footer class="dossier-actions">
-        <button class="btn btn--primary" type="button" data-export-card="private">导出私密图片</button>
-        <button class="btn btn--ghost" type="button" data-export-card="private-public">导出公开图片</button>
+        <button class="btn btn--primary dossier-export-primary" type="button" data-export-card="private">导出私密图片</button>
+        <button class="btn btn--ghost dossier-export-secondary" type="button" data-export-card="private-public">导出公开图片</button>
       </footer>
     </div>
   `;
