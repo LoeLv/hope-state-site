@@ -225,6 +225,7 @@ h3 { margin-bottom: 1rem; }
   align-items: stretch;
   gap: 32px;
   height: clamp(560px, calc(100vh - 264px), 760px);
+  min-height: 560px;
 }
 
 .admin-grid {
@@ -241,8 +242,12 @@ h3 { margin-bottom: 1rem; }
   gap: 24px;
   min-height: 100%;
   height: 100%;
-  padding: 24px;
+  padding: clamp(24px, 6vh, 64px) 24px;
   box-shadow: 0 4px 20px rgba(200, 178, 120, .05);
+}
+
+.access-panel--sealed > * {
+  width: 100%;
 }
 
 .access-panel__head {
@@ -256,6 +261,10 @@ h3 { margin-bottom: 1rem; }
 
 .access-panel__head h2 {
   font-size: clamp(1.25rem, 2vw, 1.7rem);
+}
+
+.access-panel__head .mini-btn {
+  min-height: 40px;
 }
 
 .form-panel {
@@ -345,6 +354,11 @@ input:focus, select:focus, textarea:focus {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
+}
+
+.secret-input input {
+  height: 40px;
+  padding: 0 12px;
 }
 
 .secret-input .mini-btn {
@@ -703,17 +717,9 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   line-height: 1.6;
 }
 
-.dossier-section--rule {
-  padding: 16px;
-  border: 1px solid rgba(241, 198, 91, .14);
-  border-radius: 8px;
-  background: rgba(1, 10, 7, .38);
-}
-
 .dossier-section--rule p {
-  border: 0;
-  padding: 0;
-  background: transparent;
+  border-color: rgba(241, 198, 91, .14);
+  background: rgba(1, 10, 7, .38);
 }
 
 .self-edit-form {
@@ -764,13 +770,17 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .dossier-actions .dossier-export-primary {
-  width: 160px;
+  width: 180px;
   min-height: 40px;
+  box-shadow: 0 8px 22px rgba(241, 198, 91, .14);
 }
 
 .dossier-actions .dossier-export-secondary {
   width: 130px;
-  opacity: .78;
+  color: rgba(244, 241, 223, .68);
+  border-color: rgba(241, 198, 91, .22);
+  background: rgba(255, 255, 255, .025);
+  opacity: .72;
 }
 
 .modal[hidden] {
@@ -894,6 +904,10 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   .profile-preview--wide {
     height: auto;
     min-height: auto;
+  }
+
+  .access-panel--sealed {
+    padding-block: 16px;
   }
 
   .profile-preview--wide {
