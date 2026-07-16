@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360">
+  <filter id="paper">
+    <feTurbulence type="fractalNoise" baseFrequency="0.018 0.052" numOctaves="4" seed="17"/>
+    <feColorMatrix type="matrix" values="0.55 0 0 0 0.36  0 0.45 0 0 0.25  0 0 0.26 0 0.12  0 0 0 0.42 0"/>
+  </filter>
+  <rect width="360" height="360" fill="#ecd9a6"/>
+  <rect width="360" height="360" filter="url(#paper)" opacity="0.42"/>
+  <g opacity="0.18" fill="#8d6425">
+    <circle cx="42" cy="58" r="1.2"/>
+    <circle cx="116" cy="132" r="0.9"/>
+    <circle cx="232" cy="86" r="1.1"/>
+    <circle cx="310" cy="218" r="1.4"/>
+    <circle cx="76" cy="286" r="1"/>
+    <circle cx="194" cy="316" r="0.8"/>
+  </g>
+</svg>
