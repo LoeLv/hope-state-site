@@ -22,6 +22,9 @@
   --blue: #5a8b93;
   --danger: #d66f5d;
   --shadow: 0 24px 70px rgba(4, 18, 14, .28);
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "SimSun", Georgia, serif;
+  --font-sans: "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-mono: "Cascadia Mono", "Courier New", monospace;
 }
 
 * { box-sizing: border-box; }
@@ -31,7 +34,8 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   color: var(--ink);
-  font-family: "Microsoft YaHei", "Noto Serif SC", serif;
+  font-family: var(--font-sans);
+  font-weight: 400;
   background: linear-gradient(135deg, #0f2420 0%, #142e28 100%);
 }
 
@@ -132,17 +136,19 @@ button { cursor: pointer; }
 .brand strong {
   display: block;
   color: var(--gold-light);
-  font-family: "Noto Serif SC", "Source Han Serif SC", "Microsoft YaHei", serif;
+  font-family: var(--font-serif);
   font-size: 1.05rem;
-  letter-spacing: .5px;
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
 .brand small {
   display: block;
   color: var(--text-hint);
-  font-family: "Cascadia Mono", "Courier New", monospace;
+  font-family: var(--font-mono);
   font-size: .64rem;
   letter-spacing: .04em;
+  font-weight: 400;
   margin-top: .1rem;
 }
 
@@ -172,12 +178,14 @@ button { cursor: pointer; }
 .nav__item span {
   font-size: .92rem;
   line-height: 1.1;
+  font-weight: 400;
 }
 
 .nav__item small {
   color: var(--text-hint);
   font-size: .58rem;
   line-height: 1;
+  font-weight: 400;
   white-space: nowrap;
 }
 
@@ -272,10 +280,12 @@ button { cursor: pointer; }
 
 .eyebrow {
   margin: 0 0 .55rem;
-  color: var(--green);
+  color: rgba(200, 178, 120, .68);
+  font-family: var(--font-mono);
   font-size: .74rem;
   text-transform: uppercase;
   letter-spacing: .12em;
+  font-weight: 400;
 }
 
 h1, h2, h3, p { margin-top: 0; }
@@ -284,21 +294,30 @@ h1 {
   max-width: 820px;
   margin-bottom: 0;
   color: var(--gold-light);
-  font-family: "Noto Serif SC", "Source Han Serif SC", "Microsoft YaHei", serif;
+  font-family: var(--font-serif);
   font-size: 2.4rem;
   line-height: 1.12;
   letter-spacing: 1px;
+  font-weight: 700;
 }
 
 .hero-panel__edict {
   max-width: 760px;
   margin: 12px 0 0;
   color: var(--text-normal);
-  font-family: "Noto Serif SC", "Source Han Serif SC", "Microsoft YaHei", serif;
+  font-family: var(--font-sans);
+  font-weight: 400;
   line-height: 1.5;
 }
 
-h2 { font-size: clamp(1.6rem, 3vw, 2.5rem); margin-bottom: 0; }
+h2 {
+  margin-bottom: 0;
+  color: var(--gold-light);
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  letter-spacing: 1px;
+  font-weight: 700;
+}
 h3 { margin-bottom: 1rem; }
 
 .status-card {
@@ -354,9 +373,10 @@ h3 { margin-bottom: 1rem; }
   z-index: 1;
   display: block;
   color: var(--gold-light);
-  font-family: "Noto Serif SC", "Source Han Serif SC", serif;
+  font-family: var(--font-sans);
   font-size: 2.1rem;
   letter-spacing: .08em;
+  font-weight: 800;
   text-shadow: 0 1px 0 rgba(255, 247, 214, .22), 0 0 12px rgba(200, 178, 120, .18);
   line-height: 1;
 }
@@ -542,8 +562,10 @@ h3 { margin-bottom: 1rem; }
 
 .access-panel__head h2 {
   color: var(--gold-dark);
+  font-family: var(--font-serif);
   font-size: 1.6rem;
-  font-weight: 800;
+  letter-spacing: .5px;
+  font-weight: 700;
   text-shadow: 0 1px 0 rgba(255, 244, 194, .42);
 }
 
@@ -566,8 +588,10 @@ h3 { margin-bottom: 1rem; }
 }
 
 .access-panel--sealed .eyebrow {
-  font-family: "Cascadia Mono", "Courier New", monospace;
+  font-family: var(--font-mono);
   letter-spacing: .08em;
+  font-weight: 400;
+  opacity: .76;
 }
 
 .access-panel--sealed input {
@@ -616,7 +640,9 @@ label {
   display: grid;
   gap: .42rem;
   color: var(--muted);
+  font-family: var(--font-sans);
   font-size: .9rem;
+  font-weight: 400;
 }
 
 .span-2 { grid-column: span 2; }
@@ -624,11 +650,19 @@ label {
 input, select, textarea {
   width: 100%;
   color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
   background: rgba(1, 10, 7, .72);
   border: 1px solid rgba(244, 241, 223, .2);
   border-radius: 6px;
   padding: .78rem .82rem;
   outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-hint);
+  font-weight: 400;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -813,8 +847,10 @@ input:focus, select:focus, textarea:focus {
   height: 96px;
   margin: 0;
   color: var(--gold-light);
+  font-family: var(--font-serif);
   font-size: 3.05rem;
-  font-weight: 800;
+  letter-spacing: 1px;
+  font-weight: 700;
   background:
     radial-gradient(circle at 52% 48%, rgba(16, 42, 36, .76) 0 44%, transparent 45%),
     conic-gradient(from 42deg, rgba(200, 178, 120, .96), rgba(80, 186, 169, .92), rgba(130, 96, 190, .76), rgba(94, 169, 157, .9), rgba(200, 178, 120, .96));
@@ -889,8 +925,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .score-strip div { padding: .8rem; }
-dt { color: var(--muted); font-size: .8rem; }
-dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 800; }
+dt { color: var(--text-hint); font-family: var(--font-sans); font-size: .8rem; font-weight: 400; }
+dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans); font-size: 1.55rem; font-weight: 800; }
 
 .cards {
   display: grid;
@@ -910,7 +946,14 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   gap: .75rem;
 }
 
-.profile-card h4 { margin: 0 0 .35rem; font-size: 1.2rem; }
+.profile-card h4 {
+  margin: 0 0 .35rem;
+  color: var(--gold-main);
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  letter-spacing: .5px;
+  font-weight: 400;
+}
 .profile-card p { color: var(--muted); }
 .badge {
   display: inline-flex;
@@ -960,14 +1003,14 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .rank-index {
-  color: var(--gold);
+  color: var(--gold-light);
   font-size: 1.8rem;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .rank-name strong { display: block; }
-.rank-name span, .rank-metric span { color: var(--muted); font-size: .82rem; }
-.rank-metric strong { display: block; color: var(--ink); font-size: 1.2rem; }
+.rank-name span, .rank-metric span { color: var(--text-hint); font-size: .82rem; font-weight: 400; }
+.rank-metric strong { display: block; color: var(--gold-light); font-family: var(--font-sans); font-size: 1.2rem; font-weight: 800; }
 
 .rank-metric {
   min-width: 0;
@@ -986,7 +1029,7 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .log-item { padding: .85rem; }
-.log-item strong { color: var(--gold); }
+.log-item strong { color: var(--gold-light); font-family: var(--font-sans); font-weight: 800; }
 .log-item time { display: block; color: var(--muted); font-size: .78rem; margin-top: .35rem; }
 
 .talent-section {
@@ -1001,7 +1044,10 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .talent-section h4 {
   margin: 0 0 .65rem;
-  color: var(--gold);
+  color: var(--gold-main);
+  font-family: var(--font-serif);
+  letter-spacing: .5px;
+  font-weight: 400;
 }
 
 .talent-section ul {
@@ -1166,7 +1212,9 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   margin-bottom: .4rem;
   font-size: clamp(1.6rem, 3vw, 2.4rem);
   color: var(--gold-light);
-  font-family: "Noto Serif SC", "Source Han Serif SC", "Microsoft YaHei", serif;
+  font-family: var(--font-serif);
+  letter-spacing: 1px;
+  font-weight: 700;
   text-shadow: 0 0 18px rgba(200, 178, 120, .15);
 }
 
@@ -1176,9 +1224,10 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .dossier-head .eyebrow {
-  color: var(--gold-main);
-  font-family: "Cascadia Mono", "Courier New", monospace;
+  color: rgba(200, 178, 120, .7);
+  font-family: var(--font-mono);
   letter-spacing: .12em;
+  font-weight: 400;
 }
 
 .dossier-section {
@@ -1194,7 +1243,10 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   gap: 14px;
   margin: 0;
   color: var(--gold-main);
+  font-family: var(--font-serif);
   font-size: 1.05rem;
+  letter-spacing: .5px;
+  font-weight: 400;
   text-shadow: 0 0 14px rgba(200, 178, 120, .12);
 }
 
@@ -1261,13 +1313,16 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .dossier-grid dt {
   color: var(--text-hint);
+  font-family: var(--font-sans);
   font-size: .78rem;
+  font-weight: 400;
 }
 
 .dossier-grid dd {
   margin: 0;
   overflow-wrap: anywhere;
   color: var(--gold-light);
+  font-family: var(--font-sans);
   font-size: 1.18rem;
   font-weight: 800;
   text-align: right;
@@ -1325,6 +1380,7 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .rule-number {
   color: var(--gold-light);
+  font-family: var(--font-sans);
   font-weight: 800;
   text-shadow: 0 0 12px rgba(200, 178, 120, .18);
 }
@@ -1379,13 +1435,17 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 .self-edit-form h4 {
   margin: 0;
   color: var(--gold-main);
+  font-family: var(--font-serif);
   font-size: 1.12rem;
+  letter-spacing: .5px;
+  font-weight: 400;
   text-shadow: 0 0 14px rgba(200, 178, 120, .12);
 }
 
 .self-edit-form label {
   position: relative;
   color: var(--text-normal);
+  font-weight: 400;
 }
 
 .self-edit-form input,
