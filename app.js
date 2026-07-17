@@ -240,6 +240,14 @@ function showToast(message) {
   showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
 }
 
+function flashSealBreak() {
+  document.body.classList.remove("is-seal-breaking");
+  void document.body.offsetWidth;
+  document.body.classList.add("is-seal-breaking");
+  clearTimeout(flashSealBreak.timer);
+  flashSealBreak.timer = setTimeout(() => document.body.classList.remove("is-seal-breaking"), 900);
+}
+
 async function callAction(action, payload = {}) {
   if (!onlineEnabled) {
     try {
@@ -746,6 +754,7 @@ async function handleSecretSubmit(event) {
     phrase: currentPrivatePhrase
   });
   if (result.error) return showToast(`验证失败：${result.error}`);
+  flashSealBreak();
   renderPrivatePanel(toPrivateProfile(result.data.profile));
   showToast("已进入你的私密面板");
 }

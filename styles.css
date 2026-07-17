@@ -39,6 +39,45 @@ body {
   background: linear-gradient(135deg, #0f2420 0%, #142e28 100%);
 }
 
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+}
+
+body::before {
+  inset: 0;
+  z-index: 19;
+  opacity: 0;
+  background:
+    repeating-linear-gradient(38deg, transparent 0 26px, rgba(200, 178, 120, .16) 27px 28px, transparent 29px 56px),
+    repeating-linear-gradient(142deg, transparent 0 30px, rgba(234, 224, 188, .11) 31px 32px, transparent 33px 60px);
+  mix-blend-mode: screen;
+}
+
+body.is-seal-breaking::before {
+  animation: seal-break-flash .82s ease-out 1;
+}
+
+body::after {
+  right: 24px;
+  bottom: 18px;
+  z-index: 2;
+  content: "不辨真伪，勿论虚实";
+  color: rgba(200, 178, 120, .13);
+  font-family: var(--font-serif);
+  font-size: .86rem;
+  letter-spacing: .18em;
+  text-shadow: 0 0 16px rgba(200, 178, 120, .08);
+}
+
+@keyframes seal-break-flash {
+  0% { opacity: 0; filter: blur(8px); transform: scale(1); }
+  18% { opacity: .72; filter: blur(1px); transform: scale(1.01); }
+  100% { opacity: 0; filter: blur(10px); transform: scale(1.035); }
+}
+
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 
@@ -395,8 +434,15 @@ h3 { margin-bottom: 1rem; }
 .section-head--compact { margin-top: 2rem; }
 
 .panel {
+  position: relative;
   border: 1px solid var(--line);
-  background: var(--panel);
+  background:
+    url("assets/hope-state-sigil.svg") 12px 12px / 22px 22px no-repeat,
+    url("assets/hope-state-sigil.svg") calc(100% - 12px) 12px / 22px 22px no-repeat,
+    url("assets/hope-state-sigil.svg") 12px calc(100% - 12px) / 22px 22px no-repeat,
+    url("assets/hope-state-sigil.svg") calc(100% - 12px) calc(100% - 12px) / 22px 22px no-repeat,
+    var(--panel);
+  background-blend-mode: soft-light, soft-light, soft-light, soft-light, normal;
   border-radius: 8px;
   box-shadow: var(--shadow);
 }
@@ -609,6 +655,11 @@ h3 { margin-bottom: 1rem; }
 
 .access-panel--sealed input:focus {
   border-color: var(--gold-main);
+  background-image:
+    url("assets/prayer-runes.svg?v=20260717-motion-1"),
+    linear-gradient(180deg, rgba(10, 20, 18, .46), rgba(7, 14, 12, .44));
+  background-size: 220px 140px, auto;
+  background-blend-mode: soft-light, normal;
   box-shadow: inset 0 1px 9px rgba(0, 0, 0, .18), 0 0 0 3px rgba(200, 178, 120, .1), 0 0 18px rgba(200, 178, 120, .1);
 }
 
@@ -666,8 +717,15 @@ textarea::placeholder {
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(241, 198, 91, .12);
+  border-color: var(--gold-main);
+  background-image:
+    url("assets/prayer-runes.svg?v=20260717-motion-1"),
+    linear-gradient(180deg, rgba(4, 17, 14, .78), rgba(2, 11, 9, .62));
+  background-size: 220px 140px, auto;
+  background-blend-mode: soft-light, normal;
+  box-shadow:
+    inset 0 0 22px rgba(200, 178, 120, .055),
+    0 0 0 3px rgba(200, 178, 120, .11);
 }
 
 .form-actions, .toolbar, .segmented, .score-inputs {
@@ -704,6 +762,7 @@ input:focus, select:focus, textarea:focus {
   padding: .7rem 1rem;
   color: var(--ink);
   background: rgba(255, 255, 255, .05);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, color .2s ease, background .2s ease;
 }
 
 .btn--primary {
@@ -717,6 +776,15 @@ input:focus, select:focus, textarea:focus {
     0 8px 24px rgba(241, 198, 91, .18),
     inset 0 1px 0 rgba(255, 255, 255, .42),
     inset 0 -1px 0 rgba(89, 59, 10, .18);
+}
+
+.btn--primary:hover,
+.import-button:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 30px rgba(200, 178, 120, .18),
+    0 10px 26px rgba(0, 0, 0, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .38);
 }
 
 .btn--ghost:hover, .import-button:hover { border-color: var(--gold); }
@@ -884,7 +952,7 @@ input:focus, select:focus, textarea:focus {
   inset: -24px;
   border-style: dashed;
   opacity: .48;
-  animation: void-avatar-chain 10s linear infinite;
+  animation: void-avatar-chain 4s ease-in-out infinite;
 }
 
 @keyframes void-avatar-core {
@@ -907,7 +975,14 @@ input:focus, select:focus, textarea:focus {
 }
 
 @keyframes void-avatar-chain {
-  to { transform: rotate(360deg); }
+  0%, 100% {
+    opacity: .32;
+    box-shadow: 0 0 0 rgba(200, 178, 120, 0);
+  }
+  50% {
+    opacity: .62;
+    box-shadow: 0 0 18px rgba(200, 178, 120, .14);
+  }
 }
 
 .score-strip {
@@ -1115,10 +1190,15 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
   text-align: left;
   border-color: rgba(200, 178, 120, .28);
   background:
+    url("assets/hope-state-sigil.svg") 14px 14px / 24px 24px no-repeat,
+    url("assets/hope-state-sigil.svg") calc(100% - 18px) 14px / 24px 24px no-repeat,
+    url("assets/hope-state-sigil.svg") 14px calc(100% - 18px) / 24px 24px no-repeat,
+    url("assets/hope-state-sigil.svg") calc(100% - 18px) calc(100% - 18px) / 24px 24px no-repeat,
     radial-gradient(circle at 78% 14%, rgba(129, 211, 188, .11), transparent 18rem),
     radial-gradient(circle at 20% 92%, rgba(150, 130, 79, .08), transparent 20rem),
     linear-gradient(145deg, rgba(16, 42, 36, .82), rgba(10, 23, 19, .7)),
     var(--bg-dossier);
+  background-blend-mode: soft-light, soft-light, soft-light, soft-light, normal, normal, normal, normal;
   box-shadow:
     0 8px 32px var(--gold-glow),
     0 20px 58px rgba(0, 0, 0, .38),
@@ -1144,7 +1224,7 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
   box-shadow:
     0 0 18px rgba(115, 216, 187, .2),
     0 0 26px rgba(200, 178, 120, .14);
-  animation: void-rail-breathe 7s ease-in-out infinite;
+  animation: void-rail-breathe 5s ease-in-out infinite;
   pointer-events: none;
 }
 
@@ -1462,6 +1542,11 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
 .self-edit-form input:focus,
 .self-edit-form textarea:focus {
   border-color: var(--gold-main);
+  background-image:
+    url("assets/prayer-runes.svg?v=20260717-motion-1"),
+    linear-gradient(180deg, rgba(4, 17, 14, .78), rgba(2, 11, 9, .62));
+  background-size: 220px 140px, auto;
+  background-blend-mode: soft-light, normal;
   box-shadow:
     inset 0 1px 10px rgba(0, 0, 0, .28),
     0 0 0 3px rgba(200, 178, 120, .1),
