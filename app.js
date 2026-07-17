@@ -600,7 +600,7 @@ function renderPrivatePanel(profile) {
       <header class="dossier-head">
       <div class="avatar-orbit">${escapeHtml((profile.name || "希").slice(0, 1))}</div>
         <div>
-          <p class="eyebrow">Private Dossier</p>
+          <p class="eyebrow">Believer Dossier</p>
           <h3>${escapeHtml(profile.name)}</h3>
           <p>${escapeHtml(getFaithGod(profile) || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
         </div>

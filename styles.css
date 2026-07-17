@@ -812,15 +812,20 @@ input:focus, select:focus, textarea:focus {
   width: 96px;
   height: 96px;
   margin: 0;
-  color: #07100d;
-  font-size: 2.8rem;
+  color: var(--gold-light);
+  font-size: 3.05rem;
   font-weight: 800;
-  background: conic-gradient(from 40deg, var(--gold), var(--green), var(--blue), var(--gold));
+  background:
+    radial-gradient(circle at 52% 48%, rgba(16, 42, 36, .76) 0 44%, transparent 45%),
+    conic-gradient(from 42deg, rgba(200, 178, 120, .96), rgba(80, 186, 169, .92), rgba(130, 96, 190, .76), rgba(94, 169, 157, .9), rgba(200, 178, 120, .96));
   border-radius: 50%;
   box-shadow:
-    0 0 0 1px rgba(255, 243, 184, .4),
-    0 0 40px rgba(54, 196, 151, .25),
-    0 0 72px rgba(241, 198, 91, .12);
+    0 0 0 1px rgba(234, 224, 188, .4),
+    inset 0 0 22px rgba(10, 23, 19, .42),
+    0 0 34px rgba(80, 186, 169, .22),
+    0 0 64px rgba(130, 96, 190, .12);
+  text-shadow: 0 0 14px rgba(234, 224, 188, .22);
+  animation: void-avatar-core 8s ease-in-out infinite;
 }
 
 .avatar-orbit::before,
@@ -828,15 +833,45 @@ input:focus, select:focus, textarea:focus {
   content: "";
   position: absolute;
   inset: -14px;
-  border: 1px solid rgba(255, 242, 185, .34);
+  border: 1px solid rgba(200, 178, 120, .32);
   border-radius: 50%;
   pointer-events: none;
+}
+
+.avatar-orbit::before {
+  background:
+    linear-gradient(34deg, transparent 0 44%, rgba(10, 23, 19, .58) 45% 48%, transparent 49% 100%);
+  clip-path: polygon(0 0, 78% 0, 78% 20%, 100% 20%, 100% 100%, 18% 100%, 18% 82%, 0 82%);
 }
 
 .avatar-orbit::after {
   inset: -24px;
   border-style: dashed;
-  opacity: .42;
+  opacity: .48;
+  animation: void-avatar-chain 10s linear infinite;
+}
+
+@keyframes void-avatar-core {
+  0%, 100% {
+    filter: hue-rotate(0deg) saturate(.92);
+    box-shadow:
+      0 0 0 1px rgba(234, 224, 188, .36),
+      inset 0 0 22px rgba(10, 23, 19, .42),
+      0 0 30px rgba(80, 186, 169, .18),
+      0 0 58px rgba(130, 96, 190, .09);
+  }
+  50% {
+    filter: hue-rotate(20deg) saturate(1.12);
+    box-shadow:
+      0 0 0 1px rgba(234, 224, 188, .5),
+      inset 0 0 22px rgba(10, 23, 19, .36),
+      0 0 42px rgba(80, 186, 169, .28),
+      0 0 76px rgba(130, 96, 190, .18);
+  }
+}
+
+@keyframes void-avatar-chain {
+  to { transform: rotate(360deg); }
 }
 
 .score-strip {
@@ -1032,36 +1067,62 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   position: relative;
   overflow: auto;
   text-align: left;
-  border-color: rgba(244, 241, 223, .2);
+  border-color: rgba(200, 178, 120, .28);
   background:
-    linear-gradient(145deg, rgba(16, 39, 33, .9), rgba(10, 23, 19, .72)),
-    radial-gradient(circle at 72% 22%, rgba(229, 255, 235, .13), transparent 17rem);
+    radial-gradient(circle at 78% 14%, rgba(129, 211, 188, .11), transparent 18rem),
+    radial-gradient(circle at 20% 92%, rgba(150, 130, 79, .08), transparent 20rem),
+    linear-gradient(145deg, rgba(16, 42, 36, .82), rgba(10, 23, 19, .7)),
+    var(--bg-dossier);
   box-shadow:
-    0 20px 58px rgba(0, 0, 0, .42),
-    0 0 0 1px rgba(255, 252, 217, .12),
-    inset 0 0 0 1px rgba(255, 255, 255, .08),
-    inset 0 0 42px rgba(241, 198, 91, .06);
-  backdrop-filter: blur(10px);
+    0 8px 32px var(--gold-glow),
+    0 20px 58px rgba(0, 0, 0, .38),
+    inset 0 0 0 1px rgba(234, 224, 188, .08),
+    inset 0 0 42px rgba(200, 178, 120, .05);
+  backdrop-filter: blur(16px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 130, 79, .72) transparent;
 }
 
 .dossier-card::before {
   content: "";
-  position: sticky;
+  position: absolute;
   top: 0;
-  display: block;
-  height: 0;
-  z-index: 2;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 8px;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(200, 178, 120, .18), rgba(115, 216, 187, .48), rgba(151, 112, 205, .28), rgba(200, 178, 120, .74), rgba(115, 216, 187, .38)),
+    linear-gradient(180deg, rgba(234, 224, 188, .42), rgba(150, 130, 79, .22));
+  box-shadow:
+    0 0 18px rgba(115, 216, 187, .2),
+    0 0 26px rgba(200, 178, 120, .14);
+  animation: void-rail-breathe 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes void-rail-breathe {
+  0%, 100% {
+    opacity: .62;
+    filter: hue-rotate(0deg) saturate(.9);
+  }
+  50% {
+    opacity: 1;
+    filter: hue-rotate(24deg) saturate(1.18);
+  }
 }
 
 .dossier-card::after {
   content: "";
   position: absolute;
   inset: 12px;
-  border: 1px solid rgba(241, 198, 91, .3);
+  z-index: 2;
+  border: 1px solid rgba(200, 178, 120, .3);
   border-radius: 7px;
   background:
-    linear-gradient(90deg, rgba(241, 198, 91, .8), transparent 20%, transparent 80%, rgba(241, 198, 91, .8)) top / 100% 1px no-repeat,
-    linear-gradient(90deg, rgba(241, 198, 91, .8), transparent 20%, transparent 80%, rgba(241, 198, 91, .8)) bottom / 100% 1px no-repeat,
+    linear-gradient(90deg, rgba(200, 178, 120, .72), transparent 20%, transparent 80%, rgba(200, 178, 120, .72)) top / 100% 1px no-repeat,
+    linear-gradient(90deg, rgba(200, 178, 120, .72), transparent 20%, transparent 80%, rgba(200, 178, 120, .72)) bottom / 100% 1px no-repeat,
     radial-gradient(circle at 72% 22%, rgba(220, 255, 236, .16), transparent 14rem);
   pointer-events: none;
 }
@@ -1084,8 +1145,8 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   inset: -18px -12px auto;
   height: 220px;
   background:
-    radial-gradient(ellipse at 64% 20%, rgba(232, 255, 234, .18), transparent 16rem),
-    linear-gradient(90deg, transparent, rgba(255, 255, 255, .08), transparent);
+    radial-gradient(ellipse at 64% 20%, rgba(132, 235, 209, .16), transparent 16rem),
+    linear-gradient(90deg, transparent, rgba(234, 224, 188, .06), transparent);
   filter: blur(16px);
   opacity: .8;
   pointer-events: none;
@@ -1104,13 +1165,20 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 .dossier-head h3 {
   margin-bottom: .4rem;
   font-size: clamp(1.6rem, 3vw, 2.4rem);
-  color: var(--gold-soft);
-  text-shadow: 0 0 18px rgba(241, 198, 91, .15);
+  color: var(--gold-light);
+  font-family: "Noto Serif SC", "Source Han Serif SC", "Microsoft YaHei", serif;
+  text-shadow: 0 0 18px rgba(200, 178, 120, .15);
 }
 
 .dossier-head p:last-child {
   margin-bottom: 0;
-  color: var(--muted);
+  color: var(--text-hint);
+}
+
+.dossier-head .eyebrow {
+  color: var(--gold-main);
+  font-family: "Cascadia Mono", "Courier New", monospace;
+  letter-spacing: .12em;
 }
 
 .dossier-section {
@@ -1121,30 +1189,32 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .dossier-section h4 {
   display: grid;
-  grid-template-columns: auto minmax(48px, 1fr);
+  grid-template-columns: auto minmax(72px, 1fr);
   align-items: center;
   gap: 14px;
   margin: 0;
-  color: var(--gold);
+  color: var(--gold-main);
   font-size: 1.05rem;
-  text-shadow: 0 0 14px rgba(241, 198, 91, .12);
+  text-shadow: 0 0 14px rgba(200, 178, 120, .12);
 }
 
 .dossier-section h4::after {
   content: "";
-  height: 1px;
+  height: 7px;
   background:
-    linear-gradient(90deg, rgba(241, 198, 91, .72), rgba(241, 198, 91, .18), transparent);
+    repeating-linear-gradient(90deg, rgba(200, 178, 120, .78) 0 18px, transparent 18px 26px),
+    linear-gradient(90deg, rgba(200, 178, 120, .28), transparent 88%);
+  clip-path: polygon(0 43%, 38% 43%, 40% 0, 42% 43%, 100% 43%, 100% 57%, 42% 57%, 40% 100%, 38% 57%, 0 57%);
 }
 
 .dossier-grid {
   display: grid;
   gap: 0;
   margin: 0;
-  border: 1px solid rgba(241, 198, 91, .26);
+  border: 1px solid rgba(200, 178, 120, .24);
   border-radius: 8px;
   overflow: hidden;
-  background: rgba(2, 18, 13, .2);
+  background: rgba(2, 18, 13, .22);
 }
 
 .dossier-grid--four {
@@ -1156,14 +1226,29 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .dossier-grid div {
+  position: relative;
+  overflow: hidden;
   display: grid;
   gap: 8px;
   min-width: 0;
   padding: 12px 14px;
-  border-right: 1px solid rgba(241, 198, 91, .2);
-  border-bottom: 1px solid rgba(241, 198, 91, .2);
+  border-right: 1px solid rgba(200, 178, 120, .18);
+  border-bottom: 1px solid rgba(200, 178, 120, .18);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .018));
+    linear-gradient(135deg, rgba(234, 224, 188, .045), rgba(255, 255, 255, .012));
+  transition: background .2s ease, box-shadow .2s ease;
+}
+
+.dossier-grid div:nth-child(even) {
+  background:
+    linear-gradient(135deg, rgba(120, 189, 165, .055), rgba(255, 255, 255, .012));
+}
+
+.dossier-grid div:hover {
+  background:
+    radial-gradient(circle at 82% 18%, rgba(200, 178, 120, .12), transparent 8rem),
+    linear-gradient(135deg, rgba(234, 224, 188, .07), rgba(120, 189, 165, .035));
+  box-shadow: inset 0 0 22px rgba(200, 178, 120, .08);
 }
 
 .dossier-grid div:nth-child(4n) {
@@ -1175,13 +1260,13 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .dossier-grid dt {
-  color: rgba(226, 235, 206, .64);
+  color: rgba(180, 194, 189, .72);
 }
 
 .dossier-grid dd {
   margin: 0;
   overflow-wrap: anywhere;
-  color: var(--gold-soft);
+  color: var(--gold-light);
   font-size: 1rem;
   font-weight: 800;
   text-align: right;
@@ -1197,17 +1282,28 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .talent-list li,
 .dossier-section > p {
+  position: relative;
   margin: 0;
   padding: 12px 14px;
-  border: 1px solid rgba(241, 198, 91, .18);
+  border: 1px solid rgba(200, 178, 120, .18);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .018));
+    linear-gradient(135deg, rgba(234, 224, 188, .045), rgba(255, 255, 255, .012));
   line-height: 1.6;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.talent-list li:hover,
+.dossier-section > p:hover {
+  border-color: rgba(200, 178, 120, .34);
+  background:
+    radial-gradient(circle at 84% 18%, rgba(200, 178, 120, .1), transparent 9rem),
+    linear-gradient(135deg, rgba(234, 224, 188, .065), rgba(255, 255, 255, .016));
+  box-shadow: inset 0 0 18px rgba(200, 178, 120, .07);
 }
 
 .dossier-section--rule p {
-  border-color: rgba(241, 198, 91, .14);
+  border-color: rgba(200, 178, 120, .14);
   background: rgba(1, 10, 7, .38);
 }
 
@@ -1298,17 +1394,21 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .profile-preview--wide::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
 }
 
 .profile-preview--wide::-webkit-scrollbar-track {
-  background: rgba(1, 10, 7, .4);
+  background: transparent;
 }
 
 .profile-preview--wide::-webkit-scrollbar-thumb {
-  background: linear-gradient(var(--gold), rgba(54, 196, 151, .42));
-  border: 2px solid rgba(1, 10, 7, .62);
+  background: linear-gradient(180deg, rgba(150, 130, 79, .5), rgba(200, 178, 120, .78), rgba(93, 78, 46, .62));
+  border: 0;
   border-radius: 999px;
+}
+
+.profile-preview--wide::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(200, 178, 120, .72), rgba(234, 224, 188, .9), rgba(150, 130, 79, .78));
 }
 
 .modal[hidden] {
