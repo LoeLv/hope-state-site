@@ -130,6 +130,15 @@ function normalizeTalents(value) {
     .filter(Boolean);
 }
 
+function formatTalentName(item) {
+  const text = String(item || "").trim().replace(/^【|】$/g, "");
+  return `【${escapeHtml(text)}】`;
+}
+
+function highlightRuleNumbers(text) {
+  return escapeHtml(text || "").replace(/([+-]?\d+(?:\.\d+)?%?)/g, '<span class="rule-number">$1</span>');
+}
+
 function normalizeProfessionName(value) {
   return String(value || "").trim().replace(/\s+/g, "");
 }
@@ -606,37 +615,37 @@ function renderPrivatePanel(profile) {
         </div>
       </header>
       <section class="dossier-section">
-        <h4>圣榜排位</h4>
+        <h4>诸神圣榜位次</h4>
         <dl class="dossier-grid dossier-grid--four">
-          <div><dt>总榜排名</dt><dd>#${getTotalRank(profile) || "-"}</dd></div>
-          <div><dt>命途排名</dt><dd>#${getPathRank(profile) || "-"}</dd></div>
-          <div><dt>信仰神明</dt><dd>${escapeHtml(getFaithGod(profile) || "未定")}</dd></div>
-          <div><dt>命途</dt><dd>${escapeHtml(profile.path || "未定")}</dd></div>
+          <div><dt>全洲试炼位次</dt><dd>#${getTotalRank(profile) || "-"}</dd></div>
+          <div><dt>虚无命途位次</dt><dd>#${getPathRank(profile) || "-"}</dd></div>
+          <div><dt>侍奉神祇</dt><dd>${escapeHtml(getFaithGod(profile) || "未定")}</dd></div>
+          <div><dt>本源命途</dt><dd>${escapeHtml(profile.path || "未定")}</dd></div>
         </dl>
       </section>
       <section class="dossier-section">
-        <h4>职阶与试炼属性</h4>
+        <h4>职阶试炼本源</h4>
         <dl class="dossier-grid dossier-grid--two">
-          <div><dt>基础职业</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
-          <div><dt>职业</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
-          <div><dt>生命力</dt><dd>${maxHp(profile) || "-"}</dd></div>
-          <div><dt>权柄伤害</dt><dd>${baseRuleFor(profile).baseAttack || "-"}</dd></div>
-          <div><dt>试炼积分</dt><dd>${getAscension(profile)}</dd></div>
-          <div><dt>信仰馈赐</dt><dd>${getAudience(profile)}</dd></div>
+          <div><dt>辅职阶</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
+          <div><dt>主职阶</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
+          <div><dt>本源生机</dt><dd>${maxHp(profile) || "-"}</dd></div>
+          <div><dt>欺瞒权能</dt><dd>${baseRuleFor(profile).baseAttack || "-"}</dd></div>
+          <div><dt>试炼馈赐点数</dt><dd>${getAscension(profile)}</dd></div>
+          <div><dt>神祇馈赐</dt><dd>${getAudience(profile)}</dd></div>
         </dl>
       </section>
       <section class="dossier-section dossier-section--talents">
-        <h4>解锁权柄</h4>
-        ${talents.length ? `<ul class="talent-list">${talents.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p></p>"}
+        <h4>已解锁权能</h4>
+        ${talents.length ? `<ul class="talent-list">${talents.map((item) => `<li>${formatTalentName(item)}</li>`).join("")}</ul>` : "<p></p>"}
       </section>
-      <section class="dossier-section">
-        <h4>个人祷注</h4>
+      <section class="dossier-section dossier-section--prayer">
+        <h4>信徒私祷</h4>
         <p>${escapeHtml(profile.privateNote || "")}</p>
       </section>
       <section class="dossier-section dossier-section--rule">
-        <h4>职业特性和职业技能</h4>
-        <p>${escapeHtml(getFeatureText(profile) || "")}</p>
-        <p>${escapeHtml(baseRuleFor(profile).combatRule)}</p>
+        <h4>小丑牧师・枷锁谕行规则</h4>
+        <p>${highlightRuleNumbers(getFeatureText(profile) || "")}</p>
+        <p>${highlightRuleNumbers(baseRuleFor(profile).combatRule)}</p>
       </section>
       <form class="self-edit-form dossier-edit-zone" id="selfEditForm">
         <div>

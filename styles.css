@@ -1231,7 +1231,7 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   display: grid;
   gap: 8px;
   min-width: 0;
-  padding: 12px 14px;
+  padding: 16px 14px;
   border-right: 1px solid rgba(200, 178, 120, .18);
   border-bottom: 1px solid rgba(200, 178, 120, .18);
   background:
@@ -1260,14 +1260,15 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .dossier-grid dt {
-  color: rgba(180, 194, 189, .72);
+  color: var(--text-hint);
+  font-size: .78rem;
 }
 
 .dossier-grid dd {
   margin: 0;
   overflow-wrap: anywhere;
   color: var(--gold-light);
-  font-size: 1rem;
+  font-size: 1.18rem;
   font-weight: 800;
   text-align: right;
 }
@@ -1293,6 +1294,10 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
+.talent-list li {
+  color: var(--gold-light);
+}
+
 .talent-list li:hover,
 .dossier-section > p:hover {
   border-color: rgba(200, 178, 120, .34);
@@ -1304,7 +1309,24 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .dossier-section--rule p {
   border-color: rgba(200, 178, 120, .14);
-  background: rgba(1, 10, 7, .38);
+  background: rgba(0, 0, 0, .15);
+  line-height: 1.6;
+}
+
+.dossier-section--prayer p {
+  border-color: rgba(200, 178, 120, .16);
+  background:
+    radial-gradient(circle at 86% 18%, rgba(0, 0, 0, .14), transparent 10rem),
+    rgba(4, 17, 14, .52);
+  box-shadow:
+    inset 0 1px 12px rgba(0, 0, 0, .24),
+    inset 0 0 0 1px rgba(0, 0, 0, .16);
+}
+
+.rule-number {
+  color: var(--gold-light);
+  font-weight: 800;
+  text-shadow: 0 0 12px rgba(200, 178, 120, .18);
 }
 
 .self-edit-form {
