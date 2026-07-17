@@ -488,7 +488,9 @@ function filteredProfiles() {
 
 function renderLeaderboard() {
   const profiles = filteredProfiles();
-  $("#totalProfiles").textContent = publicProfiles().length;
+  const sealNumerals = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖", "拾"];
+  const totalProfiles = publicProfiles().length;
+  $("#totalProfiles").textContent = sealNumerals[totalProfiles] || totalProfiles;
   $("#dataModeLabel").textContent = "";
   $("#leaderboardList").innerHTML = profiles.map((profile, index) => `
     <button class="rank-row rank-row--button" type="button" data-public-id="${profile.id}">
