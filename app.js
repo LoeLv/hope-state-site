@@ -1070,8 +1070,8 @@ function toggleSecretField(id) {
   const input = $(`#${id}`);
   const button = $(`[data-toggle-secret="${id}"]`);
   const hidden = input.classList.toggle("is-secret-hidden");
-  if (id === "secretName") button.textContent = hidden ? "显露称谓" : "隐匿称谓";
-  else button.textContent = hidden ? "显露暗语" : "隐匿暗语";
+  if (id === "secretName") button.textContent = hidden ? "显露法号" : "遮蔽法号";
+  else button.textContent = hidden ? "显露暗契" : "遮蔽暗契";
 }
 
 function bindEvents() {
@@ -1113,8 +1113,8 @@ function bindEvents() {
     $("#secretForm").reset();
     $("#secretPhrase").classList.remove("is-secret-hidden");
     $("#secretName").classList.remove("is-secret-hidden");
-    $("[data-toggle-secret='secretPhrase']").textContent = "隐匿暗语";
-    $("[data-toggle-secret='secretName']").textContent = "隐匿称谓";
+    $("[data-toggle-secret='secretPhrase']").textContent = "遮蔽暗契";
+    $("[data-toggle-secret='secretName']").textContent = "遮蔽法号";
     $("#privatePanel").innerHTML = `
       <div class="dossier-head">
         <div class="avatar-orbit">希</div>

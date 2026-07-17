@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>希望之州 | 诸神愚戏</title>
-  <link rel="stylesheet" href="styles.css?v=20260717-edict-1">
+  <link rel="stylesheet" href="styles.css?v=20260717-seal-1">
 </head>
 <body>
   <div class="ambient" aria-hidden="true">
@@ -81,25 +81,29 @@
     <section class="view" id="privateView" aria-labelledby="privateTitle">
       <div class="private-layout">
         <form class="panel access-panel access-panel--sealed" id="secretForm">
+          <span class="access-panel__seal access-panel__seal--tl" aria-hidden="true"></span>
+          <span class="access-panel__seal access-panel__seal--tr" aria-hidden="true"></span>
+          <span class="access-panel__seal access-panel__seal--bl" aria-hidden="true"></span>
+          <span class="access-panel__seal access-panel__seal--br" aria-hidden="true"></span>
           <div class="access-panel__head">
             <div>
-              <p class="eyebrow">Private Seal</p>
+              <p class="eyebrow">Seal of Believer</p>
               <h2 id="privateTitle">私藏暗语封印匣</h2>
             </div>
             <button class="mini-btn" type="button" id="logoutButton" hidden>切断神谕链接</button>
           </div>
           <label class="secret-name-row">
-            <span>信徒称谓</span>
+            <span>信徒法号</span>
             <span class="secret-input">
               <input id="secretName" maxlength="24" required type="text" data-secret-field>
-              <button class="mini-btn" type="button" data-toggle-secret="secretName">隐匿称谓</button>
+              <button class="mini-btn" type="button" data-toggle-secret="secretName">遮蔽法号</button>
             </span>
           </label>
           <label class="unlock-row">
-            私密暗语
+            解锁封印暗契
             <span class="secret-input">
               <input id="secretPhrase" maxlength="80" required type="text" data-secret-field>
-              <button class="mini-btn" type="button" data-toggle-secret="secretPhrase">隐匿暗语</button>
+              <button class="mini-btn" type="button" data-toggle-secret="secretPhrase">遮蔽暗契</button>
             </span>
           </label>
           <button class="btn btn--primary btn--unlock" type="submit">启封天赋卷宗</button>

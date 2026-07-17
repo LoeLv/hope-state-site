@@ -1,7 +1,7 @@
 :root {
   --bg-deep: #0f2420;
   --bg-dossier: rgba(16, 42, 36, .65);
-  --bg-seal-paper: linear-gradient(140deg, rgba(180, 140, 80, .16), rgba(80, 60, 30, .1));
+  --bg-seal-paper: linear-gradient(140deg, #d8c39a 0%, #c4a875 52%, #a9814e 100%);
   --gold-light: #eae0bc;
   --gold-main: #c8b278;
   --gold-dark: #96824f;
@@ -447,31 +447,30 @@ h3 { margin-bottom: 1rem; }
   height: 100%;
   padding: clamp(24px, 6vh, 64px) 24px;
   color: var(--paper-ink);
-  border-color: rgba(125, 82, 21, .36);
-  background-color: #f1dfad;
+  border: 1px solid rgba(103, 76, 36, .78);
+  background-color: #c4a875;
   background:
-    radial-gradient(circle at 18% 10%, rgba(255, 253, 231, .98), transparent 12rem),
-    radial-gradient(circle at 88% 18%, rgba(183, 127, 45, .08), transparent 12rem),
-    radial-gradient(circle at 72% 92%, rgba(121, 75, 20, .08), transparent 15rem),
-    url("assets/parchment-grain.svg?v=20260716-parchment-2"),
-    linear-gradient(180deg, #fff0c4 0%, #f0d89d 58%, #dfbf78 100%);
-  background-blend-mode: normal, normal, normal, soft-light, normal;
+    radial-gradient(circle at 18% 10%, rgba(255, 244, 205, .34), transparent 12rem),
+    radial-gradient(circle at 88% 18%, rgba(94, 61, 22, .12), transparent 12rem),
+    url("assets/parchment-grain.svg?v=20260717-seal-1"),
+    var(--bg-seal-paper);
+  background-blend-mode: screen, multiply, soft-light, normal;
   box-shadow:
-    0 22px 48px rgba(0, 0, 0, .28),
-    inset 0 0 0 1px rgba(255, 250, 209, .46),
-    inset 0 0 42px rgba(105, 65, 16, .16);
+    0 4px 20px var(--gold-glow),
+    inset 0 0 0 1px rgba(234, 224, 188, .6),
+    inset 0 0 34px rgba(78, 54, 25, .22);
 }
 
 .access-panel--sealed::before {
   content: "";
   position: absolute;
   inset: 12px;
-  border: 2px solid rgba(128, 82, 22, .32);
+  border: 1px solid rgba(89, 62, 28, .7);
   border-radius: 7px;
   background:
-    linear-gradient(90deg, transparent 0 38%, rgba(137, 91, 30, .18) 39% 40%, transparent 41% 100%) top center / 100% 1px no-repeat,
-    linear-gradient(90deg, transparent 0 38%, rgba(137, 91, 30, .18) 39% 40%, transparent 41% 100%) bottom center / 100% 1px no-repeat,
-    linear-gradient(180deg, rgba(255, 248, 222, .18), transparent 24%, transparent 76%, rgba(112, 74, 20, .1));
+    linear-gradient(90deg, transparent 0 38%, rgba(234, 224, 188, .48) 39% 40%, transparent 41% 100%) top center / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent 0 38%, rgba(234, 224, 188, .48) 39% 40%, transparent 41% 100%) bottom center / 100% 1px no-repeat,
+    linear-gradient(180deg, rgba(255, 248, 222, .16), transparent 24%, transparent 76%, rgba(78, 54, 25, .14));
   pointer-events: none;
 }
 
@@ -480,15 +479,30 @@ h3 { margin-bottom: 1rem; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 12% 18%, rgba(112, 74, 20, .1) 0 1px, transparent 2px),
-    radial-gradient(circle at 32% 28%, rgba(112, 74, 20, .08) 0 1px, transparent 2px),
-    radial-gradient(circle at 76% 72%, rgba(112, 74, 20, .09) 0 1px, transparent 2px),
-    linear-gradient(120deg, transparent 0 45%, rgba(255, 255, 255, .28) 50%, transparent 55% 100%),
-    linear-gradient(90deg, rgba(93, 58, 15, .16), transparent 8%, transparent 92%, rgba(93, 58, 15, .2));
-  background-size: 36px 36px, 52px 52px, 44px 44px, auto, auto;
-  opacity: .5;
+    radial-gradient(circle at 12% 18%, rgba(78, 54, 25, .08) 0 1px, transparent 2px),
+    radial-gradient(circle at 32% 28%, rgba(78, 54, 25, .06) 0 1px, transparent 2px),
+    radial-gradient(circle at 76% 72%, rgba(78, 54, 25, .07) 0 1px, transparent 2px),
+    linear-gradient(90deg, rgba(78, 54, 25, .12), transparent 8%, transparent 92%, rgba(78, 54, 25, .16));
+  background-size: 36px 36px, 52px 52px, 44px 44px, auto;
+  opacity: .42;
   pointer-events: none;
 }
+
+.access-panel__seal {
+  position: absolute;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  opacity: .07;
+  background: url("assets/hope-state-sigil.svg") center / contain no-repeat;
+  filter: sepia(1) saturate(.65);
+  pointer-events: none;
+}
+
+.access-panel__seal--tl { top: 20px; left: 20px; }
+.access-panel__seal--tr { top: 20px; right: 20px; }
+.access-panel__seal--bl { bottom: 20px; left: 20px; }
+.access-panel__seal--br { right: 20px; bottom: 20px; }
 
 .access-panel--sealed .access-panel__head::before,
 .access-panel--sealed .access-panel__head::after {
@@ -523,31 +537,55 @@ h3 { margin-bottom: 1rem; }
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(93, 58, 15, .24);
+  border-bottom: 1px solid rgba(89, 62, 28, .28);
 }
 
 .access-panel__head h2 {
-  color: #3a2810;
-  font-size: clamp(1.25rem, 2vw, 1.7rem);
-  text-shadow: 0 1px 0 rgba(255, 244, 194, .52);
+  color: var(--gold-dark);
+  font-size: 1.6rem;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 244, 194, .42);
 }
 
 .access-panel__head .mini-btn {
   min-height: 40px;
+  color: var(--text-hint);
+  background: transparent;
+  border-color: transparent;
+}
+
+.access-panel__head .mini-btn:hover {
+  color: var(--gold-main);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .access-panel--sealed .eyebrow,
 .access-panel--sealed label {
-  color: rgba(43, 31, 14, .78);
+  color: var(--gold-dark);
+}
+
+.access-panel--sealed .eyebrow {
+  font-family: "Cascadia Mono", "Courier New", monospace;
+  letter-spacing: .08em;
 }
 
 .access-panel--sealed input {
-  color: #f8f2d8;
-  background: rgba(26, 31, 26, .5);
-  border-color: rgba(74, 50, 17, .28);
+  color: var(--gold-light);
+  background: rgba(10, 20, 18, .4);
+  border-color: rgba(200, 178, 120, .38);
   box-shadow:
     inset 0 1px 9px rgba(0, 0, 0, .18),
-    0 1px 0 rgba(255, 245, 204, .22);
+    0 1px 0 rgba(234, 224, 188, .16);
+}
+
+.access-panel--sealed input::placeholder {
+  color: var(--text-hint);
+}
+
+.access-panel--sealed input:focus {
+  border-color: var(--gold-main);
+  box-shadow: inset 0 1px 9px rgba(0, 0, 0, .18), 0 0 0 3px rgba(200, 178, 120, .1), 0 0 18px rgba(200, 178, 120, .1);
 }
 
 .access-panel--sealed .secret-input input {
@@ -557,14 +595,15 @@ h3 { margin-bottom: 1rem; }
 }
 
 .access-panel--sealed .mini-btn {
-  color: rgba(58, 40, 16, .82);
-  background: rgba(255, 241, 190, .28);
-  border-color: rgba(95, 69, 28, .24);
+  color: var(--gold-dark);
+  background: rgba(155, 119, 70, .32);
+  border-color: rgba(200, 178, 120, .36);
 }
 
 .access-panel--sealed .mini-btn:hover {
-  color: #2a1b08;
-  border-color: rgba(241, 198, 91, .62);
+  color: var(--gold-main);
+  border-color: var(--gold-main);
+  box-shadow: 0 0 16px rgba(200, 178, 120, .14);
 }
 
 .form-panel {
@@ -655,11 +694,25 @@ input:focus, select:focus, textarea:focus {
   min-height: 48px;
   border-radius: 8px;
   font-size: 1.02rem;
-  border: 1px solid rgba(92, 56, 8, .44);
+  border: 1px solid rgba(89, 62, 28, .72);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(234, 224, 188, .06) 19px 20px, transparent 21px 34px),
+    linear-gradient(180deg, #c8b278 0%, #a88955 48%, #82683a 100%);
+  color: #302514;
   box-shadow:
-    0 10px 24px rgba(75, 49, 8, .22),
-    inset 0 0 0 1px rgba(255, 247, 195, .48),
-    inset 0 -10px 28px rgba(112, 68, 6, .2);
+    0 8px 20px rgba(74, 49, 18, .18),
+    inset 0 1px 0 rgba(255, 247, 195, .38),
+    inset 0 -10px 28px rgba(72, 49, 18, .22);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.btn--unlock:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 30px rgba(74, 49, 18, .22),
+    0 0 34px rgba(200, 178, 120, .2),
+    inset 0 1px 0 rgba(255, 247, 195, .42),
+    inset 0 -10px 28px rgba(72, 49, 18, .2);
 }
 
 .btn--unlock::before,
@@ -683,6 +736,12 @@ input:focus, select:focus, textarea:focus {
   transform: translateX(-120%);
   transition: transform .45s ease;
   pointer-events: none;
+}
+
+.btn--unlock::after {
+  background:
+    repeating-linear-gradient(32deg, transparent 0 14px, rgba(54, 39, 18, .18) 15px 16px, transparent 17px 28px),
+    linear-gradient(110deg, transparent 0 34%, rgba(255, 255, 255, .34) 45%, transparent 56% 100%);
 }
 
 .btn--unlock:hover::after,
