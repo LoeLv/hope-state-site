@@ -1334,12 +1334,25 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   overflow: hidden;
   display: grid;
   gap: 16px;
-  padding: 20px;
+  margin-top: 8px;
+  padding: 24px 20px 20px;
   border: 1px solid rgba(241, 198, 91, .28);
   border-radius: 8px;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .018)),
-    radial-gradient(circle at 92% 12%, rgba(241, 198, 91, .08), transparent 11rem);
+    radial-gradient(circle at 92% 12%, rgba(200, 178, 120, .08), transparent 11rem),
+    linear-gradient(145deg, rgba(234, 224, 188, .045), rgba(255, 255, 255, .012));
+}
+
+.self-edit-form::after {
+  content: "";
+  position: absolute;
+  top: -33px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(200, 178, 120, .7) 0 16px, transparent 16px 26px);
+  opacity: .72;
+  pointer-events: none;
 }
 
 .self-edit-form::before {
@@ -1357,8 +1370,7 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .dossier-edit-zone {
-  margin-top: 8px;
-  padding-top: 24px;
+  margin-top: 32px;
   border-color: rgba(241, 198, 91, .28);
   background:
     linear-gradient(180deg, rgba(241, 198, 91, .055), rgba(255, 255, 255, .025));
@@ -1366,12 +1378,47 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 
 .self-edit-form h4 {
   margin: 0;
-  color: var(--gold);
-  font-size: 1.05rem;
+  color: var(--gold-main);
+  font-size: 1.12rem;
+  text-shadow: 0 0 14px rgba(200, 178, 120, .12);
 }
 
-.self-edit-form .eyebrow {
-  margin-bottom: .35rem;
+.self-edit-form label {
+  position: relative;
+  color: var(--text-normal);
+}
+
+.self-edit-form input,
+.self-edit-form textarea {
+  color: var(--gold-light);
+  border-color: rgba(200, 178, 120, .34);
+  background:
+    linear-gradient(180deg, rgba(4, 17, 14, .78), rgba(2, 11, 9, .62));
+  box-shadow:
+    inset 0 1px 10px rgba(0, 0, 0, .28),
+    inset 0 0 0 1px rgba(0, 0, 0, .14);
+}
+
+.self-edit-form input:focus,
+.self-edit-form textarea:focus {
+  border-color: var(--gold-main);
+  box-shadow:
+    inset 0 1px 10px rgba(0, 0, 0, .28),
+    0 0 0 3px rgba(200, 178, 120, .1),
+    0 0 18px rgba(200, 178, 120, .12);
+}
+
+.self-edit-textarea::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  width: 24px;
+  height: 24px;
+  opacity: .08;
+  background: url("assets/hope-state-sigil.svg") center / contain no-repeat;
+  filter: sepia(1) saturate(.7);
+  pointer-events: none;
 }
 
 .self-edit-submit {
@@ -1379,15 +1426,34 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
   width: 100%;
   min-height: 48px;
   border-radius: 8px;
+  border: 1px solid rgba(89, 62, 28, .72);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(234, 224, 188, .06) 19px 20px, transparent 21px 34px),
+    linear-gradient(180deg, #c8b278 0%, #a88955 48%, #82683a 100%);
+  color: #302514;
+  box-shadow:
+    0 8px 20px rgba(74, 49, 18, .18),
+    inset 0 1px 0 rgba(255, 247, 195, .38),
+    inset 0 -10px 28px rgba(72, 49, 18, .22);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.self-edit-submit:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 30px rgba(74, 49, 18, .22),
+    0 0 34px rgba(200, 178, 120, .2),
+    inset 0 1px 0 rgba(255, 247, 195, .42),
+    inset 0 -10px 28px rgba(72, 49, 18, .2);
 }
 
 .dossier-actions {
   display: flex;
   justify-content: center;
   gap: 24px;
-  margin-top: 8px;
-  padding-top: 32px;
-  border-top: 1px solid rgba(241, 198, 91, .15);
+  margin-top: 32px;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .dossier-actions .btn {
@@ -1398,20 +1464,32 @@ dd { margin: .15rem 0 0; color: var(--gold); font-size: 1.55rem; font-weight: 80
 }
 
 .dossier-actions .dossier-export-primary {
-  width: 188px;
+  width: 160px;
   min-height: 44px;
   border: 1px solid rgba(255, 239, 167, .42);
+  font-weight: 800;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(234, 224, 188, .06) 19px 20px, transparent 21px 34px),
+    linear-gradient(180deg, #c8b278 0%, #a88955 48%, #82683a 100%);
+  color: #302514;
   box-shadow:
-    0 0 22px rgba(241, 198, 91, .22),
+    0 0 26px rgba(200, 178, 120, .22),
     0 12px 30px rgba(0, 0, 0, .28),
     inset 0 0 0 1px rgba(255, 250, 209, .3);
 }
 
+.dossier-actions .dossier-export-primary:hover {
+  box-shadow:
+    0 0 38px rgba(200, 178, 120, .28),
+    0 14px 32px rgba(0, 0, 0, .3),
+    inset 0 0 0 1px rgba(255, 250, 209, .36);
+}
+
 .dossier-actions .dossier-export-secondary {
   width: 130px;
-  color: rgba(244, 241, 223, .68);
-  border-color: rgba(241, 198, 91, .22);
-  background: rgba(255, 255, 255, .025);
+  color: rgba(180, 194, 189, .72);
+  border-color: rgba(200, 178, 120, .28);
+  background: transparent;
   opacity: .72;
 }
 

@@ -649,30 +649,29 @@ function renderPrivatePanel(profile) {
       </section>
       <form class="self-edit-form dossier-edit-zone" id="selfEditForm">
         <div>
-          <p class="eyebrow">Self Edit</p>
-          <h4>自助修改</h4>
+          <h4>卷宗自缮区</h4>
         </div>
         <label>
-          新暗语
+          全新封印暗契
           <input id="selfSecretPhrase" maxlength="80" type="text">
         </label>
-        <label>
-          公开短记
+        <label class="self-edit-textarea">
+          对外公示祷言
           <textarea id="selfPublicNote" maxlength="160" rows="3">${escapeHtml(profile.publicNote || "")}</textarea>
         </label>
-        <label>
-          私密备注
+        <label class="self-edit-textarea">
+          信徒私藏祷语
           <textarea id="selfPrivateNote" maxlength="240" rows="3">${escapeHtml(profile.privateNote || "")}</textarea>
         </label>
-        <label>
-          天赋
+        <label class="self-edit-textarea">
+          权能缮写栏
           <textarea id="selfTalents" rows="5">${escapeHtml(talents.join("\n"))}</textarea>
         </label>
         <button class="btn btn--primary self-edit-submit" type="submit">保存自助修改</button>
       </form>
       <footer class="dossier-actions">
-        <button class="btn btn--primary dossier-export-primary" type="button" data-export-card="private">导出私密图片</button>
-        <button class="btn btn--ghost dossier-export-secondary" type="button" data-export-card="private-public">导出公开图片</button>
+        <button class="btn btn--primary dossier-export-primary" type="button" data-export-card="private">封存完整卷宗图</button>
+        <button class="btn btn--ghost dossier-export-secondary" type="button" data-export-card="private-public">生成公示圣榜图</button>
       </footer>
     </div>
   `;
