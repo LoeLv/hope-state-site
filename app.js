@@ -651,10 +651,15 @@ function renderLeaderboard() {
     .map((index) => {
       const profile = podiumProfiles[index];
       const score = metric(profile);
+      const themeDetail = godThemeDetail(profile);
       return `
         <button class="podium-seat podium-seat--${index + 1} ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}">
           <span class="podium-seat__crown" aria-hidden="true">${["冠", "冕", "环"][index]}</span>
           <span class="podium-seat__rank">${["壹", "贰", "叁"][index]}</span>
+          <span class="podium-shrine" aria-hidden="true">
+            <span class="podium-portrait">${escapeHtml((profile.name || "希").slice(0, 1))}</span>
+            <span class="podium-relic">${themeDetail.relic}</span>
+          </span>
           <span class="podium-seat__name">${escapeHtml(profile.name)}</span>
           <span class="podium-seat__identity">${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
           <strong>${score.value}</strong><small>${score.label}</small>
@@ -668,8 +673,8 @@ function renderLeaderboard() {
     <button class="rank-row rank-row--button ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}">
       <span class="rank-index">#${index + 4}</span>
       <span class="rank-name">
-        <strong>${escapeHtml(profile.name)}</strong>
-        <span>${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
+        <span class="rank-faith-avatar" aria-hidden="true"><b>${escapeHtml((profile.name || "希").slice(0, 1))}</b><i>${godThemeDetail(profile).relic}</i></span>
+        <span class="rank-name__copy"><strong>${escapeHtml(profile.name)}</strong><span>${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span></span>
       </span>
       <span class="rank-metric"><span>命途</span><strong>${escapeHtml(profile.path || "未定")}</strong></span>
       <span class="rank-metric"><span>登神分</span><strong>${getAscension(profile)}</strong></span>
