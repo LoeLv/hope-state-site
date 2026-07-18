@@ -175,6 +175,51 @@ function formatTalentName(item) {
   return `【${escapeHtml(text)}】`;
 }
 
+function renderTalentCabinet(talents, themeDetail) {
+  if (!talents.length) return '<p class="talent-cabinet__empty"></p>';
+  return `
+    <ul class="talent-cabinet">
+      ${talents.map((item, index) => `
+        <li class="talent-seal" style="--talent-order:${index}">
+          <span class="talent-seal__mark" aria-hidden="true">${themeDetail.relic}</span>
+          <span>${formatTalentName(item)}</span>
+        </li>
+      `).join("")}
+    </ul>
+  `;
+}
+
+function scoreLogMatchesProfile(log, profile) {
+  const logProfileId = String(log.profileId ?? log.profile_id ?? "");
+  return logProfileId
+    ? logProfileId === String(profile.id ?? "")
+    : String(log.name ?? log.target_name ?? "") === String(profile.name ?? "");
+}
+
+function formatScoreDelta(value) {
+  const number = Number(value || 0);
+  return `${number >= 0 ? "+" : ""}${number}`;
+}
+
+function renderTrialChronicle(profile, logs = []) {
+  const entries = logs.filter((item) => scoreLogMatchesProfile(item, profile)).slice(0, 8);
+  if (!entries.length) return '<p class="trial-chronicle__empty">无试炼刻痕</p>';
+  return `
+    <ol class="trial-chronicle">
+      ${entries.map((entry) => `
+        <li>
+          <span class="trial-chronicle__node" aria-hidden="true"></span>
+          <div>
+            <strong>登神 ${formatScoreDelta(entry.ascensionDelta ?? entry.ascension_delta)} · 觐见 ${formatScoreDelta(entry.audienceDelta ?? entry.audience_delta)}</strong>
+            <p>${escapeHtml(entry.reason || "试炼结算")}</p>
+          </div>
+          <time>${new Date(entry.createdAt || entry.created_at).toLocaleDateString("zh-CN")}</time>
+        </li>
+      `).join("")}
+    </ol>
+  `;
+}
+
 function highlightRuleNumbers(text) {
   return escapeHtml(text || "").replace(/([+-]?\d+(?:\.\d+)?%?)/g, '<span class="rule-number">$1</span>');
 }
@@ -442,6 +487,13 @@ async function localAction(action, payload) {
     return { applied, errors };
   }
   if (action === "listScoreLogs") return { logs: state.settlements };
+  if (action === "listMyScoreLogs") {
+    const name = normalizeName(payload.name);
+    const phrase = String(payload.phrase || "");
+    const profile = state.profiles.find((item) => item.name === name && item.secretPhrase === phrase);
+    if (!profile) throw new Error("名字或暗语不正确");
+    return { logs: state.settlements.filter((log) => scoreLogMatchesProfile(log, profile)).slice(0, 8) };
+  }
   throw new Error("未知操作");
 }
 
@@ -613,7 +665,7 @@ async function openPublicPanel(id) {
     <button class="btn btn--primary" type="button" data-export-card="public">导出公开图片</button>
   `;
   $("#publicModal").hidden = false;
-  $("[data-export-card='public']").addEventListener("click", () => exportPanelImage($("#publicPanel .profile-card"), `${profile.name}-公开职业面板`));
+  $("[data-export-card='public']").addEventListener("click", (event) => runExportWithFeedback(event.currentTarget, () => exportPanelImage($("#publicPanel .profile-card"), `${profile.name}-公开职业面板`)));
   $$("[data-close-public]").forEach((item) => item.addEventListener("click", closePublicPanel));
 }
 
@@ -722,7 +774,11 @@ function renderPrivatePanel(profile) {
       </section>
       <section class="dossier-section dossier-section--talents">
         <h4>已解锁权能</h4>
-        ${talents.length ? `<ul class="talent-list">${talents.map((item) => `<li>${formatTalentName(item)}</li>`).join("")}</ul>` : "<p></p>"}
+        ${renderTalentCabinet(talents, themeDetail)}
+      </section>
+      <section class="dossier-section dossier-section--chronicle">
+        <h4>试炼年表</h4>
+        <div class="trial-chronicle-wrap" data-trial-chronicle>${renderTrialChronicle(profile, state.settlements)}</div>
       </section>
       <section class="dossier-section dossier-section--prayer">
         <h4>信徒私祷</h4>
@@ -762,21 +818,67 @@ function renderPrivatePanel(profile) {
     </div>
   `;
   $("#selfEditForm").addEventListener("submit", handleSelfEditSubmit);
-  $("[data-export-card='private']").addEventListener("click", () => exportPanelImage($("#privatePanel [data-card='private']"), `${profile.name}-私密面板`));
-  $("[data-export-card='private-public']").addEventListener("click", () => {
+  $("[data-export-card='private']").addEventListener("click", (event) => runExportWithFeedback(event.currentTarget, () => exportPanelImage($("#privatePanel [data-card='private']"), `${profile.name}-私密面板`)));
+  $("[data-export-card='private-public']").addEventListener("click", (event) => runExportWithFeedback(event.currentTarget, async () => {
     const clone = document.createElement("div");
     clone.className = "export-card";
     clone.innerHTML = publicProfileCard(profile, "private-public");
     document.body.appendChild(clone);
-    exportPanelImage(clone.firstElementChild, `${profile.name}-公开职业面板`).finally(() => clone.remove());
+    try {
+      await exportPanelImage(clone.firstElementChild, `${profile.name}-公开职业面板`);
+    } finally {
+      clone.remove();
+    }
+  }));
+  refreshPrivateChronicle(profile);
+}
+
+function inlineComputedStyles(source, target) {
+  const sourceNodes = [source, ...source.querySelectorAll("*")];
+  const targetNodes = [target, ...target.querySelectorAll("*")];
+  sourceNodes.forEach((node, index) => {
+    const computed = getComputedStyle(node);
+    const targetNode = targetNodes[index];
+    for (const property of computed) {
+      targetNode.style.setProperty(property, computed.getPropertyValue(property), computed.getPropertyPriority(property));
+    }
   });
 }
 
+async function runExportWithFeedback(button, exportTask) {
+  if (!button || button.disabled) return;
+  const originalLabel = button.dataset.exportLabel || button.textContent.trim();
+  button.dataset.exportLabel = originalLabel;
+  button.disabled = true;
+  button.classList.add("is-exporting");
+  button.textContent = "生成中...";
+  try {
+    await exportTask();
+    button.textContent = "已生成";
+    showToast("图片已导出");
+  } catch (error) {
+    console.error("导出图片失败", error);
+    button.textContent = "生成失败";
+    showToast("图片生成失败，请重试");
+  } finally {
+    setTimeout(() => {
+      button.disabled = false;
+      button.classList.remove("is-exporting");
+      button.textContent = originalLabel;
+    }, 1100);
+  }
+}
+
 async function exportPanelImage(element, filename) {
-  if (!element) return;
+  if (!element) throw new Error("未找到导出内容");
   const rect = element.getBoundingClientRect();
+  if (!rect.width || !rect.height) throw new Error("导出内容尺寸无效");
   const scale = 2;
   const clone = element.cloneNode(true);
+  inlineComputedStyles(element, clone);
+  clone.style.width = `${Math.ceil(rect.width)}px`;
+  clone.style.maxHeight = "none";
+  clone.style.overflow = "visible";
   clone.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${Math.ceil(rect.width * scale)}" height="${Math.ceil(rect.height * scale)}">
@@ -788,23 +890,38 @@ async function exportPanelImage(element, filename) {
   const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const image = new Image();
-  await new Promise((resolve, reject) => {
-    image.onload = resolve;
-    image.onerror = reject;
-    image.src = url;
-  }).catch(() => null);
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.ceil(rect.width * scale);
-  canvas.height = Math.ceil(rect.height * scale);
-  const context = canvas.getContext("2d");
-  context.fillStyle = "#07100d";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  context.drawImage(image, 0, 0);
-  URL.revokeObjectURL(url);
-  const link = document.createElement("a");
-  link.download = `${filename}.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+  try {
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = reject;
+      image.src = url;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(rect.width * scale);
+    canvas.height = Math.ceil(rect.height * scale);
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("无法创建图片画布");
+    context.fillStyle = "#07100d";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0);
+    const link = document.createElement("a");
+    link.download = `${filename}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+async function refreshPrivateChronicle(profile) {
+  const target = $("#privatePanel [data-trial-chronicle]");
+  if (!target) return;
+  const result = await callAction("listMyScoreLogs", {
+    name: profile.name,
+    phrase: currentPrivatePhrase,
+  });
+  if (currentPrivateProfile?.id !== profile.id || !$("#privatePanel [data-trial-chronicle]")) return;
+  if (!result.error) target.innerHTML = renderTrialChronicle(profile, result.data.logs || []);
 }
 
 function renderSettlements(logs = state.settlements) {

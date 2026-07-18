@@ -504,6 +504,17 @@ Deno.serve(async (request) => {
       return json({ logs: rows });
     }
 
+    if (action === "listMyScoreLogs") {
+      const name = cleanText(payload.name, 80);
+      const phrase = cleanText(payload.phrase, 240);
+      if (!name || !phrase) return json({ error: "请输入名字和暗语" }, 400);
+      const profiles = await listAllProfiles();
+      const profile = profiles.find((item: JsonRecord) => item.display_name === name);
+      if (!profile || profile.secret_hash !== await sha256(phrase)) return json({ error: "名字或暗语不正确" }, 401);
+      const logs = await supabaseFetch(`hope_score_logs?profile_id=eq.${encodeURIComponent(String(profile.id))}&select=*&order=created_at.desc&limit=8`);
+      return json({ logs });
+    }
+
     return json({ error: "未知操作" }, 400);
   } catch (error) {
     if (error instanceof Response) return error;
