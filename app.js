@@ -584,6 +584,13 @@ function setupGodOptions() {
   });
 }
 
+function setupFaithFilter() {
+  const filter = $("#faithFilter");
+  filter.innerHTML = '<option value="all">全部神祇</option>' + gods
+    .map(([god]) => `<option value="${god}">${god}</option>`)
+    .join("");
+}
+
 async function loadProfessionLibrary() {
   const result = await callAction("listProfessions");
   if (!result.error && Array.isArray(result.data.professions) && result.data.professions.length) {
@@ -617,9 +624,12 @@ async function refreshPublicData() {
 function filteredProfiles() {
   const search = $("#leaderboardSearch").value.trim().toLowerCase();
   const path = $("#pathFilter").value;
+  const faithGod = $("#faithFilter").value;
   return getRankedProfiles().filter((profile) => {
     const text = `${profile.name} ${getFaithGod(profile)} ${profile.path} ${getProfession(profile)} ${getBaseClass(profile)} ${profile.publicNote}`.toLowerCase();
-    return (!search || text.includes(search)) && (path === "all" || profile.path === path);
+    return (!search || text.includes(search)) &&
+      (path === "all" || profile.path === path) &&
+      (faithGod === "all" || getFaithGod(profile) === faithGod);
   });
 }
 
@@ -629,17 +639,42 @@ function renderLeaderboard() {
   const totalProfiles = publicProfiles().length;
   $("#totalProfiles").textContent = sealNumerals[totalProfiles] || totalProfiles;
   $("#dataModeLabel").textContent = "";
-  $("#leaderboardList").innerHTML = profiles.map((profile, index) => `
-    <button class="rank-row rank-row--button" type="button" data-public-id="${profile.id}">
-      <span class="rank-index">#${index + 1}</span>
+  const metric = (profile) => {
+    if (rankMode === "ascension") return { label: "登神分", value: getAscension(profile) };
+    if (rankMode === "audience") return { label: "觐见分", value: getAudience(profile) };
+    return { label: "总评", value: totalScore(profile) };
+  };
+  const podiumProfiles = profiles.slice(0, 3);
+  const podiumOrder = [1, 0, 2];
+  $("#leaderboardPodium").innerHTML = podiumOrder
+    .filter((index) => podiumProfiles[index])
+    .map((index) => {
+      const profile = podiumProfiles[index];
+      const score = metric(profile);
+      return `
+        <button class="podium-seat podium-seat--${index + 1} ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}">
+          <span class="podium-seat__crown" aria-hidden="true">${["冠", "冕", "环"][index]}</span>
+          <span class="podium-seat__rank">${["壹", "贰", "叁"][index]}</span>
+          <span class="podium-seat__name">${escapeHtml(profile.name)}</span>
+          <span class="podium-seat__identity">${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
+          <strong>${score.value}</strong><small>${score.label}</small>
+        </button>
+      `;
+    }).join("");
+  $("#leaderboardListHead").innerHTML = profiles.length > 3
+    ? "<span>位次 / 信徒</span><span>命途</span><span>登神分</span><span>觐见分</span><span>总评</span>"
+    : "";
+  $("#leaderboardList").innerHTML = profiles.slice(3).map((profile, index) => `
+    <button class="rank-row rank-row--button ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}">
+      <span class="rank-index">#${index + 4}</span>
       <span class="rank-name">
         <strong>${escapeHtml(profile.name)}</strong>
-        <span>${escapeHtml(getFaithGod(profile))} · ${escapeHtml(profile.path)} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
+        <span>${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
       </span>
       <span class="rank-metric"><span>命途</span><strong>${escapeHtml(profile.path || "未定")}</strong></span>
       <span class="rank-metric"><span>登神分</span><strong>${getAscension(profile)}</strong></span>
       <span class="rank-metric"><span>觐见分</span><strong>${getAudience(profile)}</strong></span>
-      <span class="rank-metric"><span>总评</span><strong>${totalScore(profile)}</strong></span>
+      <span class="rank-metric rank-metric--total"><span>总评</span><strong>${totalScore(profile)}</strong></span>
     </button>
   `).join("");
   $$("[data-public-id]").forEach((button) => button.addEventListener("click", () => openPublicPanel(button.dataset.publicId)));
@@ -694,7 +729,7 @@ function profileStats(profile) {
 function publicProfileCard(profile, mode = "public") {
   const rule = baseRuleFor(profile);
   return `
-    <div class="profile-card profile-card--modal ${mode === "private-public" ? "export-card-skin" : ""}" data-card="${mode}">
+    <div class="profile-card profile-card--modal ${godThemeClass(profile)} ${mode === "private-public" ? "export-card-skin" : ""}" data-card="${mode}">
       <div class="profile-card__top">
         <div>
           <h3>${escapeHtml(profile.name)}</h3>
@@ -1299,6 +1334,7 @@ function bindEvents() {
   $$("[data-toggle-secret]").forEach((button) => button.addEventListener("click", () => toggleSecretField(button.dataset.toggleSecret)));
   $("#leaderboardSearch").addEventListener("input", renderLeaderboard);
   $("#pathFilter").addEventListener("change", renderLeaderboard);
+  $("#faithFilter").addEventListener("change", renderLeaderboard);
   $("#secretForm").addEventListener("submit", handleSecretSubmit);
   $("#adminProfileForm").addEventListener("submit", handleAdminProfileSubmit);
   $("#scoreForm").addEventListener("submit", handleScoreSubmit);
@@ -1348,6 +1384,7 @@ function bindEvents() {
 
 async function boot() {
   setupGodOptions();
+  setupFaithFilter();
   bindEvents();
   clearAdminForm();
   await loadProfessionLibrary();

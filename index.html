@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>希望之州 | 诸神愚戏</title>
-  <link rel="stylesheet" href="styles.css?v=20260718-chronicle-export-1">
+  <link rel="stylesheet" href="styles.css?v=20260718-leaderboard-crowns-1">
 </head>
 <body>
   <div class="ambient" aria-hidden="true">
@@ -65,16 +65,23 @@
       </div>
       <div class="toolbar toolbar--between">
         <input class="search" id="leaderboardSearch" placeholder="搜索">
-        <select class="search" id="pathFilter">
-          <option value="all">全部命途</option>
-          <option value="生命">生命</option>
-          <option value="存在">存在</option>
-          <option value="文明">文明</option>
-          <option value="虚无">虚无</option>
-          <option value="混沌">混沌</option>
-          <option value="沉沦">沉沦</option>
-        </select>
+        <div class="leaderboard-filters">
+          <select class="search" id="pathFilter">
+            <option value="all">全部命途</option>
+            <option value="生命">生命</option>
+            <option value="存在">存在</option>
+            <option value="文明">文明</option>
+            <option value="虚无">虚无</option>
+            <option value="混沌">混沌</option>
+            <option value="沉沦">沉沦</option>
+          </select>
+          <select class="search" id="faithFilter">
+            <option value="all">全部神祇</option>
+          </select>
+        </div>
       </div>
+      <div class="leaderboard-podium" id="leaderboardPodium"></div>
+      <div class="leaderboard-list-head" id="leaderboardListHead"></div>
       <div class="leaderboard" id="leaderboardList"></div>
     </section>
 
