@@ -17,6 +17,25 @@ const gods = [
 
 const pathByGod = Object.fromEntries(gods);
 
+const godThemeSlugs = {
+  诞育: "birth",
+  繁荣: "prosperity",
+  死亡: "death",
+  记忆: "memory",
+  时间: "time",
+  秩序: "order",
+  真理: "truth",
+  战争: "war",
+  欺诈: "trickery",
+  命运: "fate",
+  混乱: "chaos",
+  沉默: "silence",
+  痴愚: "folly",
+  污堕: "defilement",
+  腐朽: "decay",
+  湮灭: "annihilation"
+};
+
 const baseClassRules = {
   战士: {
     baseHp: 115,
@@ -161,6 +180,10 @@ function professionSearchKeys(value) {
 
 function getFaithGod(profile) {
   return profile.faithGod || profile.faith_god || profile.god || "";
+}
+
+function godThemeClass(profile) {
+  return `god-theme god-theme--${godThemeSlugs[getFaithGod(profile)] || "trickery"}`;
 }
 
 function getProfession(profile) {
@@ -612,15 +635,16 @@ function renderPrivatePanel(profile) {
   currentPrivateProfile = profile;
   $("#logoutButton").hidden = false;
   const talents = normalizeTalents(profile.talents);
+  const faithGod = getFaithGod(profile);
   $("#privatePanel").innerHTML = `
-    <div class="private-card dossier-card__inner" data-card="private">
+    <div class="private-card dossier-card__inner ${godThemeClass(profile)}" data-card="private" data-god="${escapeHtml(faithGod || "未定")}">
       <header class="dossier-head">
       <div class="avatar-orbit"><span class="avatar-core"><span>${escapeHtml((profile.name || "希").slice(0, 1))}</span></span></div>
         <div>
           <p class="eyebrow">Believer Dossier</p>
           <h3>${escapeHtml(profile.name)}</h3>
-          <p>${escapeHtml(getFaithGod(profile) || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
-          <div class="dossier-tags"><span>虚无命途</span><span>欺瞒权能</span><span>试炼卷宗</span></div>
+          <p>${escapeHtml(faithGod || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
+          <div class="dossier-tags"><span>${escapeHtml(profile.path || "未定命途")}</span><span>${escapeHtml(faithGod || "未定神祇")}</span><span>试炼卷宗</span></div>
         </div>
       </header>
       <section class="dossier-section">
