@@ -615,11 +615,12 @@ function renderPrivatePanel(profile) {
   $("#privatePanel").innerHTML = `
     <div class="private-card dossier-card__inner" data-card="private">
       <header class="dossier-head">
-      <div class="avatar-orbit">${escapeHtml((profile.name || "希").slice(0, 1))}</div>
+      <div class="avatar-orbit"><span class="avatar-core"><span>${escapeHtml((profile.name || "希").slice(0, 1))}</span></span></div>
         <div>
           <p class="eyebrow">Believer Dossier</p>
           <h3>${escapeHtml(profile.name)}</h3>
           <p>${escapeHtml(getFaithGod(profile) || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
+          <div class="dossier-tags"><span>虚无命途</span><span>欺瞒权能</span><span>试炼卷宗</span></div>
         </div>
       </header>
       <section class="dossier-section">
@@ -1134,9 +1135,9 @@ function bindEvents() {
     $("[data-toggle-secret='secretName']").textContent = "遮蔽法号";
     $("#privatePanel").innerHTML = `
       <div class="dossier-head">
-        <div class="avatar-orbit">希</div>
+        <div class="avatar-orbit"><span class="avatar-core"><span>希</span></span></div>
         <div>
-          <p class="eyebrow">Faith Dossier</p>
+          <p class="eyebrow">Believer Dossier</p>
           <h3>未启封</h3>
         </div>
       </div>
