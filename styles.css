@@ -2408,6 +2408,148 @@ body[data-faith-theme="annihilation"] { --faith-ink:#eef0f0; --faith-muted:#aab8
   background: linear-gradient(180deg, rgba(200, 178, 120, .72), rgba(234, 224, 188, .9), rgba(150, 130, 79, .78));
 }
 
+/* Faith relics live beside the dossier seal. They are persistent, quiet objects,
+   while the larger effect only appears for a moment when a dossier is unsealed. */
+.dossier-relic {
+  position: absolute;
+  top: 5px;
+  right: 86px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: color-mix(in srgb, var(--faith-highlight, var(--gold-light)) 80%, var(--faith-accent, var(--gold-main)));
+  border: 1px solid color-mix(in srgb, var(--faith-accent, var(--gold-main)) 52%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--faith-accent, var(--gold-main)) 16%, transparent), transparent 62%),
+    rgba(7, 16, 15, .24);
+  box-shadow:
+    inset 0 0 14px color-mix(in srgb, var(--faith-accent, var(--gold-main)) 14%, transparent),
+    0 0 14px color-mix(in srgb, var(--faith-accent, var(--gold-main)) 12%, transparent);
+  transform-origin: center;
+  animation: var(--faith-relic-motion, relic-breathe 5.6s ease-in-out infinite);
+}
+
+.dossier-relic::before,
+.dossier-relic::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.dossier-relic::before {
+  inset: 5px;
+  border: 1px dashed color-mix(in srgb, var(--faith-accent, var(--gold-main)) 44%, transparent);
+  border-radius: inherit;
+}
+
+.dossier-relic::after {
+  inset: -5px;
+  border: 1px solid color-mix(in srgb, var(--faith-highlight, var(--gold-light)) 18%, transparent);
+  opacity: .58;
+}
+
+.dossier-relic span {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--faith-accent, var(--gold-main)) 38%, transparent);
+}
+
+body.is-faith-awakening::before {
+  z-index: 28;
+  opacity: 0;
+  background: var(--faith-awaken, linear-gradient(115deg, transparent, rgba(234, 224, 188, .22), transparent));
+  mix-blend-mode: screen;
+  animation: faith-awaken 1.3s ease-out 1;
+}
+
+body.is-faith-awakening .dossier-card.god-theme {
+  animation: dossier-awaken .82s cubic-bezier(.2, .8, .25, 1) 1;
+}
+
+body.is-faith-awakening .dossier-relic {
+  animation: relic-awaken .95s cubic-bezier(.15, .85, .2, 1) 1;
+}
+
+@keyframes faith-awaken {
+  0% { opacity: 0; transform: translateX(-12%) scaleX(.82); }
+  18% { opacity: .78; }
+  52% { opacity: .23; transform: translateX(5%) scaleX(1.05); }
+  100% { opacity: 0; transform: translateX(14%) scaleX(1.12); }
+}
+
+@keyframes dossier-awaken {
+  0% { filter: brightness(.75) saturate(.82); transform: translateY(7px) scale(.986); }
+  42% { filter: brightness(1.18) saturate(1.14); transform: translateY(-2px) scale(1.005); }
+  100% { filter: brightness(1) saturate(1); transform: translateY(0) scale(1); }
+}
+
+@keyframes relic-awaken {
+  0% { opacity: .2; transform: scale(.46) rotate(-18deg); }
+  45% { opacity: 1; transform: scale(1.22) rotate(8deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes relic-breathe { 0%, 100% { opacity: .72; transform: scale(.94); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes relic-sprout { 0%, 100% { transform: scaleY(.9) rotate(-3deg); } 48% { transform: scaleY(1.08) rotate(3deg); } }
+@keyframes relic-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg) translateY(-2px); } }
+@keyframes relic-candle { 0%, 100% { filter: brightness(.8); transform: scaleY(.95); } 46% { filter: brightness(1.35); transform: scaleY(1.08); } }
+@keyframes relic-key { 0%, 100% { transform: rotate(-7deg) translateX(-1px); } 50% { transform: rotate(7deg) translateX(1px); } }
+@keyframes relic-clock { to { transform: rotate(360deg); } }
+@keyframes relic-stamp { 0%, 100% { transform: translateY(0); } 48% { transform: translateY(2px) scale(.96); } 55% { transform: translateY(-1px) scale(1.02); } }
+@keyframes relic-prism { 0%, 100% { filter: hue-rotate(0deg) brightness(.92); transform: rotate(0); } 50% { filter: hue-rotate(38deg) brightness(1.23); transform: rotate(14deg); } }
+@keyframes relic-banner { 0%, 100% { transform: skewY(-5deg) translateX(-1px); } 50% { transform: skewY(5deg) translateX(2px); } }
+@keyframes relic-dice { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg) translateY(-2px); } }
+@keyframes relic-star { 0%, 100% { transform: rotate(0) scale(.92); } 50% { transform: rotate(72deg) scale(1.06); } }
+@keyframes relic-rift { 0%, 100% { clip-path: polygon(46% 0, 60% 38%, 100% 48%, 62% 60%, 48% 100%, 40% 61%, 0 51%, 38% 39%); } 50% { clip-path: polygon(30% 0, 66% 34%, 100% 36%, 62% 63%, 60% 100%, 37% 64%, 0 68%, 34% 37%); } }
+@keyframes relic-silence { 0%, 100% { opacity: .56; transform: scale(.96); } 50% { opacity: .82; transform: scale(.98); } }
+@keyframes relic-bell { 0%, 100% { transform: rotate(-6deg); } 25% { transform: rotate(6deg); } 75% { transform: rotate(4deg); } }
+@keyframes relic-blight { 0%, 100% { filter: saturate(.78); transform: scale(.94); } 50% { filter: saturate(1.3); transform: scale(1.05); } }
+@keyframes relic-decay { 0%, 100% { transform: rotate(0) translateY(0); } 50% { transform: rotate(3deg) translateY(2px); } }
+@keyframes relic-void { 0%, 100% { opacity: .78; transform: rotate(0) scale(.92); } 50% { opacity: 1; transform: rotate(180deg) scale(1.03); } }
+
+body[data-faith-theme="birth"] { --faith-relic-motion: relic-sprout 4.8s ease-in-out infinite; --faith-awaken: repeating-linear-gradient(72deg, transparent 0 38px, rgba(255, 219, 184, .28) 39px 41px, transparent 42px 82px), linear-gradient(105deg, transparent, rgba(142, 207, 156, .25), transparent); }
+body[data-faith-theme="prosperity"] { --faith-relic-motion: relic-sway 5.6s ease-in-out infinite; --faith-awaken: repeating-linear-gradient(124deg, transparent 0 44px, rgba(185, 223, 105, .24) 45px 47px, transparent 48px 88px), linear-gradient(90deg, transparent, rgba(239, 220, 117, .18), transparent); }
+body[data-faith-theme="death"] { --faith-relic-motion: relic-candle 3.6s ease-in-out infinite; --faith-awaken: repeating-linear-gradient(0deg, transparent 0 28px, rgba(240, 239, 217, .18) 29px 30px, transparent 31px 62px), linear-gradient(100deg, transparent, rgba(197, 208, 198, .16), transparent); }
+body[data-faith-theme="memory"] { --faith-relic-motion: relic-key 5.2s ease-in-out infinite; --faith-awaken: linear-gradient(90deg, transparent 0 28%, rgba(202, 185, 255, .2) 29% 30%, transparent 31% 55%, rgba(142, 190, 228, .2) 56% 57%, transparent 58%); }
+body[data-faith-theme="time"] { --faith-relic-motion: relic-clock 14s linear infinite; --faith-awaken: repeating-conic-gradient(from 0deg at 78% 50%, rgba(242, 201, 113, .2) 0 4deg, transparent 4deg 18deg); }
+body[data-faith-theme="order"] { --faith-relic-motion: relic-stamp 4.4s ease-in-out infinite; --faith-awaken: linear-gradient(90deg, transparent 0 20%, rgba(196, 224, 250, .2) 20.5% 21%, transparent 21.5% 49%, rgba(196, 224, 250, .2) 49.5% 50%, transparent 50.5% 79%, rgba(196, 224, 250, .2) 79.5% 80%, transparent 80.5%); }
+body[data-faith-theme="truth"] { --faith-relic-motion: relic-prism 6s ease-in-out infinite; --faith-awaken: linear-gradient(122deg, transparent 0 35%, rgba(255, 237, 166, .26) 36% 38%, transparent 39% 58%, rgba(112, 218, 222, .23) 59% 61%, transparent 62%); }
+body[data-faith-theme="war"] { --faith-relic-motion: relic-banner 3.8s ease-in-out infinite; --faith-awaken: repeating-linear-gradient(138deg, transparent 0 35px, rgba(243, 107, 76, .22) 36px 39px, transparent 40px 78px), linear-gradient(90deg, transparent, rgba(255, 204, 126, .17), transparent); }
+body[data-faith-theme="trickery"] { --faith-relic-motion: relic-dice 4.6s ease-in-out infinite; --faith-awaken: linear-gradient(36deg, transparent 0 40%, rgba(226, 144, 224, .26) 41% 44%, transparent 45%), linear-gradient(216deg, transparent 0 52%, rgba(75, 204, 180, .2) 53% 56%, transparent 57%); }
+body[data-faith-theme="fate"] { --faith-relic-motion: relic-star 8s ease-in-out infinite; --faith-awaken: repeating-conic-gradient(from 12deg at 72% 42%, rgba(240, 218, 136, .22) 0 3deg, transparent 3deg 24deg); }
+body[data-faith-theme="chaos"] { --faith-relic-motion: relic-rift 3.2s ease-in-out infinite; --faith-awaken: linear-gradient(22deg, transparent 0 46%, rgba(255, 178, 93, .22) 47% 49%, transparent 50%), linear-gradient(151deg, transparent 0 43%, rgba(85, 221, 194, .21) 44% 46%, transparent 47%); }
+body[data-faith-theme="silence"] { --faith-relic-motion: relic-silence 7s ease-in-out infinite; --faith-awaken: repeating-linear-gradient(0deg, transparent 0 23px, rgba(222, 234, 220, .12) 24px 25px, transparent 26px 50px); }
+body[data-faith-theme="folly"] { --faith-relic-motion: relic-bell 3.5s ease-in-out infinite; --faith-awaken: repeating-conic-gradient(from 20deg at 70% 44%, rgba(255, 220, 120, .2) 0 5deg, transparent 5deg 28deg), linear-gradient(120deg, transparent, rgba(232, 100, 156, .17), transparent); }
+body[data-faith-theme="defilement"] { --faith-relic-motion: relic-blight 5.1s ease-in-out infinite; --faith-awaken: repeating-radial-gradient(ellipse at 76% 44%, transparent 0 18px, rgba(177, 199, 84, .17) 19px 21px, transparent 22px 45px); }
+body[data-faith-theme="decay"] { --faith-relic-motion: relic-decay 6.4s ease-in-out infinite; --faith-awaken: repeating-linear-gradient(8deg, transparent 0 26px, rgba(211, 163, 87, .18) 27px 29px, transparent 30px 56px); }
+body[data-faith-theme="annihilation"] { --faith-relic-motion: relic-void 7.2s ease-in-out infinite; --faith-awaken: repeating-radial-gradient(circle at 74% 46%, transparent 0 24px, rgba(151, 217, 214, .16) 25px 27px, transparent 28px 56px); }
+
+body[data-faith-theme="birth"] .dossier-relic { border-radius: 42% 58% 44% 56%; }
+body[data-faith-theme="prosperity"] .dossier-relic { border-radius: 50% 50% 42% 42%; }
+body[data-faith-theme="death"] .dossier-relic { border-radius: 4px; }
+body[data-faith-theme="memory"] .dossier-relic { border-radius: 7px 7px 16px 16px; }
+body[data-faith-theme="time"] .dossier-relic, body[data-faith-theme="fate"] .dossier-relic, body[data-faith-theme="annihilation"] .dossier-relic { border-radius: 50%; }
+body[data-faith-theme="order"] .dossier-relic { clip-path: polygon(50% 0, 94% 25%, 94% 75%, 50% 100%, 6% 75%, 6% 25%); }
+body[data-faith-theme="truth"] .dossier-relic { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+body[data-faith-theme="war"] .dossier-relic { clip-path: polygon(4% 0, 96% 0, 82% 50%, 96% 100%, 4% 100%, 18% 50%); }
+body[data-faith-theme="trickery"] .dossier-relic { border-radius: 4px 16px 4px 16px; transform: rotate(-8deg); }
+body[data-faith-theme="chaos"] .dossier-relic { border-radius: 8px 26px 4px 20px; }
+body[data-faith-theme="silence"] .dossier-relic { border-radius: 4px; }
+body[data-faith-theme="folly"] .dossier-relic { border-radius: 50% 12% 50% 12%; }
+body[data-faith-theme="defilement"] .dossier-relic { border-radius: 16px 5px 16px 5px; }
+body[data-faith-theme="decay"] .dossier-relic { border-radius: 20% 4% 30% 4%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dossier-relic,
+  body.is-faith-awakening::before,
+  body.is-faith-awakening .dossier-card.god-theme,
+  body.is-faith-awakening .dossier-relic { animation: none; }
+}
+
 .modal[hidden] {
   display: none;
 }

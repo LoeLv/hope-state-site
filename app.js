@@ -39,22 +39,22 @@ const godThemeSlugs = {
 // Each faith owns a material language as well as a palette. The mark is reused in
 // the live dossier and exported card so a believer's identity remains recognizable.
 const godThemeDetails = {
-  诞育: { mark: "孵", title: "初生圣匣" },
-  繁荣: { mark: "蔓", title: "常青冠庭" },
-  死亡: { mark: "冥", title: "静寂墓刻" },
-  记忆: { mark: "匣", title: "旧忆档案" },
-  时间: { mark: "晷", title: "环刻时轮" },
-  秩序: { mark: "律", title: "律法圣格" },
-  真理: { mark: "棱", title: "折光真镜" },
-  战争: { mark: "刃", title: "战痕旌旗" },
-  欺诈: { mark: "面", title: "倒影假面" },
-  命运: { mark: "轮", title: "星盘命轮" },
-  混乱: { mark: "裂", title: "失序裂隙" },
-  沉默: { mark: "止", title: "无声碑界" },
-  痴愚: { mark: "戏", title: "错位戏台" },
-  污堕: { mark: "蚀", title: "侵蚀圣龛" },
-  腐朽: { mark: "枯", title: "朽木年轮" },
-  湮灭: { mark: "空", title: "坍缩虚阙" }
+  诞育: { mark: "孵", relic: "芽", title: "初生圣匣" },
+  繁荣: { mark: "蔓", relic: "冠", title: "常青冠庭" },
+  死亡: { mark: "冥", relic: "烛", title: "静寂墓刻" },
+  记忆: { mark: "匣", relic: "钥", title: "旧忆档案" },
+  时间: { mark: "晷", relic: "晷", title: "环刻时轮" },
+  秩序: { mark: "律", relic: "印", title: "律法圣格" },
+  真理: { mark: "棱", relic: "镜", title: "折光真镜" },
+  战争: { mark: "刃", relic: "旗", title: "战痕旌旗" },
+  欺诈: { mark: "面", relic: "骰", title: "倒影假面" },
+  命运: { mark: "轮", relic: "星", title: "星盘命轮" },
+  混乱: { mark: "裂", relic: "裂", title: "失序裂隙" },
+  沉默: { mark: "止", relic: "碑", title: "无声碑界" },
+  痴愚: { mark: "戏", relic: "铃", title: "错位戏台" },
+  污堕: { mark: "蚀", relic: "蚀", title: "侵蚀圣龛" },
+  腐朽: { mark: "枯", relic: "枝", title: "朽木年轮" },
+  湮灭: { mark: "空", relic: "环", title: "坍缩虚阙" }
 };
 
 const baseClassRules = {
@@ -306,6 +306,14 @@ function flashSealBreak() {
   document.body.classList.add("is-seal-breaking");
   clearTimeout(flashSealBreak.timer);
   flashSealBreak.timer = setTimeout(() => document.body.classList.remove("is-seal-breaking"), 900);
+}
+
+function flashFaithAwakening() {
+  document.body.classList.remove("is-faith-awakening");
+  void document.body.offsetWidth;
+  document.body.classList.add("is-faith-awakening");
+  clearTimeout(flashFaithAwakening.timer);
+  flashFaithAwakening.timer = setTimeout(() => document.body.classList.remove("is-faith-awakening"), 1300);
 }
 
 async function callAction(action, payload = {}) {
@@ -690,6 +698,7 @@ function renderPrivatePanel(profile) {
           <div class="dossier-tags"><span>${escapeHtml(profile.path || "未定命途")}</span><span>${escapeHtml(faithGod || "未定神祇")}</span><span>试炼卷宗</span></div>
         </div>
         <span class="dossier-god-mark" aria-label="${escapeHtml(themeDetail.title)}" title="${escapeHtml(themeDetail.title)}">${themeDetail.mark}</span>
+        <span class="dossier-relic" aria-hidden="true"><span>${themeDetail.relic}</span></span>
       </header>
       <section class="dossier-section">
         <h4>诸神圣榜位次</h4>
@@ -825,6 +834,7 @@ async function handleSecretSubmit(event) {
   if (result.error) return showToast(`验证失败：${result.error}`);
   flashSealBreak();
   renderPrivatePanel(toPrivateProfile(result.data.profile));
+  flashFaithAwakening();
   showToast("已进入你的私密面板");
 }
 
@@ -1195,6 +1205,7 @@ function bindEvents() {
   $("#logoutButton").addEventListener("click", () => {
     currentPrivateProfile = null;
     currentPrivatePhrase = "";
+    document.body.classList.remove("is-faith-awakening");
     clearFaithTheme();
     $("#logoutButton").hidden = true;
     $("#secretForm").reset();
