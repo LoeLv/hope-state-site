@@ -1711,6 +1711,136 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
   border: 1px solid color-mix(in srgb, var(--god-a) 22%, transparent);
 }
 
+/* Faith identity reaches beyond a palette: frame, emblem, silhouette and matter. */
+.dossier-card.god-theme {
+  isolation: isolate;
+  border-color: color-mix(in srgb, var(--god-a) 46%, rgba(200, 178, 120, .18));
+  background:
+    var(--god-card-texture, none),
+    radial-gradient(circle at var(--god-aura-x, 78%) var(--god-aura-y, 14%), color-mix(in srgb, var(--god-b) 15%, transparent), transparent 19rem),
+    radial-gradient(circle at 18% 92%, color-mix(in srgb, var(--god-c) 10%, transparent), transparent 19rem),
+    linear-gradient(145deg, color-mix(in srgb, var(--god-b) 11%, rgba(16, 42, 36, .88)), rgba(10, 23, 19, .78)),
+    var(--bg-dossier);
+}
+
+.dossier-card.god-theme::before {
+  background:
+    var(--god-rail),
+    linear-gradient(90deg, transparent 0 30%, color-mix(in srgb, var(--god-a) 56%, transparent) 42% 58%, transparent 70% 100%);
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--god-a) 34%, transparent),
+    0 0 22px color-mix(in srgb, var(--god-b) 22%, transparent);
+  animation: god-rail-breathe var(--god-rail-speed, 5s) ease-in-out infinite;
+}
+
+.dossier-card.god-theme::after {
+  border-color: color-mix(in srgb, var(--god-a) 38%, transparent);
+  background:
+    var(--god-frame-pattern, none),
+    linear-gradient(90deg, color-mix(in srgb, var(--god-a) 62%, transparent), transparent 20%, transparent 80%, color-mix(in srgb, var(--god-a) 62%, transparent)) top / 100% 1px no-repeat,
+    linear-gradient(90deg, color-mix(in srgb, var(--god-a) 62%, transparent), transparent 20%, transparent 80%, color-mix(in srgb, var(--god-a) 62%, transparent)) bottom / 100% 1px no-repeat;
+}
+
+.private-card.god-theme::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, var(--god-a) 20%, transparent);
+  border-radius: 7px;
+  background: var(--god-card-texture, none);
+  opacity: .8;
+  pointer-events: none;
+}
+
+.god-theme .dossier-head {
+  overflow: hidden;
+}
+
+.god-theme .dossier-head::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 108px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--god-a), var(--god-b), transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--god-a) 34%, transparent);
+}
+
+.god-theme .avatar-orbit {
+  border-radius: var(--god-avatar-radius, 50%);
+  clip-path: var(--god-avatar-clip, none);
+  animation-duration: var(--god-avatar-speed, 8s);
+}
+
+.god-theme .avatar-core {
+  border-radius: var(--god-core-radius, 50%);
+}
+
+.god-theme .avatar-orbit::before,
+.god-theme .avatar-orbit::after {
+  border-radius: var(--god-avatar-radius, 50%);
+}
+
+.dossier-god-mark {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  color: color-mix(in srgb, var(--god-a) 82%, var(--gold-light));
+  border: 1px solid color-mix(in srgb, var(--god-a) 52%, transparent);
+  border-radius: var(--god-mark-radius, 50%);
+  clip-path: var(--god-mark-clip, none);
+  background:
+    var(--god-mark-pattern, radial-gradient(circle, color-mix(in srgb, var(--god-b) 22%, transparent), transparent 70%)),
+    rgba(8, 22, 18, .46);
+  box-shadow:
+    inset 0 0 18px color-mix(in srgb, var(--god-b) 14%, transparent),
+    0 0 18px color-mix(in srgb, var(--god-a) 16%, transparent);
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  line-height: 1;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--god-a) 35%, transparent);
+  animation: god-mark-pulse var(--god-mark-speed, 5s) ease-in-out infinite;
+}
+
+.god-theme .dossier-section h4 {
+  color: color-mix(in srgb, var(--god-a) 80%, var(--gold-main));
+}
+
+.god-theme .rule-number {
+  color: color-mix(in srgb, var(--god-a) 78%, var(--gold-light));
+}
+
+.god-theme .dossier-edit-zone {
+  border-color: color-mix(in srgb, var(--god-a) 34%, transparent);
+  background:
+    radial-gradient(circle at 94% 10%, color-mix(in srgb, var(--god-c) 12%, transparent), transparent 12rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--god-b) 8%, transparent), rgba(255, 255, 255, .025));
+}
+
+.god-theme .self-edit-submit,
+.god-theme .dossier-export-primary {
+  border-color: color-mix(in srgb, var(--god-a) 58%, rgba(89, 62, 28, .72));
+  background:
+    var(--god-button-pattern, none),
+    linear-gradient(180deg, color-mix(in srgb, var(--god-a) 94%, #ece1b9), color-mix(in srgb, var(--god-b) 60%, #72552c) 52%, color-mix(in srgb, var(--god-c) 45%, #46331e));
+}
+
+@keyframes god-rail-breathe {
+  0%, 100% { opacity: .6; transform: scaleY(.94); filter: saturate(.85); }
+  50% { opacity: 1; transform: scaleY(1); filter: saturate(1.18); }
+}
+
+@keyframes god-mark-pulse {
+  0%, 100% { transform: rotate(var(--god-mark-turn, 0deg)) scale(.96); opacity: .76; }
+  50% { transform: rotate(var(--god-mark-turn, 0deg)) scale(1); opacity: 1; }
+}
+
 .god-theme--birth {
   --god-a: #d9b98f;
   --god-b: #8ccaa3;
@@ -1855,6 +1985,186 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
   --god-soft: rgba(59, 87, 87, .09);
   --god-spin: 270deg;
   --god-pattern: radial-gradient(circle at 50% 50%, rgba(192, 189, 168, .08), transparent 4rem), linear-gradient(90deg, rgba(0, 0, 0, .08), transparent 42%, rgba(0, 0, 0, .08));
+}
+
+/* Sixteen faith-specific objects. These are intentionally distinct visual systems,
+   not a shared component with a different accent color. */
+.god-theme--birth {
+  --god-avatar-radius: 46% 54% 52% 48% / 54% 45% 55% 46%;
+  --god-core-radius: 48% 52% 46% 54% / 42% 56% 44% 58%;
+  --god-mark-radius: 48% 52% 44% 56% / 56% 44% 56% 44%;
+  --god-rail-speed: 6.2s;
+  --god-aura-x: 22%; --god-aura-y: 22%;
+  --god-card-texture: radial-gradient(ellipse at 14% 18%, rgba(217, 185, 143, .11) 0 8%, transparent 9%), radial-gradient(ellipse at 84% 78%, rgba(140, 202, 163, .08) 0 10%, transparent 11%);
+  --god-rail: linear-gradient(180deg, transparent, #d9b98f 22%, #8ccaa3 58%, transparent);
+  --god-mark-pattern: radial-gradient(ellipse at 42% 38%, rgba(217, 185, 143, .36), transparent 42%), repeating-radial-gradient(ellipse at center, transparent 0 8px, rgba(140, 202, 163, .13) 9px 10px);
+}
+
+.god-theme--prosperity {
+  --god-avatar-radius: 18px;
+  --god-avatar-clip: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%);
+  --god-mark-clip: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%);
+  --god-rail-speed: 4.8s;
+  --god-card-texture: repeating-linear-gradient(122deg, transparent 0 26px, rgba(127, 191, 117, .06) 27px 29px, transparent 30px 54px), repeating-linear-gradient(58deg, transparent 0 46px, rgba(63, 141, 106, .045) 47px 48px, transparent 49px 84px);
+  --god-rail: linear-gradient(180deg, transparent, #7fbf75 22%, #3f8d6a 54%, #c8b278 76%, transparent);
+  --god-mark-pattern: repeating-conic-gradient(from 18deg, rgba(127, 191, 117, .2) 0 10deg, transparent 10deg 30deg);
+}
+
+.god-theme--death {
+  --god-avatar-radius: 10px;
+  --god-avatar-clip: polygon(18% 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0 82%, 0 18%);
+  --god-mark-clip: polygon(18% 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0 82%, 0 18%);
+  --god-mark-radius: 10px;
+  --god-rail-speed: 8s;
+  --god-card-texture: repeating-linear-gradient(0deg, transparent 0 30px, rgba(201, 193, 173, .04) 31px 32px, transparent 33px 62px), linear-gradient(90deg, rgba(0, 0, 0, .13), transparent 30%, rgba(0, 0, 0, .11));
+  --god-rail: linear-gradient(180deg, transparent, #c9c1ad 26%, #6d756f 62%, #a07965 76%, transparent);
+  --god-mark-pattern: linear-gradient(90deg, transparent 46%, rgba(201, 193, 173, .25) 47% 53%, transparent 54%), linear-gradient(rgba(0, 0, 0, .2), rgba(0, 0, 0, .2));
+}
+
+.god-theme--memory {
+  --god-avatar-radius: 8px;
+  --god-core-radius: 8px;
+  --god-mark-radius: 6px;
+  --god-rail-speed: 7.4s;
+  --god-card-texture: linear-gradient(90deg, rgba(208, 187, 131, .055) 1px, transparent 1px), linear-gradient(rgba(111, 148, 166, .045) 1px, transparent 1px), radial-gradient(circle at 16% 76%, rgba(142, 125, 180, .12), transparent 11rem);
+  --god-rail: linear-gradient(180deg, transparent, #d0bb83 18%, #6f94a6 48%, #8e7db4 74%, transparent);
+  --god-mark-pattern: linear-gradient(135deg, rgba(208, 187, 131, .18) 0 49%, transparent 50%), linear-gradient(45deg, transparent 0 72%, rgba(111, 148, 166, .18) 73%);
+}
+
+.god-theme--time {
+  --god-avatar-radius: 50%;
+  --god-mark-radius: 50%;
+  --god-mark-turn: 15deg;
+  --god-mark-speed: 10s;
+  --god-rail-speed: 10s;
+  --god-card-texture: repeating-conic-gradient(from 0deg at 80% 18%, rgba(216, 195, 141, .055) 0 4deg, transparent 4deg 15deg), radial-gradient(circle at 80% 18%, transparent 0 88px, rgba(106, 164, 166, .09) 89px 90px, transparent 91px);
+  --god-rail: linear-gradient(180deg, transparent, #d8c38d 25%, #6aa4a6 54%, #b38d6c 72%, transparent);
+  --god-mark-pattern: repeating-conic-gradient(from 0deg, rgba(216, 195, 141, .25) 0 5deg, transparent 5deg 30deg), radial-gradient(circle, transparent 0 52%, rgba(106, 164, 166, .28) 54% 58%, transparent 60%);
+}
+
+.god-theme--order {
+  --god-avatar-radius: 6px;
+  --god-avatar-clip: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  --god-mark-clip: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  --god-mark-radius: 4px;
+  --god-rail-speed: 4s;
+  --god-card-texture: linear-gradient(90deg, rgba(214, 193, 138, .05) 1px, transparent 1px), linear-gradient(rgba(120, 148, 167, .04) 1px, transparent 1px), linear-gradient(90deg, transparent 49.7%, rgba(214, 193, 138, .06) 50% 50.3%, transparent 50.6%);
+  --god-rail: linear-gradient(180deg, transparent, #d6c18a 20%, #7894a7 48%, #b5c3bd 70%, transparent);
+  --god-mark-pattern: linear-gradient(90deg, transparent 32%, rgba(214, 193, 138, .25) 33% 35%, transparent 36% 64%, rgba(214, 193, 138, .25) 65% 67%, transparent 68%), linear-gradient(rgba(120, 148, 167, .12), rgba(120, 148, 167, .12));
+}
+
+.god-theme--truth {
+  --god-avatar-radius: 0;
+  --god-avatar-clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  --god-mark-clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  --god-mark-radius: 0;
+  --god-rail-speed: 5.4s;
+  --god-card-texture: linear-gradient(116deg, transparent 0 37%, rgba(234, 223, 174, .085) 38% 39%, transparent 40% 58%, rgba(121, 185, 182, .06) 59% 60%, transparent 61% 100%), linear-gradient(25deg, transparent 0 72%, rgba(188, 163, 216, .075) 73% 74%, transparent 75%);
+  --god-rail: linear-gradient(180deg, transparent, #eadfae 22%, #79b9b6 47%, #bca3d8 70%, transparent);
+  --god-mark-pattern: conic-gradient(from 45deg, rgba(234, 223, 174, .28), transparent 22%, rgba(121, 185, 182, .22), transparent 52%, rgba(188, 163, 216, .22), transparent 82%);
+}
+
+.god-theme--war {
+  --god-avatar-radius: 4px;
+  --god-avatar-clip: polygon(12% 0, 88% 0, 100% 18%, 88% 100%, 50% 87%, 12% 100%, 0 18%);
+  --god-mark-clip: polygon(12% 0, 88% 0, 100% 18%, 88% 100%, 50% 87%, 12% 100%, 0 18%);
+  --god-mark-radius: 2px;
+  --god-rail-speed: 2.8s;
+  --god-card-texture: repeating-linear-gradient(138deg, transparent 0 22px, rgba(169, 79, 67, .085) 23px 25px, transparent 26px 52px), linear-gradient(90deg, rgba(210, 163, 95, .055), transparent 32%, rgba(210, 163, 95, .04));
+  --god-rail: linear-gradient(180deg, transparent, #d2a35f 18%, #a94f43 46%, #6f6a57 74%, transparent);
+  --god-mark-pattern: linear-gradient(135deg, transparent 0 43%, rgba(210, 163, 95, .35) 44% 49%, transparent 50%), linear-gradient(45deg, transparent 0 55%, rgba(169, 79, 67, .24) 56% 60%, transparent 61%);
+}
+
+.god-theme--trickery {
+  --god-avatar-radius: 14px 38px 14px 38px;
+  --god-avatar-clip: polygon(10% 0, 100% 10%, 90% 100%, 0 90%);
+  --god-mark-clip: polygon(10% 0, 100% 10%, 90% 100%, 0 90%);
+  --god-mark-radius: 8px 24px 8px 24px;
+  --god-mark-turn: -8deg;
+  --god-rail-speed: 5s;
+  --god-card-texture: linear-gradient(34deg, transparent 0 42%, rgba(184, 134, 201, .075) 43% 45%, transparent 46% 100%), radial-gradient(circle at 76% 26%, rgba(86, 168, 157, .08), transparent 8rem), linear-gradient(146deg, transparent 0 71%, rgba(200, 178, 120, .05) 72% 73%, transparent 74%);
+  --god-rail: linear-gradient(180deg, transparent, #c8b278 18%, #b886c9 46%, #56a89d 72%, transparent);
+  --god-mark-pattern: linear-gradient(35deg, rgba(184, 134, 201, .25) 0 49%, transparent 50%), linear-gradient(215deg, rgba(86, 168, 157, .25) 0 49%, transparent 50%);
+}
+
+.god-theme--fate {
+  --god-avatar-radius: 50%;
+  --god-mark-radius: 50%;
+  --god-mark-speed: 8s;
+  --god-rail-speed: 7s;
+  --god-card-texture: radial-gradient(circle at 18% 24%, rgba(216, 198, 141, .14) 0 1px, transparent 2px), radial-gradient(circle at 72% 54%, rgba(139, 118, 189, .11) 0 1px, transparent 2px), radial-gradient(circle at 46% 84%, rgba(93, 155, 176, .1) 0 1px, transparent 2px), repeating-radial-gradient(circle at 68% 32%, transparent 0 28px, rgba(216, 198, 141, .03) 29px 30px);
+  --god-rail: linear-gradient(180deg, transparent, #d8c68d 20%, #8b76bd 48%, #5d9bb0 74%, transparent);
+  --god-mark-pattern: repeating-conic-gradient(from 12deg, rgba(216, 198, 141, .22) 0 4deg, transparent 4deg 30deg), radial-gradient(circle, transparent 0 55%, rgba(139, 118, 189, .28) 56% 59%, transparent 60%);
+}
+
+.god-theme--chaos {
+  --god-avatar-radius: 0;
+  --god-avatar-clip: polygon(8% 12%, 62% 0, 100% 28%, 76% 66%, 92% 96%, 34% 82%, 0 100%, 18% 48%);
+  --god-mark-clip: polygon(8% 12%, 62% 0, 100% 28%, 76% 66%, 92% 96%, 34% 82%, 0 100%, 18% 48%);
+  --god-mark-radius: 0;
+  --god-mark-turn: 7deg;
+  --god-rail-speed: 2.2s;
+  --god-card-texture: linear-gradient(23deg, transparent 0 45%, rgba(209, 167, 111, .1) 46% 47%, transparent 48%), linear-gradient(151deg, transparent 0 40%, rgba(107, 180, 163, .08) 41% 43%, transparent 44%), linear-gradient(72deg, transparent 0 76%, rgba(141, 98, 186, .09) 77% 79%, transparent 80%);
+  --god-rail: linear-gradient(180deg, transparent, #d1a76f 18%, #8d62ba 45%, #6bb4a3 72%, transparent);
+  --god-mark-pattern: conic-gradient(from 10deg, rgba(209, 167, 111, .25), transparent 18%, rgba(141, 98, 186, .25), transparent 48%, rgba(107, 180, 163, .22), transparent 78%);
+}
+
+.god-theme--silence {
+  --god-avatar-radius: 50%;
+  --god-avatar-clip: inset(0 round 50%);
+  --god-mark-radius: 50%;
+  --god-mark-speed: 12s;
+  --god-rail-speed: 12s;
+  --god-card-texture: repeating-linear-gradient(0deg, transparent 0 17px, rgba(189, 182, 156, .025) 18px 19px, transparent 20px 38px), linear-gradient(90deg, transparent, rgba(93, 113, 109, .08), transparent);
+  --god-rail: linear-gradient(180deg, transparent, #bdb69c 24%, #5d716d 56%, #3e4b49 72%, transparent);
+  --god-mark-pattern: linear-gradient(90deg, transparent 45%, rgba(189, 182, 156, .27) 46% 54%, transparent 55%);
+}
+
+.god-theme--folly {
+  --god-avatar-radius: 50% 14% 42% 22%;
+  --god-avatar-clip: polygon(5% 16%, 68% 2%, 96% 34%, 75% 62%, 100% 92%, 40% 82%, 8% 100%, 20% 54%);
+  --god-mark-clip: polygon(5% 16%, 68% 2%, 96% 34%, 75% 62%, 100% 92%, 40% 82%, 8% 100%, 20% 54%);
+  --god-mark-radius: 4px 28px 8px 26px;
+  --god-mark-turn: -5deg;
+  --god-rail-speed: 3.1s;
+  --god-card-texture: radial-gradient(circle at 24% 70%, rgba(212, 178, 111, .12) 0 2px, transparent 3px), radial-gradient(circle at 74% 22%, rgba(138, 191, 154, .09) 0 3px, transparent 4px), linear-gradient(127deg, transparent 0 44%, rgba(192, 122, 168, .09) 45% 48%, transparent 49%);
+  --god-rail: linear-gradient(180deg, transparent, #d4b26f 18%, #c07aa8 45%, #8abf9a 72%, transparent);
+  --god-mark-pattern: repeating-conic-gradient(from 22deg, rgba(212, 178, 111, .2) 0 7deg, transparent 7deg 35deg);
+}
+
+.god-theme--defilement {
+  --god-avatar-radius: 18px;
+  --god-avatar-clip: polygon(14% 0, 86% 0, 100% 24%, 88% 88%, 56% 100%, 12% 84%, 0 32%);
+  --god-mark-clip: polygon(14% 0, 86% 0, 100% 24%, 88% 88%, 56% 100%, 12% 84%, 0 32%);
+  --god-mark-radius: 12px;
+  --god-rail-speed: 5.8s;
+  --god-card-texture: radial-gradient(ellipse at 22% 74%, rgba(104, 116, 71, .14), transparent 9rem), radial-gradient(circle at 82% 18%, rgba(109, 81, 108, .12), transparent 7rem), radial-gradient(circle at 54% 44%, transparent 0 42px, rgba(182, 162, 105, .035) 43px 46px, transparent 47px);
+  --god-rail: linear-gradient(180deg, transparent, #b6a269 18%, #687447 50%, #6d516c 73%, transparent);
+  --god-mark-pattern: radial-gradient(circle at 34% 30%, rgba(104, 116, 71, .35) 0 12%, transparent 13%), radial-gradient(circle at 68% 66%, rgba(109, 81, 108, .28) 0 11%, transparent 12%);
+}
+
+.god-theme--decay {
+  --god-avatar-radius: 30% 8% 26% 12%;
+  --god-avatar-clip: polygon(10% 0, 92% 10%, 84% 42%, 100% 72%, 68% 100%, 18% 86%, 0 50%);
+  --god-mark-clip: polygon(10% 0, 92% 10%, 84% 42%, 100% 72%, 68% 100%, 18% 86%, 0 50%);
+  --god-mark-radius: 12px 5px 14px 4px;
+  --god-rail-speed: 9.5s;
+  --god-card-texture: repeating-linear-gradient(8deg, transparent 0 28px, rgba(118, 112, 79, .09) 29px 30px, transparent 31px 58px), radial-gradient(ellipse at 82% 14%, rgba(95, 127, 104, .11), transparent 10rem), linear-gradient(90deg, rgba(0, 0, 0, .08), transparent);
+  --god-rail: linear-gradient(180deg, transparent, #bda56f 20%, #76704f 50%, #5f7f68 73%, transparent);
+  --god-mark-pattern: repeating-radial-gradient(ellipse at center, transparent 0 6px, rgba(118, 112, 79, .22) 7px 9px, transparent 10px 15px);
+}
+
+.god-theme--annihilation {
+  --god-avatar-radius: 0;
+  --god-avatar-clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  --god-core-radius: 4px;
+  --god-mark-clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  --god-mark-radius: 0;
+  --god-mark-speed: 6.5s;
+  --god-rail-speed: 6.5s;
+  --god-card-texture: radial-gradient(circle at 76% 20%, rgba(192, 189, 168, .08) 0 2px, transparent 3px), radial-gradient(circle at 76% 20%, transparent 0 42px, rgba(59, 87, 87, .08) 43px 44px, transparent 45px), linear-gradient(90deg, rgba(0, 0, 0, .16), transparent 42%, rgba(118, 106, 145, .08));
+  --god-rail: linear-gradient(180deg, transparent, #c0bda8 20%, #3b5757 50%, #766a91 74%, transparent);
+  --god-mark-pattern: radial-gradient(circle, rgba(192, 189, 168, .28) 0 6%, rgba(59, 87, 87, .18) 7% 28%, transparent 29%);
 }
 
 .profile-preview--wide::-webkit-scrollbar {

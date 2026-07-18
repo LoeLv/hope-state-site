@@ -36,6 +36,27 @@ const godThemeSlugs = {
   湮灭: "annihilation"
 };
 
+// Each faith owns a material language as well as a palette. The mark is reused in
+// the live dossier and exported card so a believer's identity remains recognizable.
+const godThemeDetails = {
+  诞育: { mark: "孵", title: "初生圣匣" },
+  繁荣: { mark: "蔓", title: "常青冠庭" },
+  死亡: { mark: "冥", title: "静寂墓刻" },
+  记忆: { mark: "匣", title: "旧忆档案" },
+  时间: { mark: "晷", title: "环刻时轮" },
+  秩序: { mark: "律", title: "律法圣格" },
+  真理: { mark: "棱", title: "折光真镜" },
+  战争: { mark: "刃", title: "战痕旌旗" },
+  欺诈: { mark: "面", title: "倒影假面" },
+  命运: { mark: "轮", title: "星盘命轮" },
+  混乱: { mark: "裂", title: "失序裂隙" },
+  沉默: { mark: "止", title: "无声碑界" },
+  痴愚: { mark: "戏", title: "错位戏台" },
+  污堕: { mark: "蚀", title: "侵蚀圣龛" },
+  腐朽: { mark: "枯", title: "朽木年轮" },
+  湮灭: { mark: "空", title: "坍缩虚阙" }
+};
+
 const baseClassRules = {
   战士: {
     baseHp: 115,
@@ -184,6 +205,10 @@ function getFaithGod(profile) {
 
 function godThemeClass(profile) {
   return `god-theme god-theme--${godThemeSlugs[getFaithGod(profile)] || "trickery"}`;
+}
+
+function godThemeDetail(profile) {
+  return godThemeDetails[getFaithGod(profile)] || godThemeDetails.欺诈;
 }
 
 function getProfession(profile) {
@@ -636,8 +661,13 @@ function renderPrivatePanel(profile) {
   $("#logoutButton").hidden = false;
   const talents = normalizeTalents(profile.talents);
   const faithGod = getFaithGod(profile);
-  $("#privatePanel").innerHTML = `
-    <div class="private-card dossier-card__inner ${godThemeClass(profile)}" data-card="private" data-god="${escapeHtml(faithGod || "未定")}">
+  const themeClass = godThemeClass(profile);
+  const themeDetail = godThemeDetail(profile);
+  const privatePanel = $("#privatePanel");
+  privatePanel.className = `panel profile-preview profile-preview--wide dossier-card ${themeClass}`;
+  privatePanel.dataset.god = faithGod || "未定";
+  privatePanel.innerHTML = `
+    <div class="private-card dossier-card__inner ${themeClass}" data-card="private" data-god="${escapeHtml(faithGod || "未定")}">
       <header class="dossier-head">
       <div class="avatar-orbit"><span class="avatar-core"><span>${escapeHtml((profile.name || "希").slice(0, 1))}</span></span></div>
         <div>
@@ -646,6 +676,7 @@ function renderPrivatePanel(profile) {
           <p>${escapeHtml(faithGod || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
           <div class="dossier-tags"><span>${escapeHtml(profile.path || "未定命途")}</span><span>${escapeHtml(faithGod || "未定神祇")}</span><span>试炼卷宗</span></div>
         </div>
+        <span class="dossier-god-mark" aria-label="${escapeHtml(themeDetail.title)}" title="${escapeHtml(themeDetail.title)}">${themeDetail.mark}</span>
       </header>
       <section class="dossier-section">
         <h4>诸神圣榜位次</h4>
@@ -1157,6 +1188,8 @@ function bindEvents() {
     $("#secretName").classList.remove("is-secret-hidden");
     $("[data-toggle-secret='secretPhrase']").textContent = "遮蔽暗契";
     $("[data-toggle-secret='secretName']").textContent = "遮蔽法号";
+    $("#privatePanel").className = "panel profile-preview profile-preview--wide dossier-card dossier-card--empty god-theme god-theme--trickery";
+    $("#privatePanel").dataset.god = "未定";
     $("#privatePanel").innerHTML = `
       <div class="dossier-head">
         <div class="avatar-orbit"><span class="avatar-core"><span>希</span></span></div>
