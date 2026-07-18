@@ -107,6 +107,8 @@ let rankMode = "total";
 let currentPrivateProfile = null;
 let currentPrivatePhrase = "";
 let professionLibrary = fallbackProfessions;
+// Add delegated operator names here when the settlement duty is handed over.
+const adminPanelOperators = new Set(["无我"]);
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -160,6 +162,16 @@ function escapeHtml(text) {
 
 function normalizeName(value) {
   return String(value || "").trim();
+}
+
+function canAccessAdminPanel() {
+  return Boolean(currentPrivateProfile && adminPanelOperators.has(normalizeName(currentPrivateProfile.name)));
+}
+
+function syncAdminPanelAccess() {
+  const allowed = canAccessAdminPanel();
+  $("#adminNavButton").hidden = !allowed;
+  $("#adminOperatorMark").textContent = allowed ? normalizeName(currentPrivateProfile.name).slice(0, 1) : "司";
 }
 
 function normalizeTalents(value) {
@@ -770,6 +782,7 @@ function scoreStrip(profile) {
 
 function renderPrivatePanel(profile) {
   currentPrivateProfile = profile;
+  syncAdminPanelAccess();
   $("#logoutButton").hidden = false;
   const talents = normalizeTalents(profile.talents);
   const faithGod = getFaithGod(profile);
@@ -1302,6 +1315,10 @@ async function handleBulkImport() {
 }
 
 function showView(view) {
+  if (view === "admin" && !canAccessAdminPanel()) {
+    showToast("此司务台仅对授权信徒开放");
+    view = currentPrivateProfile ? "private" : "leaderboard";
+  }
   const map = {
     leaderboard: "#leaderboardView",
     private: "#privateView",
@@ -1363,6 +1380,7 @@ function bindEvents() {
   $("#logoutButton").addEventListener("click", () => {
     currentPrivateProfile = null;
     currentPrivatePhrase = "";
+    syncAdminPanelAccess();
     document.body.classList.remove("is-faith-awakening");
     clearFaithTheme();
     $("#logoutButton").hidden = true;
@@ -1391,6 +1409,7 @@ async function boot() {
   setupGodOptions();
   setupFaithFilter();
   bindEvents();
+  syncAdminPanelAccess();
   clearAdminForm();
   await loadProfessionLibrary();
   await refreshPublicData();

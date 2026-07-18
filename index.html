@@ -27,8 +27,8 @@
       <button class="nav__item" type="button" data-view-link="private">
         <span>信徒档案</span><small>本人私藏卷宗</small>
       </button>
-      <button class="nav__item" type="button" data-view-link="admin">
-        <span>神谕登记</span><small>信徒信息录入</small>
+      <button class="nav__item" id="adminNavButton" type="button" data-view-link="admin" hidden>
+        <span>神谕司务</span><small>结算与录入</small>
       </button>
     </nav>
   </header>
@@ -127,17 +127,22 @@
       </div>
     </section>
 
-    <section class="view" id="adminView" aria-labelledby="adminTitle">
-      <div class="section-head">
+    <section class="view admin-view" id="adminView" aria-labelledby="adminTitle">
+      <div class="section-head admin-sanctum-head">
         <div>
-          <p class="eyebrow">Admin Desk</p>
-          <h2 id="adminTitle">管理录入与打分</h2>
+          <p class="eyebrow">Oracle Stewardship</p>
+          <h2 id="adminTitle">神谕司务台</h2>
         </div>
+        <div class="admin-operator-mark" aria-label="司务信徒标记"><span id="adminOperatorMark">司</span><small>神谕官</small></div>
         <button class="btn btn--ghost" type="button" id="refreshButton">刷新数据</button>
       </div>
 
-      <div class="admin-grid">
+      <div class="admin-grid admin-grid--sanctum">
         <form class="panel form-panel" id="adminProfileForm">
+          <div class="workbench-heading span-2">
+            <p class="eyebrow">Archive Registry</p>
+            <h3>信徒档案录入</h3>
+          </div>
           <label class="span-2">
             管理密钥
             <input id="adminKey" type="password" autocomplete="off">
@@ -201,7 +206,11 @@
         </form>
 
         <div class="side-stack">
-          <form class="panel score-form" id="scoreForm">
+          <form class="panel score-form settlement-workbench" id="scoreForm">
+            <div class="workbench-heading">
+              <p class="eyebrow">Trial Settlement</p>
+              <h3>试炼结算</h3>
+            </div>
             <label>
               结算对象
               <select id="scoreTarget" required></select>
@@ -223,8 +232,8 @@
             <button class="btn btn--primary" type="submit">提交结算</button>
             <section class="bulk-score-box" aria-labelledby="bulkScoreTitle">
               <div>
-                <p class="eyebrow">Bulk Score</p>
-                <h3 id="bulkScoreTitle">批量分数结算</h3>
+                <p class="eyebrow">Mass Verdict</p>
+                <h3 id="bulkScoreTitle">群体结算</h3>
               </div>
               <textarea id="bulkScoreInput" rows="7"></textarea>
               <div class="form-actions">
@@ -238,8 +247,8 @@
 
           <section class="panel score-form" aria-labelledby="bulkImportTitle">
             <div>
-              <p class="eyebrow">Bulk Import</p>
-              <h3 id="bulkImportTitle">批量导入</h3>
+              <p class="eyebrow">Archive Intake</p>
+              <h3 id="bulkImportTitle">批量卷宗录入</h3>
             </div>
             <textarea id="bulkImportInput" rows="9"></textarea>
             <div class="form-actions">
