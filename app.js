@@ -211,6 +211,18 @@ function godThemeDetail(profile) {
   return godThemeDetails[getFaithGod(profile)] || godThemeDetails.欺诈;
 }
 
+function applyFaithTheme(profile) {
+  const themeClass = godThemeClass(profile);
+  const slug = godThemeSlugs[getFaithGod(profile)] || "trickery";
+  document.body.dataset.faithTheme = slug;
+  $("#secretForm").className = `panel access-panel access-panel--sealed ${themeClass}`;
+}
+
+function clearFaithTheme() {
+  delete document.body.dataset.faithTheme;
+  $("#secretForm").className = "panel access-panel access-panel--sealed";
+}
+
 function getProfession(profile) {
   return profile.profession || profile.className || profile.class_name || "";
 }
@@ -663,6 +675,7 @@ function renderPrivatePanel(profile) {
   const faithGod = getFaithGod(profile);
   const themeClass = godThemeClass(profile);
   const themeDetail = godThemeDetail(profile);
+  applyFaithTheme(profile);
   const privatePanel = $("#privatePanel");
   privatePanel.className = `panel profile-preview profile-preview--wide dossier-card ${themeClass}`;
   privatePanel.dataset.god = faithGod || "未定";
@@ -1182,6 +1195,7 @@ function bindEvents() {
   $("#logoutButton").addEventListener("click", () => {
     currentPrivateProfile = null;
     currentPrivatePhrase = "";
+    clearFaithTheme();
     $("#logoutButton").hidden = true;
     $("#secretForm").reset();
     $("#secretPhrase").classList.remove("is-secret-hidden");

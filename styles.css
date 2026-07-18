@@ -2167,6 +2167,229 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
   --god-mark-pattern: radial-gradient(circle, rgba(192, 189, 168, .28) 0 6%, rgba(59, 87, 87, .18) 7% 28%, transparent 29%);
 }
 
+/* Personal dossier mode: the faith changes the whole material system, not a trim color. */
+body[data-faith-theme] {
+  --ink: var(--faith-ink, #f0eadc);
+  --muted: var(--faith-muted, #b8beb5);
+  --line: var(--faith-line, rgba(224, 199, 137, .22));
+  --gold-main: var(--faith-accent, #d8be7a);
+  --gold-light: var(--faith-highlight, #f4e8c4);
+  --gold-dark: var(--faith-deep-accent, #9d7b43);
+  --gold-glow: color-mix(in srgb, var(--faith-accent) 16%, transparent);
+  color: var(--faith-ink, #f0eadc);
+  background: var(--faith-page);
+}
+
+body[data-faith-theme] .ambient {
+  background: var(--faith-runes, url("assets/prayer-runes.svg")) repeat;
+  background-size: var(--faith-rune-size, 420px 260px);
+  mix-blend-mode: screen;
+  opacity: .1;
+}
+
+body[data-faith-theme] .topbar {
+  background: color-mix(in srgb, var(--faith-topbar, #10151a) 88%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--faith-accent) 24%, transparent);
+}
+
+body[data-faith-theme] .hero-panel {
+  border-color: color-mix(in srgb, var(--faith-accent) 54%, transparent);
+  background: var(--faith-hero);
+  box-shadow: 0 14px 38px color-mix(in srgb, var(--faith-accent) 10%, transparent);
+}
+
+body[data-faith-theme] .hero-panel__edict,
+body[data-faith-theme] .hero-panel .eyebrow,
+body[data-faith-theme] .status-card span {
+  color: var(--faith-muted, var(--text-normal));
+}
+
+body[data-faith-theme] .status-card {
+  border-color: color-mix(in srgb, var(--faith-accent) 34%, transparent);
+  background: color-mix(in srgb, var(--faith-topbar) 74%, transparent);
+}
+
+body[data-faith-theme] #privateView::after {
+  background: var(--faith-view-glow);
+  opacity: .95;
+}
+
+body[data-faith-theme] .access-panel--sealed {
+  color: var(--faith-seal-ink, #291b0f);
+  border-color: color-mix(in srgb, var(--faith-accent) 70%, #352014);
+  background:
+    var(--faith-seal-pattern, none),
+    url("assets/parchment-grain.svg") repeat,
+    var(--faith-seal);
+  background-size: auto, 220px 220px, auto;
+  background-blend-mode: normal, soft-light, normal;
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--faith-accent) 19%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--faith-highlight) 42%, transparent),
+    inset 0 0 42px color-mix(in srgb, var(--faith-deep-accent) 23%, transparent);
+}
+
+body[data-faith-theme] .access-panel--sealed::before {
+  border-color: color-mix(in srgb, var(--faith-accent) 56%, transparent);
+  background: var(--faith-seal-frame, none);
+}
+
+body[data-faith-theme] .access-panel--sealed::after {
+  background: var(--faith-seal-speckle, none);
+  opacity: .55;
+}
+
+body[data-faith-theme] .access-panel--sealed .eyebrow,
+body[data-faith-theme] .access-panel--sealed label,
+body[data-faith-theme] .access-panel__head .mini-btn {
+  color: var(--faith-seal-muted, var(--faith-seal-ink));
+}
+
+body[data-faith-theme] .access-panel__head {
+  border-bottom-color: color-mix(in srgb, var(--faith-deep-accent) 34%, transparent);
+}
+
+body[data-faith-theme] .access-panel__head h2 {
+  color: var(--faith-seal-title, var(--faith-deep-accent));
+}
+
+body[data-faith-theme] .access-panel--sealed input {
+  color: var(--faith-control-ink, var(--faith-highlight));
+  border-color: color-mix(in srgb, var(--faith-accent) 46%, transparent);
+  background: var(--faith-control);
+}
+
+body[data-faith-theme] .access-panel--sealed .mini-btn {
+  color: var(--faith-seal-title, var(--faith-deep-accent));
+  border-color: color-mix(in srgb, var(--faith-accent) 38%, transparent);
+  background: color-mix(in srgb, var(--faith-seal-button, #b99555) 58%, transparent);
+}
+
+body[data-faith-theme] .btn--unlock,
+body[data-faith-theme] .self-edit-submit,
+body[data-faith-theme] .dossier-actions .dossier-export-primary {
+  color: var(--faith-button-ink, #20180d);
+  border-color: color-mix(in srgb, var(--faith-highlight) 62%, transparent);
+  background: var(--faith-button);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--faith-accent) 25%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 44%, transparent);
+}
+
+body[data-faith-theme] .dossier-card.god-theme {
+  border-color: color-mix(in srgb, var(--faith-accent) 58%, transparent);
+  background: var(--faith-dossier);
+  box-shadow:
+    inset 0 0 32px color-mix(in srgb, var(--faith-highlight) 6%, transparent),
+    0 10px 34px color-mix(in srgb, var(--faith-accent) 16%, transparent),
+    0 28px 70px rgba(0, 0, 0, .3);
+}
+
+body[data-faith-theme] .dossier-card.god-theme::before {
+  background: var(--faith-rail);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--faith-accent) 45%, transparent);
+}
+
+body[data-faith-theme] .dossier-card.god-theme::after {
+  border-color: color-mix(in srgb, var(--faith-accent) 44%, transparent);
+  background: var(--faith-frame);
+}
+
+body[data-faith-theme] .dossier-grid,
+body[data-faith-theme] .talent-list li,
+body[data-faith-theme] .dossier-section > p {
+  border-color: color-mix(in srgb, var(--faith-accent) 24%, transparent);
+}
+
+body[data-faith-theme] .dossier-grid div,
+body[data-faith-theme] .talent-list li,
+body[data-faith-theme] .dossier-section > p {
+  background: var(--faith-cell);
+}
+
+body[data-faith-theme] .dossier-grid dt,
+body[data-faith-theme] .dossier-head p:last-child {
+  color: var(--faith-muted);
+}
+
+body[data-faith-theme] .dossier-section--rule p {
+  background: var(--faith-rule);
+}
+
+/* Birth: candle-rose vellum and soft spring mineral green. */
+body[data-faith-theme="birth"] {
+  --faith-ink: #fff3dd; --faith-muted: #d7c6bc; --faith-accent: #e8b8a1; --faith-highlight: #fff0d6; --faith-deep-accent: #9c5e5c;
+  --faith-page: linear-gradient(135deg, #4a272f 0%, #71444c 46%, #273d35 100%);
+  --faith-topbar: #3d2029; --faith-hero: linear-gradient(112deg, rgba(83, 39, 50, .95), rgba(46, 77, 62, .9));
+  --faith-seal: linear-gradient(145deg, #f1d5b4, #d89b94 52%, #8a5d5a); --faith-seal-ink: #3a1f24; --faith-seal-title: #803f46; --faith-seal-muted: #67403e; --faith-seal-button: #b86f67;
+  --faith-control: linear-gradient(180deg, #422b31, #24191e); --faith-control-ink: #fff1d6;
+  --faith-dossier: radial-gradient(ellipse at 78% 12%, rgba(244, 220, 180, .13), transparent 18rem), linear-gradient(135deg, #48242e, #213d34 100%);
+  --faith-cell: linear-gradient(135deg, rgba(239, 173, 157, .12), rgba(99, 167, 127, .07)); --faith-rule: rgba(52, 24, 32, .62);
+  --faith-button: linear-gradient(180deg, #f6d2a9, #d9857e 52%, #8f4b51); --faith-rail: linear-gradient(180deg, transparent, #f3cfad 23%, #8fc79a 62%, transparent); --faith-frame: linear-gradient(90deg, #e8b8a1, transparent 24%, transparent 76%, #8fc79a) top / 100% 1px no-repeat;
+  --faith-view-glow: linear-gradient(120deg, rgba(246, 178, 163, .17), transparent 42%, rgba(129, 198, 143, .12));
+}
+
+/* Prosperity: the only true forest dossier, with ivy green and antique brass. */
+body[data-faith-theme="prosperity"] {
+  --faith-ink: #f0f0cf; --faith-muted: #b9c9a3; --faith-accent: #a9c56a; --faith-highlight: #f4e8a7; --faith-deep-accent: #4f7137;
+  --faith-page: linear-gradient(135deg, #0e3023, #1f5132 48%, #5a6330); --faith-topbar: #102d20; --faith-hero: linear-gradient(112deg, #153a28, #4f6030);
+  --faith-seal: linear-gradient(145deg, #d8d08a, #7d9b4f 52%, #355438); --faith-seal-ink: #172a1a; --faith-seal-title: #35512e; --faith-seal-muted: #3c572f; --faith-seal-button: #75924a;
+  --faith-control: linear-gradient(180deg, #1c4228, #0d2116); --faith-control-ink: #f4edb8;
+  --faith-dossier: repeating-linear-gradient(122deg, transparent 0 28px, rgba(157, 197, 94, .1) 29px 31px, transparent 32px 60px), linear-gradient(135deg, #113727, #38552b); --faith-cell: linear-gradient(135deg, rgba(164, 199, 87, .14), rgba(22, 79, 46, .4)); --faith-rule: rgba(10, 39, 23, .7);
+  --faith-button: linear-gradient(180deg, #e5d878, #98ae4c 52%, #526d2f); --faith-rail: linear-gradient(180deg, transparent, #e6d86f 20%, #74b752 57%, transparent); --faith-frame: linear-gradient(90deg, #b8d96e, transparent 28%, transparent 72%, #618e3f) top / 100% 1px no-repeat;
+  --faith-view-glow: linear-gradient(115deg, rgba(117, 177, 73, .22), transparent 45%, rgba(228, 212, 102, .12));
+}
+
+/* Death: obsidian, bone, cold memorial stone. */
+body[data-faith-theme="death"] {
+  --faith-ink: #ece8dc; --faith-muted: #aeb4ad; --faith-accent: #c4c3af; --faith-highlight: #faf4df; --faith-deep-accent: #747b76;
+  --faith-page: linear-gradient(135deg, #171a1b, #343c3d 54%, #4d5550); --faith-topbar: #141718; --faith-hero: linear-gradient(112deg, #202627, #555a53);
+  --faith-seal: linear-gradient(145deg, #d9d1ba, #91978f 50%, #4e5552); --faith-seal-ink: #202524; --faith-seal-title: #4b524f; --faith-seal-muted: #59605b; --faith-seal-button: #8c9188;
+  --faith-control: linear-gradient(180deg, #303837, #171c1b); --faith-control-ink: #f3ecdc;
+  --faith-dossier: repeating-linear-gradient(0deg, transparent 0 32px, rgba(222, 218, 198, .06) 33px 34px, transparent 35px 64px), linear-gradient(135deg, #1b2021, #424946); --faith-cell: linear-gradient(135deg, rgba(225, 220, 199, .1), rgba(85, 97, 93, .24)); --faith-rule: rgba(9, 12, 12, .62);
+  --faith-button: linear-gradient(180deg, #e4dfc8, #a7aaa0 52%, #626965); --faith-rail: linear-gradient(180deg, transparent, #e7dfc9 23%, #718079 62%, transparent); --faith-frame: linear-gradient(90deg, #d5d0bb, transparent 28%, transparent 72%, #727a75) top / 100% 1px no-repeat;
+  --faith-view-glow: linear-gradient(115deg, rgba(210, 208, 190, .11), transparent 45%, rgba(96, 112, 105, .14));
+}
+
+/* Memory: indigo archive cloth, brass filing marks and lavender ink. */
+body[data-faith-theme="memory"] {
+  --faith-ink: #edf0e8; --faith-muted: #b5bfd0; --faith-accent: #c8af72; --faith-highlight: #fff0bf; --faith-deep-accent: #556b91;
+  --faith-page: linear-gradient(135deg, #172641, #30486a 50%, #5a4d78); --faith-topbar: #172337; --faith-hero: linear-gradient(112deg, #1d304f, #62547d);
+  --faith-seal: linear-gradient(145deg, #d9c493, #8093b0 50%, #5e5581); --faith-seal-ink: #1f2940; --faith-seal-title: #455f89; --faith-seal-muted: #475b75; --faith-seal-button: #7184a1;
+  --faith-control: linear-gradient(180deg, #263c5c, #121b2d); --faith-control-ink: #fff0c2;
+  --faith-dossier: linear-gradient(90deg, rgba(218, 189, 109, .075) 1px, transparent 1px), linear-gradient(rgba(126, 154, 192, .06) 1px, transparent 1px), linear-gradient(135deg, #1d2d50, #4d416d); --faith-cell: linear-gradient(135deg, rgba(126, 154, 192, .17), rgba(100, 78, 138, .16)); --faith-rule: rgba(15, 25, 47, .7);
+  --faith-button: linear-gradient(180deg, #ecd98f, #7e96ba 52%, #5c527e); --faith-rail: linear-gradient(180deg, transparent, #f2da94 19%, #7c9fc7 48%, #8b70aa 73%, transparent); --faith-frame: linear-gradient(90deg, #d0b77b, transparent 28%, transparent 72%, #778fb8) top / 100% 1px no-repeat;
+  --faith-view-glow: linear-gradient(115deg, rgba(103, 138, 190, .19), transparent 46%, rgba(139, 105, 177, .16));
+}
+
+/* Time: midnight blue, clockwork bronze, concentric scale. */
+body[data-faith-theme="time"] {
+  --faith-ink: #f4ead2; --faith-muted: #b7c7c7; --faith-accent: #d2a75d; --faith-highlight: #ffe5a4; --faith-deep-accent: #497b89;
+  --faith-page: linear-gradient(135deg, #10263b, #1a4160 52%, #533e36); --faith-topbar: #102033; --faith-hero: linear-gradient(112deg, #153654, #654835);
+  --faith-seal: linear-gradient(145deg, #e1c38b, #6ea1aa 52%, #7d5a42); --faith-seal-ink: #1d3038; --faith-seal-title: #426c77; --faith-seal-muted: #4e665f; --faith-seal-button: #af7e46;
+  --faith-control: linear-gradient(180deg, #1d4556, #10222e); --faith-control-ink: #ffe7ad;
+  --faith-dossier: repeating-conic-gradient(from 0deg at 80% 18%, rgba(241, 189, 91, .075) 0 4deg, transparent 4deg 16deg), linear-gradient(135deg, #14364f, #593e31); --faith-cell: linear-gradient(135deg, rgba(92, 164, 175, .18), rgba(188, 127, 74, .13)); --faith-rule: rgba(7, 24, 37, .72);
+  --faith-button: linear-gradient(180deg, #f0cf83, #5f9ca6 51%, #775038); --faith-rail: linear-gradient(180deg, transparent, #f0ca75 20%, #5c9fa9 54%, #a96f47 73%, transparent); --faith-frame: linear-gradient(90deg, #dcb267, transparent 28%, transparent 72%, #5e9ca5) top / 100% 1px no-repeat;
+  --faith-view-glow: linear-gradient(115deg, rgba(80, 154, 174, .2), transparent 45%, rgba(198, 133, 74, .16));
+}
+
+/* Order and Truth are intentionally colder, architectural dossiers. */
+body[data-faith-theme="order"] { --faith-ink:#edf3ff; --faith-muted:#b9c7d5; --faith-accent:#99bbde; --faith-highlight:#e9f3ff; --faith-deep-accent:#41628c; --faith-page:linear-gradient(135deg,#15273e,#28496b 52%,#4a6383); --faith-topbar:#14263c; --faith-hero:linear-gradient(112deg,#1d3554,#4d6685); --faith-seal:linear-gradient(145deg,#d6e0dc,#91adc7 50%,#526c91); --faith-seal-ink:#1c3046; --faith-seal-title:#31577e; --faith-seal-muted:#46647f; --faith-seal-button:#7b9fbd; --faith-control:linear-gradient(180deg,#264864,#12263d); --faith-control-ink:#f0f5ff; --faith-dossier:linear-gradient(90deg,rgba(205,227,255,.07) 1px,transparent 1px),linear-gradient(rgba(205,227,255,.05) 1px,transparent 1px),linear-gradient(135deg,#1b3655,#3e5a79); --faith-cell:linear-gradient(135deg,rgba(137,180,220,.16),rgba(67,99,139,.17)); --faith-rule:rgba(11,28,47,.7); --faith-button:linear-gradient(180deg,#e8f1fb,#8cb1d4 52%,#496c95); --faith-rail:linear-gradient(180deg,transparent,#e2edf8 20%,#8eb7de 52%,#557aa4 73%,transparent); --faith-frame:linear-gradient(90deg,#bdd9ef,transparent 28%,transparent 72%,#6f9ac2) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(122,180,231,.19),transparent 45%,rgba(203,230,255,.11)); }
+body[data-faith-theme="truth"] { --faith-ink:#f8f3de; --faith-muted:#c9d7df; --faith-accent:#82d0d5; --faith-highlight:#fff4bf; --faith-deep-accent:#5e5aa0; --faith-page:linear-gradient(135deg,#132440,#1a5267 46%,#654d91); --faith-topbar:#12233b; --faith-hero:linear-gradient(112deg,#173f59,#674d91); --faith-seal:linear-gradient(145deg,#f0e6b6,#83cad0 50%,#8f78b4); --faith-seal-ink:#20314c; --faith-seal-title:#4c6099; --faith-seal-muted:#476b78; --faith-seal-button:#7b9fae; --faith-control:linear-gradient(180deg,#1c4c5b,#17273f); --faith-control-ink:#fff1c2; --faith-dossier:linear-gradient(116deg,transparent 0 37%,rgba(255,240,177,.12) 38% 39%,transparent 40% 58%,rgba(116,205,214,.1) 59% 60%,transparent 61%),linear-gradient(135deg,#173b56,#604986); --faith-cell:linear-gradient(135deg,rgba(116,205,214,.16),rgba(182,144,223,.15)); --faith-rule:rgba(13,29,55,.7); --faith-button:linear-gradient(180deg,#fff0b5,#73c3cd 52%,#7761a7); --faith-rail:linear-gradient(180deg,transparent,#fff0af 20%,#7bd0d3 50%,#a083ce 73%,transparent); --faith-frame:linear-gradient(90deg,#f5df9c,transparent 28%,transparent 72%,#77d2d6) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(99,205,216,.21),transparent 43%,rgba(169,128,213,.17)); }
+
+/* War, Trickery, Fate: red iron, carnival plum, midnight star silk. */
+body[data-faith-theme="war"] { --faith-ink:#f4e9d9; --faith-muted:#c6b8ac; --faith-accent:#db8853; --faith-highlight:#ffe0a0; --faith-deep-accent:#a9403e; --faith-page:linear-gradient(135deg,#211d22,#572c2b 50%,#7c4a34); --faith-topbar:#1b1a20; --faith-hero:linear-gradient(112deg,#302126,#78392d); --faith-seal:linear-gradient(145deg,#d9b08a,#a74a42 50%,#49383a); --faith-seal-ink:#2d2021; --faith-seal-title:#873735; --faith-seal-muted:#6e4036; --faith-seal-button:#a84a40; --faith-control:linear-gradient(180deg,#4a2a2b,#211b21); --faith-control-ink:#ffe4b9; --faith-dossier:repeating-linear-gradient(138deg,transparent 0 22px,rgba(217,86,68,.12) 23px 25px,transparent 26px 52px),linear-gradient(135deg,#252126,#6a332d); --faith-cell:linear-gradient(135deg,rgba(211,74,58,.17),rgba(201,143,75,.12)); --faith-rule:rgba(29,15,19,.73); --faith-button:linear-gradient(180deg,#ffd490,#d05a45 52%,#662c2d); --faith-rail:linear-gradient(180deg,transparent,#ffd08a 18%,#d24e43 49%,#6b6762 73%,transparent); --faith-frame:linear-gradient(90deg,#ed9d5c,transparent 28%,transparent 72%,#b3423c) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(211,65,57,.21),transparent 44%,rgba(231,158,76,.14)); }
+body[data-faith-theme="trickery"] { --faith-ink:#f6ebd7; --faith-muted:#bfc6c4; --faith-accent:#ce93d5; --faith-highlight:#ffe5ad; --faith-deep-accent:#398e82; --faith-page:linear-gradient(135deg,#1f1837,#4a245d 47%,#135a56); --faith-topbar:#1d1832; --faith-hero:linear-gradient(112deg,#31204d,#155c58); --faith-seal:linear-gradient(145deg,#e2c28d,#b77bb9 49%,#31786e); --faith-seal-ink:#2d1d38; --faith-seal-title:#6b4077; --faith-seal-muted:#66476c; --faith-seal-button:#9f659f; --faith-control:linear-gradient(180deg,#3a2352,#143d3d); --faith-control-ink:#ffe6af; --faith-dossier:linear-gradient(34deg,transparent 0 42%,rgba(201,126,207,.13) 43% 45%,transparent 46%),linear-gradient(135deg,#291b42,#125a56); --faith-cell:linear-gradient(135deg,rgba(192,112,194,.17),rgba(57,158,145,.15)); --faith-rule:rgba(22,13,37,.74); --faith-button:linear-gradient(180deg,#ffe0a2,#b36db3 52%,#2d8178); --faith-rail:linear-gradient(180deg,transparent,#ffd990 18%,#bd78be 47%,#45ab99 73%,transparent); --faith-frame:linear-gradient(90deg,#eab6d6,transparent 28%,transparent 72%,#5fc0ae) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(189,99,193,.22),transparent 43%,rgba(56,178,161,.17)); }
+body[data-faith-theme="fate"] { --faith-ink:#f3ecdf; --faith-muted:#c0c2d5; --faith-accent:#a18ad8; --faith-highlight:#f7dea5; --faith-deep-accent:#497fab; --faith-page:linear-gradient(135deg,#1d1c42,#3f3471 48%,#174b6a); --faith-topbar:#1b1b3b; --faith-hero:linear-gradient(112deg,#2a2860,#1a5577); --faith-seal:linear-gradient(145deg,#e2cc91,#9180c5 50%,#4e8ba8); --faith-seal-ink:#272344; --faith-seal-title:#594c91; --faith-seal-muted:#5a5b88; --faith-seal-button:#8678bd; --faith-control:linear-gradient(180deg,#312d67,#15344e); --faith-control-ink:#fbe6ad; --faith-dossier:radial-gradient(circle at 18% 24%,rgba(244,218,143,.18) 0 1px,transparent 2px),radial-gradient(circle at 72% 54%,rgba(157,132,218,.14) 0 1px,transparent 2px),linear-gradient(135deg,#282557,#164b69); --faith-cell:linear-gradient(135deg,rgba(153,130,211,.18),rgba(62,137,177,.16)); --faith-rule:rgba(17,16,49,.73); --faith-button:linear-gradient(180deg,#f5da94,#9b83ce 52%,#3b77a0); --faith-rail:linear-gradient(180deg,transparent,#f5db9a 20%,#9a7ed0 50%,#529fc1 73%,transparent); --faith-frame:linear-gradient(90deg,#e5c988,transparent 28%,transparent 72%,#6e9fcb) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(146,118,211,.22),transparent 43%,rgba(75,153,192,.18)); }
+
+/* Chaos, Silence, Folly: splintered spectrum, cold hush, carnival lacquer. */
+body[data-faith-theme="chaos"] { --faith-ink:#fff0da; --faith-muted:#cabbd1; --faith-accent:#d5738c; --faith-highlight:#ffd58c; --faith-deep-accent:#4da4a1; --faith-page:linear-gradient(135deg,#351b35,#6c2548 45%,#1a6262); --faith-topbar:#301a31; --faith-hero:linear-gradient(112deg,#4a2041,#1e6d6a); --faith-seal:linear-gradient(145deg,#e6b17b,#a7568e 48%,#3c8883); --faith-seal-ink:#331d35; --faith-seal-title:#81405e; --faith-seal-muted:#70475d; --faith-seal-button:#a95c82; --faith-control:linear-gradient(180deg,#552747,#1d5454); --faith-control-ink:#ffe1a7; --faith-dossier:linear-gradient(23deg,transparent 0 44%,rgba(245,167,92,.12) 45% 47%,transparent 48%),linear-gradient(151deg,transparent 0 40%,rgba(85,202,187,.11) 41% 43%,transparent 44%),linear-gradient(135deg,#461e41,#176461); --faith-cell:linear-gradient(135deg,rgba(210,93,142,.17),rgba(70,183,173,.16)); --faith-rule:rgba(34,12,33,.73); --faith-button:linear-gradient(180deg,#ffd087,#cf5d92 52%,#329b93); --faith-rail:linear-gradient(180deg,transparent,#ffd08c 17%,#cf6594 45%,#4cc6b6 73%,transparent); --faith-frame:linear-gradient(90deg,#f0a878,transparent 28%,transparent 72%,#57c1b5) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(202,76,137,.23),transparent 43%,rgba(62,188,176,.19)); }
+body[data-faith-theme="silence"] { --faith-ink:#e9f0ed; --faith-muted:#aebbb9; --faith-accent:#bfc9bd; --faith-highlight:#f5f2df; --faith-deep-accent:#596f70; --faith-page:linear-gradient(135deg,#1b2930,#40555c 52%,#6c7774); --faith-topbar:#1b292f; --faith-hero:linear-gradient(112deg,#263941,#63706e); --faith-seal:linear-gradient(145deg,#d8d8c8,#95a8a4 50%,#667475); --faith-seal-ink:#263236; --faith-seal-title:#4f6768; --faith-seal-muted:#5c6e6c; --faith-seal-button:#879895; --faith-control:linear-gradient(180deg,#394c4f,#202c30); --faith-control-ink:#f3f3dc; --faith-dossier:repeating-linear-gradient(0deg,transparent 0 18px,rgba(221,229,216,.035) 19px 20px,transparent 21px 40px),linear-gradient(135deg,#26393e,#536564); --faith-cell:linear-gradient(135deg,rgba(199,210,200,.1),rgba(78,104,103,.16)); --faith-rule:rgba(18,29,33,.72); --faith-button:linear-gradient(180deg,#ece9d7,#aab8b1 52%,#647576); --faith-rail:linear-gradient(180deg,transparent,#edf0dc 23%,#96aaa4 54%,#627273 73%,transparent); --faith-frame:linear-gradient(90deg,#d4ddd2,transparent 28%,transparent 72%,#819795) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(196,211,202,.13),transparent 44%,rgba(99,123,122,.17)); }
+body[data-faith-theme="folly"] { --faith-ink:#fff1d8; --faith-muted:#d7bbc1; --faith-accent:#ecad52; --faith-highlight:#fff0a6; --faith-deep-accent:#bd4d70; --faith-page:linear-gradient(135deg,#271d4f,#63416f 48%,#a34861); --faith-topbar:#251b47; --faith-hero:linear-gradient(112deg,#3b2860,#a14561); --faith-seal:linear-gradient(145deg,#f0d47a,#c976a3 49%,#5d9e8b); --faith-seal-ink:#3d2445; --faith-seal-title:#9c3e61; --faith-seal-muted:#7d4a68; --faith-seal-button:#c2608a; --faith-control:linear-gradient(180deg,#512d62,#742e4a); --faith-control-ink:#fff0a5; --faith-dossier:radial-gradient(circle at 24% 70%,rgba(244,189,84,.16) 0 2px,transparent 3px),linear-gradient(127deg,transparent 0 44%,rgba(220,91,148,.11) 45% 48%,transparent 49%),linear-gradient(135deg,#332258,#8e3659); --faith-cell:linear-gradient(135deg,rgba(242,176,79,.17),rgba(213,87,140,.16)); --faith-rule:rgba(32,16,59,.74); --faith-button:linear-gradient(180deg,#ffe78d,#db6d9d 52%,#6aaf98); --faith-rail:linear-gradient(180deg,transparent,#ffe48d 18%,#d968a0 47%,#6cb59c 73%,transparent); --faith-frame:linear-gradient(90deg,#f6c973,transparent 28%,transparent 72%,#77c3a9) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(231,97,152,.22),transparent 43%,rgba(240,177,78,.18)); }
+
+/* Defilement, Decay, Annihilation: contaminated relic, rotten timber, final void. */
+body[data-faith-theme="defilement"] { --faith-ink:#ede8cf; --faith-muted:#bdc09b; --faith-accent:#b6c36b; --faith-highlight:#e9d28a; --faith-deep-accent:#755266; --faith-page:linear-gradient(135deg,#25261d,#59602c 48%,#563951); --faith-topbar:#24271d; --faith-hero:linear-gradient(112deg,#394020,#643c5d); --faith-seal:linear-gradient(145deg,#cfc076,#768143 50%,#73556d); --faith-seal-ink:#292b1e; --faith-seal-title:#617033; --faith-seal-muted:#5d633b; --faith-seal-button:#77864a; --faith-control:linear-gradient(180deg,#48542a,#31283a); --faith-control-ink:#f0dd9a; --faith-dossier:radial-gradient(ellipse at 22% 74%,rgba(122,141,56,.19),transparent 10rem),radial-gradient(circle at 82% 18%,rgba(119,73,112,.17),transparent 8rem),linear-gradient(135deg,#31371d,#513c56); --faith-cell:linear-gradient(135deg,rgba(138,159,63,.17),rgba(122,77,117,.17)); --faith-rule:rgba(25,28,16,.73); --faith-button:linear-gradient(180deg,#e6d078,#98a94e 52%,#755069); --faith-rail:linear-gradient(180deg,transparent,#e9d27c 18%,#8d9f4c 50%,#7a5776 73%,transparent); --faith-frame:linear-gradient(90deg,#c3cb73,transparent 28%,transparent 72%,#8c6282) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(137,158,61,.22),transparent 44%,rgba(123,76,114,.18)); }
+body[data-faith-theme="decay"] { --faith-ink:#f1e8d0; --faith-muted:#c2b99e; --faith-accent:#bd9655; --faith-highlight:#f2d796; --faith-deep-accent:#627c59; --faith-page:linear-gradient(135deg,#32271c,#6c4d2d 48%,#405d4a); --faith-topbar:#30251b; --faith-hero:linear-gradient(112deg,#513920,#42694e); --faith-seal:linear-gradient(145deg,#d2b56f,#8a7040 49%,#56705a); --faith-seal-ink:#342719; --faith-seal-title:#725431; --faith-seal-muted:#705a3a; --faith-seal-button:#97723e; --faith-control:linear-gradient(180deg,#594126,#293b2f); --faith-control-ink:#f7db98; --faith-dossier:repeating-linear-gradient(8deg,transparent 0 28px,rgba(172,129,69,.12) 29px 30px,transparent 31px 58px),linear-gradient(135deg,#49331f,#365748); --faith-cell:linear-gradient(135deg,rgba(179,134,67,.17),rgba(74,123,91,.16)); --faith-rule:rgba(38,26,15,.74); --faith-button:linear-gradient(180deg,#f1d38e,#a7793e 52%,#527258); --faith-rail:linear-gradient(180deg,transparent,#f2d187 19%,#a67a3e 50%,#54755c 73%,transparent); --faith-frame:linear-gradient(90deg,#d7ad66,transparent 28%,transparent 72%,#65866a) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(172,124,61,.21),transparent 43%,rgba(79,126,93,.17)); }
+body[data-faith-theme="annihilation"] { --faith-ink:#eef0f0; --faith-muted:#aab8bd; --faith-accent:#8ebdc2; --faith-highlight:#e4e7cf; --faith-deep-accent:#76679d; --faith-page:linear-gradient(135deg,#10151f,#1a2d3b 48%,#302a4a); --faith-topbar:#10151e; --faith-hero:linear-gradient(112deg,#142533,#352f51); --faith-seal:linear-gradient(145deg,#c5c7b3,#55777b 50%,#5e537d); --faith-seal-ink:#1d2930; --faith-seal-title:#42666f; --faith-seal-muted:#52696e; --faith-seal-button:#587b83; --faith-control:linear-gradient(180deg,#203842,#161a2a); --faith-control-ink:#e7efd9; --faith-dossier:radial-gradient(circle at 76% 20%,rgba(216,225,211,.12) 0 2px,transparent 3px),radial-gradient(circle at 76% 20%,transparent 0 56px,rgba(91,157,164,.1) 57px 58px,transparent 59px),linear-gradient(135deg,#14232f,#302947); --faith-cell:linear-gradient(135deg,rgba(112,167,174,.14),rgba(120,100,166,.16)); --faith-rule:rgba(7,13,20,.78); --faith-button:linear-gradient(180deg,#e2e5c8,#6ea3aa 52%,#625382); --faith-rail:linear-gradient(180deg,transparent,#e3e4ca 20%,#66a0a5 49%,#79679d 74%,transparent); --faith-frame:linear-gradient(90deg,#c3dad7,transparent 28%,transparent 72%,#70649a) top/100% 1px no-repeat; --faith-view-glow:linear-gradient(115deg,rgba(80,154,162,.19),transparent 43%,rgba(114,91,164,.18)); }
+
 .profile-preview--wide::-webkit-scrollbar {
   width: 6px;
 }
