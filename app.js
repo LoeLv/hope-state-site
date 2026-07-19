@@ -807,7 +807,11 @@ function renderLeaderboard() {
           </span>
           <span class="podium-seat__name">${escapeHtml(profile.name)}</span>
           <span class="podium-seat__identity">${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
-          <strong>${score.value}</strong><small>${score.label}</small>
+          <span class="podium-total"><strong>${totalScore(profile)}</strong><small>总分</small></span>
+          <span class="podium-score-breakdown" aria-label="分数明细">
+            <span><small>登神分</small><b>${getAscension(profile)}</b></span>
+            <span><small>觐见分</small><b>${getAudience(profile)}</b></span>
+          </span>
         </button>
       `;
     }).join("");

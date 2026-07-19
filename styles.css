@@ -1309,19 +1309,60 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
   line-height: 1.35;
 }
 
-.podium-seat strong {
+.podium-total {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  margin-top: auto;
+}
+
+.podium-total strong {
   position: relative;
   z-index: 1;
   color: color-mix(in srgb, var(--podium-accent) 70%, var(--gold-light));
   font-size: 1.5rem;
 }
 
-.podium-seat small {
+.podium-total small,
+.podium-score-breakdown small {
   position: relative;
   z-index: 1;
   margin-top: 3px;
   color: var(--text-hint);
   font-size: .72rem;
+}
+
+.podium-score-breakdown {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--podium-accent) 25%, transparent);
+  border-radius: 6px;
+  background: rgba(3, 14, 12, .2);
+}
+
+.podium-score-breakdown > span {
+  display: grid;
+  gap: 2px;
+  padding: 6px 5px;
+  text-align: center;
+}
+
+.podium-score-breakdown > span + span {
+  border-left: 1px solid color-mix(in srgb, var(--podium-accent) 22%, transparent);
+}
+
+.podium-score-breakdown small { margin: 0; font-size: .62rem; }
+
+.podium-score-breakdown b {
+  color: color-mix(in srgb, var(--podium-accent) 68%, var(--gold-light));
+  font-family: var(--font-sans);
+  font-size: .84rem;
 }
 
 .leaderboard-list-head {
