@@ -104,6 +104,17 @@ function cleanTalents(value: unknown) {
     .filter(Boolean);
 }
 
+function parseInitialProfileScore(value: unknown, label: string, fallback: number, required = false) {
+  const raw = value ?? "";
+  if (String(raw).trim() === "") {
+    if (required) throw new Error(`缺少${label}`);
+    return fallback;
+  }
+  const score = Number(raw);
+  if (!Number.isInteger(score) || score < 0) throw new Error(`${label}必须是非负整数`);
+  return score;
+}
+
 function requireAdmin(payload: JsonRecord) {
   const configuredAdminKey = normalizeAdminKey(adminKey);
   if (!configuredAdminKey) {
@@ -262,7 +273,7 @@ async function listAllProfiles() {
   return await supabaseFetch("hope_profiles?select=*&order=ascension_score.desc&order=audience_score.desc");
 }
 
-async function upsertProfileFromPayload(profile: JsonRecord, references: Awaited<ReturnType<typeof loadReferenceData>>) {
+async function upsertProfileFromPayload(profile: JsonRecord, references: Awaited<ReturnType<typeof loadReferenceData>>, requireScores = false) {
   const name = normalizeCollectedName(profile.name || profile["昵称"]);
   const professionName = cleanText(profile.profession || profile.className || profile["职业"], 120);
   if (!name) throw new Error("缺少昵称");
@@ -288,8 +299,8 @@ async function upsertProfileFromPayload(profile: JsonRecord, references: Awaited
     public_note: cleanText(profile.publicNote ?? profile["公开短记"], 300),
     private_note: cleanText(profile.privateNote ?? profile["私密备注"], 600),
     talents: cleanTalents(profile.talents ?? profile["天赋"]),
-    ascension_score: Math.max(0, Number(profile.ascension ?? profile.ascensionScore ?? profile["登神分"] ?? 1000)),
-    audience_score: Math.max(0, Number(profile.audience ?? profile.audienceScore ?? profile["觐见分"] ?? 0)),
+    ascension_score: parseInitialProfileScore(profile.ascension ?? profile.ascensionScore ?? profile["登神分"], "登神分", 1000, requireScores),
+    audience_score: parseInitialProfileScore(profile.audience ?? profile.audienceScore ?? profile["觐见分"], "觐见分", 0, requireScores),
     is_public: true,
   };
   const rows = await supabaseFetch("hope_profiles?on_conflict=display_name", {
@@ -404,7 +415,7 @@ Deno.serve(async (request) => {
       const errors: JsonRecord[] = [];
       for (let index = 0; index < rows.length; index += 1) {
         try {
-          imported.push(await upsertProfileFromPayload(rows[index], references));
+          imported.push(await upsertProfileFromPayload(rows[index], references, true));
         } catch (error) {
           errors.push({
             row: index + 2,
