@@ -1196,13 +1196,105 @@ function installTransientButtonGuard() {
   }, true);
 }
 
-function downloadCanvasImage(canvas, filename) {
+async function downloadCanvasImage(canvas, filename) {
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob((result) => {
+      if (result) resolve(result);
+      else reject(new Error("图片编码失败"));
+    }, "image/png");
+  });
+  const objectUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.download = `${filename}.png`;
-  link.href = canvas.toDataURL("image/png");
+  link.href = objectUrl;
   document.body.appendChild(link);
   link.click();
   link.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+}
+
+function wrapCanvasText(context, text, maxWidth) {
+  const lines = [];
+  let line = "";
+  for (const character of String(text || "")) {
+    if (character === "\n") {
+      lines.push(line || " ");
+      line = "";
+      continue;
+    }
+    const candidate = `${line}${character}`;
+    if (line && context.measureText(candidate).width > maxWidth) {
+      lines.push(line);
+      line = character;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : [" "];
+}
+
+function renderPortableDossierCanvas(element, filename) {
+  const sourceLines = String(element.innerText || "")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const title = sourceLines.shift() || filename.replace(/-(?:私密面板|公开职业面板)$/, "");
+  const width = 1200;
+  const padding = 72;
+  const contentWidth = width - padding * 2;
+  const measureCanvas = document.createElement("canvas");
+  const measureContext = measureCanvas.getContext("2d");
+  if (!measureContext) throw new Error("无法创建图片画布");
+  measureContext.font = "32px 'Microsoft YaHei', sans-serif";
+  const contentLines = sourceLines.flatMap((line) => wrapCanvasText(measureContext, line, contentWidth));
+  const height = Math.min(16384, Math.max(720, 220 + contentLines.length * 54 + 88));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("无法创建图片画布");
+
+  const background = context.createLinearGradient(0, 0, width, height);
+  background.addColorStop(0, "#071b1a");
+  background.addColorStop(.52, "#173a39");
+  background.addColorStop(1, "#0c2524");
+  context.fillStyle = background;
+  context.fillRect(0, 0, width, height);
+  context.strokeStyle = "#c8b278";
+  context.globalAlpha = .88;
+  context.lineWidth = 3;
+  context.strokeRect(24, 24, width - 48, height - 48);
+  context.lineWidth = 1;
+  context.strokeRect(38, 38, width - 76, height - 76);
+  context.globalAlpha = 1;
+
+  context.fillStyle = "#c8b278";
+  context.font = "24px Georgia, 'Microsoft YaHei', serif";
+  context.fillText("HOPE STATE DOSSIER", padding, 88);
+  context.fillStyle = "#eae0bc";
+  context.font = "bold 52px Georgia, 'Microsoft YaHei', serif";
+  const titleLines = wrapCanvasText(context, title, contentWidth);
+  titleLines.forEach((line, index) => context.fillText(line, padding, 158 + index * 62));
+  const contentStart = 212 + (titleLines.length - 1) * 62;
+  context.strokeStyle = "rgba(200, 178, 120, .55)";
+  context.beginPath();
+  context.moveTo(padding, contentStart);
+  context.lineTo(width - padding, contentStart);
+  context.stroke();
+
+  context.font = "32px 'Microsoft YaHei', sans-serif";
+  context.fillStyle = "#eae6d8";
+  let y = contentStart + 58;
+  for (const line of contentLines) {
+    if (y > height - 60) break;
+    context.fillText(line, padding, y);
+    y += 54;
+  }
+  context.fillStyle = "#96824f";
+  context.font = "22px 'Microsoft YaHei', sans-serif";
+  context.fillText("希望之洲・神民档案室", padding, height - 56);
+  return canvas;
 }
 
 async function renderForeignObjectCanvas(element, rect, scale) {
@@ -1263,9 +1355,14 @@ async function exportPanelImage(element, filename) {
     });
   } catch (primaryError) {
     console.warn("Canvas 导出失败，尝试兼容渲染", primaryError);
-    canvas = await renderForeignObjectCanvas(element, rect, scale);
+    try {
+      canvas = await renderForeignObjectCanvas(element, rect, scale);
+    } catch (compatibilityError) {
+      console.warn("兼容渲染失败，改用卷宗画布", compatibilityError);
+      canvas = renderPortableDossierCanvas(element, filename);
+    }
   }
-  downloadCanvasImage(canvas, filename);
+  await downloadCanvasImage(canvas, filename);
 }
 
 async function refreshPrivateChronicle(profile) {
