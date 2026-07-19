@@ -824,6 +824,26 @@ input:focus, select:focus, textarea:focus {
   filter: saturate(.72) brightness(.94);
 }
 
+button.is-action-busy,
+button.is-click-guarded {
+  cursor: progress;
+}
+
+button.is-action-busy {
+  opacity: .76;
+  transform: none;
+  filter: saturate(.72) brightness(.95);
+}
+
+button.is-action-busy::after {
+  animation: action-busy-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes action-busy-pulse {
+  0%, 100% { opacity: .25; }
+  50% { opacity: .72; }
+}
+
 .btn--unlock.is-busy::after {
   animation: unlock-busy-sweep 1.15s linear infinite;
 }

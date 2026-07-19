@@ -1034,7 +1034,7 @@ function renderPrivatePanel(profile) {
       </footer>
     </div>
   `;
-  $("#selfEditForm").addEventListener("submit", handleSelfEditSubmit);
+  bindGuardedForm("#selfEditForm", "保存中...", handleSelfEditSubmit);
   $("[data-export-card='private']").addEventListener("click", (event) => runExportWithFeedback(event.currentTarget, () => exportPanelImage($("#privatePanel [data-card='private']"), `${profile.name}-私密面板`)));
   $("[data-export-card='private-public']").addEventListener("click", (event) => runExportWithFeedback(event.currentTarget, async () => {
     const clone = document.createElement("div");
@@ -1063,9 +1063,15 @@ function inlineComputedStyles(source, target) {
 }
 
 async function runExportWithFeedback(button, exportTask) {
-  if (!button || button.disabled) return;
+  if (!button) return;
+  if (button.dataset.actionBusy === "true" || button.disabled) {
+    showToast("操作处理中，请勿重复点击");
+    return;
+  }
   const originalLabel = button.dataset.exportLabel || button.textContent.trim();
   button.dataset.exportLabel = originalLabel;
+  button.dataset.actionBusy = "true";
+  button.setAttribute("aria-busy", "true");
   button.disabled = true;
   button.classList.add("is-exporting");
   button.textContent = "生成中...";
@@ -1081,9 +1087,73 @@ async function runExportWithFeedback(button, exportTask) {
     setTimeout(() => {
       button.disabled = false;
       button.classList.remove("is-exporting");
+      delete button.dataset.actionBusy;
+      button.setAttribute("aria-busy", "false");
       button.textContent = originalLabel;
     }, 1100);
   }
+}
+
+async function runGuardedAction(button, pendingLabel, action) {
+  if (!button) return action();
+  if (button.dataset.actionBusy === "true") {
+    showToast("操作处理中，请勿重复点击");
+    return;
+  }
+  const originalLabel = button.dataset.actionLabel || button.textContent.trim();
+  button.dataset.actionLabel = originalLabel;
+  button.dataset.actionBusy = "true";
+  button.disabled = true;
+  button.classList.add("is-action-busy");
+  button.setAttribute("aria-busy", "true");
+  button.textContent = pendingLabel;
+  try {
+    return await action();
+  } catch (error) {
+    console.error("按钮操作失败", error);
+    showToast("操作失败，请重试");
+  } finally {
+    button.disabled = false;
+    button.classList.remove("is-action-busy");
+    delete button.dataset.actionBusy;
+    button.setAttribute("aria-busy", "false");
+    button.textContent = originalLabel;
+  }
+}
+
+function bindGuardedForm(selector, pendingLabel, handler) {
+  const form = $(selector);
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const button = event.submitter || form.querySelector("button[type='submit']");
+    void runGuardedAction(button, pendingLabel, () => handler(event));
+  });
+}
+
+function bindGuardedButton(selector, pendingLabel, handler) {
+  const button = $(selector);
+  button.addEventListener("click", (event) => {
+    void runGuardedAction(event.currentTarget, pendingLabel, () => handler(event));
+  });
+}
+
+function installTransientButtonGuard() {
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    if (button.dataset.actionBusy === "true" || button.dataset.clickGuarded === "true") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      showToast("操作处理中，请勿重复点击");
+      return;
+    }
+    button.dataset.clickGuarded = "true";
+    button.classList.add("is-click-guarded");
+    setTimeout(() => {
+      delete button.dataset.clickGuarded;
+      button.classList.remove("is-click-guarded");
+    }, 650);
+  }, true);
 }
 
 async function exportPanelImage(element, filename) {
@@ -1160,7 +1230,7 @@ function clearAdminForm() {
 
 async function handleSecretSubmit(event) {
   event.preventDefault();
-  if (secretSubmitInFlight) return;
+  if (secretSubmitInFlight) return showToast("启封处理中，请勿重复点击");
   const form = event.currentTarget;
   const submitButton = form.querySelector(".btn--unlock[type='submit']");
   const originalLabel = submitButton?.textContent?.trim() || "启封天赋卷宗";
@@ -1540,6 +1610,7 @@ function toggleSecretField(id) {
 }
 
 function bindEvents() {
+  installTransientButtonGuard();
   $$("[data-view-link]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.viewLink)));
   $$("[data-rank-mode]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1553,20 +1624,20 @@ function bindEvents() {
   $("#pathFilter").addEventListener("change", renderLeaderboard);
   $("#faithFilter").addEventListener("change", renderLeaderboard);
   $("#secretForm").addEventListener("submit", handleSecretSubmit);
-  $("#adminProfileForm").addEventListener("submit", handleAdminProfileSubmit);
-  $("#scoreForm").addEventListener("submit", handleScoreSubmit);
+  bindGuardedForm("#adminProfileForm", "保存中...", handleAdminProfileSubmit);
+  bindGuardedForm("#scoreForm", "结算中...", handleScoreSubmit);
   $("#clearAdminFormButton").addEventListener("click", clearAdminForm);
   $("#bulkPreviewButton").addEventListener("click", handleBulkPreview);
-  $("#bulkImportButton").addEventListener("click", handleBulkImport);
+  bindGuardedButton("#bulkImportButton", "导入中...", handleBulkImport);
   $("#bulkScorePreviewButton").addEventListener("click", handleBulkScorePreview);
-  $("#bulkScoreSubmitButton").addEventListener("click", handleBulkScoreSubmit);
+  bindGuardedButton("#bulkScoreSubmitButton", "结算中...", handleBulkScoreSubmit);
   $("#classInput").addEventListener("change", () => {
     const info = findProfession($("#classInput").value);
     if (!info) return;
     $("#godInput").value = info.faithGod;
     $("#pathInput").value = info.path;
   });
-  $("#refreshButton").addEventListener("click", async () => {
+  bindGuardedButton("#refreshButton", "刷新中...", async () => {
     await loadProfessionLibrary();
     await refreshPublicData();
     await refreshScoreLogs();
