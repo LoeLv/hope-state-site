@@ -113,6 +113,7 @@ function parseInitialProfileScore(value: unknown, label: string, fallback: numbe
   }
   const score = Number(raw);
   if (!Number.isInteger(score) || score < 0) throw new Error(`${label}必须是非负整数`);
+  if (score > 2147483647) throw new Error(`${label}超过数据库上限 2147483647`);
   return score;
 }
 
@@ -274,7 +275,7 @@ async function listAllProfiles() {
   return await supabaseFetch("hope_profiles?select=*&order=ascension_score.desc&order=audience_score.desc");
 }
 
-async function upsertProfileFromPayload(profile: JsonRecord, references: Awaited<ReturnType<typeof loadReferenceData>>, requireScores = false) {
+async function profileRowFromPayload(profile: JsonRecord, references: Awaited<ReturnType<typeof loadReferenceData>>, requireScores = false) {
   const name = normalizeCollectedName(profile.name || profile["昵称"]);
   const professionName = cleanText(profile.profession || profile.className || profile["职业"], 120);
   if (!name) throw new Error("缺少昵称");
@@ -304,6 +305,11 @@ async function upsertProfileFromPayload(profile: JsonRecord, references: Awaited
     audience_score: parseInitialProfileScore(profile.audience ?? profile.audienceScore ?? profile["觐见分"], "觐见分", 0, requireScores),
     is_public: true,
   };
+  return row;
+}
+
+async function upsertProfileFromPayload(profile: JsonRecord, references: Awaited<ReturnType<typeof loadReferenceData>>, requireScores = false) {
+  const row = await profileRowFromPayload(profile, references, requireScores);
   const rows = await supabaseFetch("hope_profiles?on_conflict=display_name", {
     method: "POST",
     headers: { "Prefer": "resolution=merge-duplicates,return=representation" },
@@ -412,11 +418,16 @@ Deno.serve(async (request) => {
       requireAdmin(payload);
       const references = await loadReferenceData();
       const rows = Array.isArray(payload.rows) ? payload.rows as JsonRecord[] : [];
-      const imported: JsonRecord[] = [];
+      const validatedRows: JsonRecord[] = [];
       const errors: JsonRecord[] = [];
+      const names = new Map<string, number>();
       for (let index = 0; index < rows.length; index += 1) {
         try {
-          imported.push(await upsertProfileFromPayload(rows[index], references, true));
+          const row = await profileRowFromPayload(rows[index], references, true);
+          const duplicateRow = names.get(row.display_name);
+          if (duplicateRow !== undefined) throw new Error(`与第 ${duplicateRow + 2} 行昵称重复`);
+          names.set(row.display_name, index);
+          validatedRows.push(row);
         } catch (error) {
           errors.push({
             row: index + 2,
@@ -425,10 +436,18 @@ Deno.serve(async (request) => {
           });
         }
       }
+      if (errors.length) return json({ imported: [], errors });
+      const imported = rows.length
+        ? await supabaseFetch("hope_profiles?on_conflict=display_name", {
+            method: "POST",
+            headers: { "Prefer": "resolution=merge-duplicates,return=representation" },
+            body: JSON.stringify(validatedRows),
+          })
+        : [];
       const allRows = await listAllProfiles();
       const { ranks, pathRanks } = buildRanks(allRows, references);
       return json({
-        imported: imported.map((row) => enrichPublicProfile(row, references, ranks, pathRanks)),
+        imported: (imported as JsonRecord[]).map((row) => enrichPublicProfile(row, references, ranks, pathRanks)),
         errors,
       });
     }

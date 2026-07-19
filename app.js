@@ -578,6 +578,8 @@ function findProfession(professionName) {
   return professionLibrary.find((item) => keys.includes(normalizeProfessionName(item.profession)));
 }
 
+const maxStoredScore = 2147483647;
+
 function parseInitialProfileScore(value, label, fallback, required = false) {
   const raw = value ?? "";
   if (String(raw).trim() === "") {
@@ -586,6 +588,7 @@ function parseInitialProfileScore(value, label, fallback, required = false) {
   }
   const score = Number(raw);
   if (!Number.isInteger(score) || score < 0) throw new Error(`${label}必须是非负整数`);
+  if (score > maxStoredScore) throw new Error(`${label}超过数据库上限 ${maxStoredScore}`);
   return score;
 }
 
@@ -683,7 +686,7 @@ async function loadProfessionLibrary() {
   }
   $("#professionLibraryStatus").textContent = `职业资料库：${professionLibrary.length}`;
   $("#professionOptions").innerHTML = professionLibrary
-    .map((item) => `<option value="${escapeHtml(item.profession)}">${escapeHtml(item.faithGod)} · ${escapeHtml(item.path)} · ${escapeHtml(item.baseClass)}</option>`)
+    .map((item) => `<option value="${escapeHtml(item.profession)}">${escapeHtml(item.faithGod)} · ${escapeHtml(item.path)} · ${escapeHtml(item.profession)} · ${escapeHtml(item.baseClass)}</option>`)
     .join("");
 }
 
@@ -1541,61 +1544,38 @@ function rowFromCells(cells, headers = defaultBulkHeaders) {
   return Object.fromEntries(headers.map((header, cellIndex) => [header, cells[cellIndex] ?? ""]));
 }
 
-function findLooseProfessionIndex(tokens) {
-  for (let index = 1; index < tokens.length; index += 1) {
-    if (findProfession(tokens[index])) return index;
+function validateBulkHeaders(headers) {
+  if (headers.length !== defaultBulkHeaders.length) {
+    throw new Error(`表头必须是 ${defaultBulkHeaders.length} 列：${defaultBulkHeaders.join("、")}`);
   }
-  return -1;
-}
-
-function findLooseTalentStart(parts) {
-  const gradeIndex = parts.findIndex((part) => /[A-FＳS]?级|[A-FＳS]\s*級/i.test(part));
-  if (gradeIndex > 0) return gradeIndex - 1;
-  if (gradeIndex === 0) return 0;
-  const keywordIndex = parts.findIndex((part) => /天赋|权柄|流场|本意|祝福|庇护|骰|护符/.test(part));
-  if (keywordIndex >= 0) return keywordIndex;
-  return parts.length > 1 ? 1 : 0;
-}
-
-function parseLooseBulkLine(line) {
-  const tokens = String(line || "").trim().split(/\s+/).filter(Boolean);
-  if (tokens.length < 5) throw new Error("这一行字段太少，请至少包含昵称、暗语、职业、登神分、觐见分");
-  const professionIndex = findLooseProfessionIndex(tokens);
-  if (professionIndex < 0) throw new Error("找不到可匹配的职业，请确认职业名在职业资料库中");
-  const scoreIndexes = [];
-  for (let index = professionIndex + 1; index < tokens.length; index += 1) {
-    if (/^-?\d+$/.test(tokens[index])) scoreIndexes.push(index);
-    if (scoreIndexes.length === 2) break;
+  const mismatchIndex = defaultBulkHeaders.findIndex((header, index) => headers[index] !== header);
+  if (mismatchIndex >= 0) {
+    throw new Error(`第 ${mismatchIndex + 1} 列表头应为“${defaultBulkHeaders[mismatchIndex]}”，当前为“${headers[mismatchIndex] || "空"}”`);
   }
-  if (scoreIndexes.length < 2) throw new Error("找不到登神分和觐见分，请在职业后填写两个数字");
-  const [ascensionIndex, audienceIndex] = scoreIndexes;
-  const publicNote = tokens[audienceIndex + 1] || "";
-  const tail = tokens.slice(audienceIndex + 2);
-  const talentStart = findLooseTalentStart(tail);
-  return {
-    "昵称": tokens[0],
-    "暗语": tokens.slice(1, professionIndex).join(" "),
-    "职业": tokens[professionIndex],
-    "登神分": tokens[ascensionIndex],
-    "觐见分": tokens[audienceIndex],
-    "公开短记": publicNote,
-    "私密备注": tail.slice(0, talentStart).join(" "),
-    "天赋": tail.slice(talentStart).join(" ")
-  };
 }
 
 function parseBulkDataLine(line, headers = defaultBulkHeaders) {
+  if (!String(line).includes("\t")) throw new Error("档案录入只接受 TSV；该行未检测到制表符");
   const cells = parseDelimitedLine(line);
-  if (cells.length > 1) return rowFromCells(cells, headers);
-  return parseLooseBulkLine(line);
+  if (cells.length !== headers.length) throw new Error(`列数应为 ${headers.length}，当前为 ${cells.length}；请检查是否多粘贴了制表符或漏了空列`);
+  return rowFromCells(cells, headers);
 }
 
 function parseBulkInput(text) {
   const lines = String(text || "").split(/\r?\n/).filter((line) => line.trim());
   if (!lines.length) return { rows: [], errors: [{ row: 1, error: "没有可导入内容" }] };
+  if (!lines[0].includes("\t")) return { rows: [], errors: [{ row: 1, error: "档案录入只接受含表头的 8 列 TSV" }] };
   const rawHeaders = parseDelimitedLine(lines[0]);
   const headers = rawHeaders.map(normalizeBulkHeader);
   const hasHeader = hasBulkHeader(headers);
+  if (!hasHeader) return { rows: [], errors: [{ row: 1, error: `必须粘贴 8 列表头：${defaultBulkHeaders.join("、")}` }] };
+  if (hasHeader) {
+    try {
+      validateBulkHeaders(headers);
+    } catch (error) {
+      return { rows: [], errors: [{ row: 1, error: error.message }] };
+    }
+  }
   const dataLines = hasHeader ? lines.slice(1) : lines;
   const activeHeaders = hasHeader ? headers : defaultBulkHeaders;
   const rows = [];
@@ -1615,8 +1595,10 @@ function parseBulkInput(text) {
 function renderBulkResult(result, imported = []) {
   const validCount = result.rows?.length || imported.length || 0;
   const errors = result.errors || [];
+  const rows = result.rows || [];
   $("#bulkImportResult").innerHTML = `
     <div class="form-note">有效行：${validCount}，错误：${errors.length}${imported.length ? `，已导入：${imported.length}` : ""}</div>
+    ${rows.length ? `<ul class="success-list">${rows.map((row) => `<li>${escapeHtml(row.name)}：${escapeHtml(row.profession)}，登神 ${escapeHtml(row.ascension)}，觐见 ${escapeHtml(row.audience)}</li>`).join("")}</ul>` : ""}
     ${errors.length ? `<ul>${errors.map((item) => `<li>第 ${item.row} 行：${escapeHtml(item.name ? `${item.name} - ` : "")}${escapeHtml(item.error)}</li>`).join("")}</ul>` : ""}
   `;
 }
@@ -1638,6 +1620,7 @@ async function handleBulkImport() {
   });
   if (result.error) return showToast(`批量导入失败：${result.error}`);
   renderBulkResult({ rows: parsed.rows, errors: result.data.errors || [] }, result.data.imported || []);
+  if (result.data.errors?.length) return showToast("后端校验发现错误，未导入");
   showToast(`已导入 ${result.data.imported?.length || 0} 行`);
   await refreshPublicData();
 }
