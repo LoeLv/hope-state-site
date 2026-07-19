@@ -1156,11 +1156,16 @@ function installTransientButtonGuard() {
   }, true);
 }
 
-async function exportPanelImage(element, filename) {
-  if (!element) throw new Error("未找到导出内容");
-  const rect = element.getBoundingClientRect();
-  if (!rect.width || !rect.height) throw new Error("导出内容尺寸无效");
-  const scale = 2;
+function downloadCanvasImage(canvas, filename) {
+  const link = document.createElement("a");
+  link.download = `${filename}.png`;
+  link.href = canvas.toDataURL("image/png");
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+async function renderForeignObjectCanvas(element, rect, scale) {
   const clone = element.cloneNode(true);
   inlineComputedStyles(element, clone);
   clone.style.width = `${Math.ceil(rect.width)}px`;
@@ -1191,13 +1196,36 @@ async function exportPanelImage(element, filename) {
     context.fillStyle = "#07100d";
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0);
-    const link = document.createElement("a");
-    link.download = `${filename}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+    return canvas;
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+async function exportPanelImage(element, filename) {
+  if (!element) throw new Error("未找到导出内容");
+  const rect = element.getBoundingClientRect();
+  if (!rect.width || !rect.height) throw new Error("导出内容尺寸无效");
+  const scale = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+  let canvas;
+  try {
+    if (typeof window.html2canvas !== "function") throw new Error("图片渲染组件未加载");
+    canvas = await window.html2canvas(element, {
+      backgroundColor: "#07100d",
+      scale,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
+      windowWidth: document.documentElement.clientWidth,
+      windowHeight: document.documentElement.scrollHeight,
+    });
+  } catch (primaryError) {
+    console.warn("Canvas 导出失败，尝试兼容渲染", primaryError);
+    canvas = await renderForeignObjectCanvas(element, rect, scale);
+  }
+  downloadCanvasImage(canvas, filename);
 }
 
 async function refreshPrivateChronicle(profile) {
