@@ -3514,3 +3514,319 @@ body[data-faith-theme="decay"] .dossier-relic { border-radius: 20% 4% 30% 4%; }
   .settlement-workbench .bulk-score-box { padding: 16px; }
   .settlement-workbench::after { right: 8px; }
 }
+
+/* Divine crown ranking: a public ritual space rather than a sparse list. */
+.leaderboard-crown-zone {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(278px, .34fr);
+  gap: 20px;
+  align-items: stretch;
+  margin: 28px 0 20px;
+}
+
+.leaderboard-crown-zone .leaderboard-podium {
+  position: relative;
+  min-height: 282px;
+  margin: 0;
+  padding: 26px 20px 0;
+  overflow: hidden;
+  border-color: rgba(200, 178, 120, .28);
+  background:
+    radial-gradient(ellipse at 50% 0, rgba(234, 224, 188, .12), transparent 20rem),
+    linear-gradient(90deg, rgba(200, 178, 120, .1) 1px, transparent 1px) center / 33.333% 100%,
+    linear-gradient(180deg, rgba(200, 178, 120, .11), transparent 74%),
+    rgba(8, 27, 22, .54);
+  box-shadow: inset 0 1px 0 rgba(234, 224, 188, .1), 0 16px 34px rgba(4, 18, 14, .16);
+}
+
+.leaderboard-crown-zone .leaderboard-podium::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+  border: 1px solid rgba(200, 178, 120, .12);
+  background:
+    linear-gradient(90deg, transparent 0 32%, rgba(234, 224, 188, .28) 32.15% 32.35%, transparent 32.5% 67.5%, rgba(234, 224, 188, .28) 67.65% 67.85%, transparent 68%);
+}
+
+.leaderboard-crown-zone .leaderboard-podium::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 76px;
+  pointer-events: none;
+  background:
+    linear-gradient(165deg, transparent 0 46%, rgba(200, 178, 120, .12) 46.3% 47%, transparent 47.3%) 0 0 / 132px 100% repeat-x,
+    linear-gradient(0deg, rgba(4, 17, 14, .48), transparent);
+}
+
+.leaderboard-crown-zone .podium-seat { z-index: 1; }
+
+.leaderboard-observatory {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(200, 178, 120, .28);
+  border-radius: 8px;
+  background:
+    linear-gradient(150deg, rgba(19, 49, 42, .88), rgba(7, 24, 20, .94)),
+    var(--bg-dossier);
+  box-shadow: 0 12px 28px rgba(4, 18, 14, .2);
+}
+
+.leaderboard-observatory::before,
+.leaderboard-observatory::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.leaderboard-observatory::before {
+  top: -66px;
+  right: -66px;
+  width: 150px;
+  height: 150px;
+  border: 1px solid rgba(200, 178, 120, .18);
+  transform: rotate(45deg);
+}
+
+.leaderboard-observatory::after {
+  top: 18px;
+  right: 20px;
+  width: 28px;
+  height: 28px;
+  opacity: .32;
+  background: url("assets/hope-state-sigil.svg") center / contain no-repeat;
+}
+
+.observatory-heading,
+.faith-influence__head,
+.path-corridor__head {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(200, 178, 120, .19);
+}
+
+.observatory-heading h3,
+.faith-influence__head h3,
+.path-corridor__head h3 {
+  margin: 0;
+  color: var(--gold-light);
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  letter-spacing: .5px;
+}
+
+.observatory-leader {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  color: var(--ink);
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--god-a, var(--gold-main)) 35%, transparent);
+  border-radius: 6px;
+  background:
+    var(--god-pattern, none),
+    linear-gradient(135deg, color-mix(in srgb, var(--god-a, var(--gold-main)) 17%, rgba(7, 21, 18, .82)), rgba(7, 21, 18, .88));
+}
+
+.observatory-leader:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--god-a, var(--gold-main)) 65%, transparent); }
+
+.observatory-leader__relic {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  color: var(--gold-light);
+  border: 1px solid color-mix(in srgb, var(--god-a, var(--gold-main)) 62%, transparent);
+  clip-path: polygon(50% 0, 94% 24%, 94% 76%, 50% 100%, 6% 76%, 6% 24%);
+  background: color-mix(in srgb, var(--god-b, var(--green)) 27%, rgba(4, 18, 15, .9));
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+}
+
+.observatory-leader span:last-child { display: grid; min-width: 0; gap: 2px; }
+.observatory-leader small,
+.observatory-leader em { overflow: hidden; color: var(--text-hint); font-size: .71rem; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.observatory-leader strong { overflow: hidden; color: var(--gold-light); font-family: var(--font-serif); font-size: 1.08rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.observatory-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid rgba(200, 178, 120, .18);
+  border-radius: 6px;
+  background: rgba(200, 178, 120, .15);
+}
+
+.observatory-stats > div {
+  display: grid;
+  min-width: 0;
+  min-height: 78px;
+  padding: 10px;
+  background: rgba(7, 24, 19, .88);
+}
+
+.observatory-stats span,
+.observatory-stats small { color: var(--text-hint); font-size: .68rem; }
+.observatory-stats strong { align-self: end; overflow: hidden; color: var(--gold-light); font-family: var(--font-serif); font-size: 1.25rem; text-overflow: ellipsis; white-space: nowrap; }
+.observatory-stats small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.observatory-stats__path { grid-column: span 2; }
+
+.faith-influence {
+  display: grid;
+  grid-template-columns: 156px minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+  margin: 20px 0 28px;
+  padding: 18px 20px;
+  border-block: 1px solid rgba(200, 178, 120, .18);
+  background: linear-gradient(90deg, rgba(200, 178, 120, .05), transparent 36%, rgba(86, 168, 157, .045));
+}
+
+.faith-influence__head { display: grid; align-content: center; padding: 0; border: 0; }
+
+.faith-influence__rail {
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: 5px;
+  min-width: 0;
+}
+
+.faith-influence__cell {
+  position: relative;
+  display: grid;
+  grid-template-rows: 22px 1fr auto auto;
+  justify-items: center;
+  min-width: 0;
+  min-height: 116px;
+  padding: 8px 3px;
+  overflow: hidden;
+  color: var(--text-normal);
+  border: 1px solid color-mix(in srgb, var(--god-a, var(--gold-main)) 18%, transparent);
+  border-radius: 4px;
+  background: rgba(8, 26, 21, .36);
+}
+
+.faith-influence__cell::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--influence);
+  opacity: .76;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--god-b, var(--green)) 14%, transparent), color-mix(in srgb, var(--god-a, var(--gold-main)) 46%, transparent));
+  transition: height .3s ease;
+}
+
+.faith-influence__cell > * { position: relative; z-index: 1; }
+.faith-influence__cell:disabled { cursor: default; opacity: .34; }
+.faith-influence__cell:not(:disabled):hover,
+.faith-influence__cell.is-active { border-color: color-mix(in srgb, var(--god-a, var(--gold-main)) 72%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--god-a, var(--gold-main)) 18%, transparent); }
+.faith-influence__cell.is-active::before { opacity: 1; }
+.faith-influence__sigil { color: var(--gold-light); font-family: var(--font-serif); font-size: .95rem; }
+.faith-influence__god { overflow: hidden; width: 100%; color: var(--text-normal); font-size: .68rem; text-align: center; text-overflow: ellipsis; white-space: nowrap; writing-mode: vertical-rl; }
+.faith-influence__cell strong { color: var(--gold-light); font-family: var(--font-serif); font-size: 1.02rem; }
+.faith-influence__cell small { color: var(--text-hint); font-size: .6rem; }
+
+.path-corridor {
+  display: grid;
+  grid-template-columns: 136px minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+  margin-top: 28px;
+  padding: 20px 0 8px;
+  border-top: 1px solid rgba(200, 178, 120, .2);
+}
+
+.path-corridor__head { display: grid; align-content: center; padding-left: 2px; border: 0; }
+
+.path-corridor__gates {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.path-gate {
+  --path-a: #65b991;
+  position: relative;
+  display: grid;
+  gap: 16px;
+  min-height: 112px;
+  padding: 14px;
+  overflow: hidden;
+  color: var(--ink);
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--path-a) 38%, transparent);
+  border-radius: 5px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--path-a) 14%, transparent), rgba(8, 25, 20, .68));
+}
+
+.path-gate::after {
+  content: "";
+  position: absolute;
+  right: -24px;
+  bottom: -42px;
+  width: 92px;
+  height: 92px;
+  border: 1px solid color-mix(in srgb, var(--path-a) 46%, transparent);
+  border-radius: 50%;
+}
+
+.path-gate:hover,
+.path-gate.is-active { transform: translateY(-2px); border-color: var(--path-a); box-shadow: 0 10px 20px color-mix(in srgb, var(--path-a) 15%, transparent); }
+.path-gate--生命 { --path-a: #65b991; }
+.path-gate--存在 { --path-a: #6fa8d5; }
+.path-gate--文明 { --path-a: #d5ad62; }
+.path-gate--虚无 { --path-a: #b58bd1; }
+.path-gate--混沌 { --path-a: #d17394; }
+.path-gate--沉沦 { --path-a: #a2735c; }
+.path-gate__title { position: relative; z-index: 1; display: grid; gap: 3px; }
+.path-gate__title strong { color: var(--gold-light); font-family: var(--font-serif); font-size: 1.08rem; }
+.path-gate__title small { color: var(--text-hint); font-size: .7rem; }
+.path-gate__faces { position: relative; z-index: 1; display: flex; min-height: 30px; align-items: center; }
+.path-gate__faces i { display: grid; place-items: center; width: 30px; height: 30px; margin-left: -7px; color: var(--gold-light); border: 1px solid color-mix(in srgb, var(--god-a, var(--gold-main)) 65%, transparent); border-radius: var(--god-avatar-radius, 50%); clip-path: var(--god-avatar-clip, none); background: color-mix(in srgb, var(--god-b, var(--green)) 34%, rgba(6, 20, 17, .94)); font-family: var(--font-serif); font-size: .82rem; font-style: normal; }
+.path-gate__faces i:first-child { margin-left: 0; }
+.path-gate__faces em { color: var(--text-hint); font-size: .72rem; font-style: normal; }
+
+@media (max-width: 1080px) {
+  .leaderboard-crown-zone { grid-template-columns: 1fr; }
+  .leaderboard-observatory { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: stretch; }
+  .observatory-heading { grid-column: 1 / -1; }
+  .faith-influence { grid-template-columns: 1fr; gap: 14px; }
+  .faith-influence__head { display: flex; align-items: baseline; gap: 12px; }
+  .path-corridor { grid-template-columns: 1fr; gap: 14px; }
+  .path-corridor__head { display: flex; align-items: baseline; gap: 12px; }
+}
+
+@media (max-width: 820px) {
+  .leaderboard-crown-zone .leaderboard-podium { min-height: 252px; padding: 20px 12px 0; }
+  .leaderboard-observatory { grid-template-columns: 1fr; padding: 16px; }
+  .observatory-heading { grid-column: auto; }
+  .faith-influence { margin-block: 18px 22px; padding: 16px 0; }
+  .faith-influence__rail { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .faith-influence__cell { min-height: 94px; }
+  .faith-influence__god { writing-mode: horizontal-tb; }
+  .path-corridor { margin-top: 22px; }
+  .path-corridor__gates { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .leaderboard-crown-zone .leaderboard-podium { gap: 5px; padding-inline: 7px; }
+  .observatory-stats > div { min-height: 70px; }
+  .faith-influence__rail { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .faith-influence__cell { min-height: 88px; }
+  .path-corridor__gates { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

@@ -645,8 +645,89 @@ function filteredProfiles() {
   });
 }
 
+function renderFaithInfluence(allProfiles) {
+  const activeFilter = $("#faithFilter").value;
+  const maxCount = Math.max(1, ...gods.map(([god]) => allProfiles.filter((profile) => getFaithGod(profile) === god).length));
+  $("#faithInfluence").innerHTML = `
+    <header class="faith-influence__head">
+      <p class="eyebrow">Divine Influence</p>
+      <h3>诸神势力图</h3>
+    </header>
+    <div class="faith-influence__rail">
+      ${gods.map(([god, path]) => {
+        const members = allProfiles.filter((profile) => getFaithGod(profile) === god);
+        const slug = godThemeSlugs[god] || "trickery";
+        const detail = godThemeDetails[god] || godThemeDetails.欺诈;
+        const percent = Math.max(8, Math.round((members.length / maxCount) * 100));
+        return `
+          <button class="faith-influence__cell god-theme god-theme--${slug} ${activeFilter === god ? "is-active" : ""}" type="button" data-faith-filter="${escapeHtml(god)}" ${members.length ? "" : "disabled"} style="--influence:${percent}%">
+            <span class="faith-influence__sigil">${detail.relic}</span>
+            <span class="faith-influence__god">${escapeHtml(god)}</span>
+            <strong>${members.length}</strong>
+            <small>${escapeHtml(path)}</small>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderLeaderboardObservatory(allProfiles, metric) {
+  const ranked = getRankedProfiles();
+  const highestAscension = [...allProfiles].sort((left, right) => getAscension(right) - getAscension(left))[0];
+  const highestAudience = [...allProfiles].sort((left, right) => getAudience(right) - getAudience(left))[0];
+  const pathCounts = ["生命", "存在", "文明", "虚无", "混沌", "沉沦"]
+    .map((path) => ({ path, count: allProfiles.filter((profile) => profile.path === path).length }))
+    .sort((left, right) => right.count - left.count);
+  const leader = ranked[0];
+  const leaderDetail = leader ? godThemeDetail(leader) : godThemeDetails.欺诈;
+  $("#leaderboardObservatory").innerHTML = `
+    <div class="observatory-heading">
+      <p class="eyebrow">Crown Observatory</p>
+      <h3>圣榜观测台</h3>
+    </div>
+    ${leader ? `
+      <button class="observatory-leader ${godThemeClass(leader)}" type="button" data-public-id="${leader.id}">
+        <span class="observatory-leader__relic">${leaderDetail.relic}</span>
+        <span><small>冠冕持有者</small><strong>${escapeHtml(leader.name)}</strong><em>${escapeHtml(getFaithGod(leader))} · ${metric(leader).value}</em></span>
+      </button>
+    ` : ""}
+    <div class="observatory-stats">
+      <div><span>在册信徒</span><strong>${allProfiles.length}</strong></div>
+      <div><span>活跃神祇</span><strong>${new Set(allProfiles.map(getFaithGod).filter(Boolean)).size}</strong></div>
+      <div><span>登神至高</span><strong>${highestAscension ? getAscension(highestAscension) : "-"}</strong><small>${escapeHtml(highestAscension?.name || "")}</small></div>
+      <div><span>觐见至高</span><strong>${highestAudience ? getAudience(highestAudience) : "-"}</strong><small>${escapeHtml(highestAudience?.name || "")}</small></div>
+      <div class="observatory-stats__path"><span>最盛命途</span><strong>${escapeHtml(pathCounts[0]?.path || "-")}</strong><small>${pathCounts[0]?.count || 0} 位</small></div>
+    </div>
+  `;
+}
+
+function renderPathCorridor(allProfiles) {
+  const paths = ["生命", "存在", "文明", "虚无", "混沌", "沉沦"];
+  const activePath = $("#pathFilter").value;
+  const ranked = getRankedProfiles();
+  $("#pathCorridor").innerHTML = `
+    <header class="path-corridor__head">
+      <p class="eyebrow">Path Concourse</p>
+      <h3>命途回廊</h3>
+    </header>
+    <div class="path-corridor__gates">
+      ${paths.map((path) => {
+        const members = ranked.filter((profile) => profile.path === path);
+        return `
+          <button class="path-gate path-gate--${path} ${activePath === path ? "is-active" : ""}" type="button" data-path-filter="${path}">
+            <span class="path-gate__title"><strong>${path}</strong><small>${members.length} 位</small></span>
+            <span class="path-gate__faces">${members.slice(0, 3).map((profile) => `<i class="${godThemeClass(profile)}" title="${escapeHtml(profile.name)}">${escapeHtml((profile.name || "希").slice(0, 1))}</i>`).join("") || "<em>未启封</em>"}</span>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
 function renderLeaderboard() {
   const profiles = filteredProfiles();
+  const allProfiles = publicProfiles();
   const sealNumerals = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖", "拾"];
   const totalProfiles = publicProfiles().length;
   $("#totalProfiles").textContent = sealNumerals[totalProfiles] || totalProfiles;
@@ -656,6 +737,9 @@ function renderLeaderboard() {
     if (rankMode === "audience") return { label: "觐见分", value: getAudience(profile) };
     return { label: "总评", value: totalScore(profile) };
   };
+  renderLeaderboardObservatory(allProfiles, metric);
+  renderFaithInfluence(allProfiles);
+  renderPathCorridor(allProfiles);
   const podiumProfiles = profiles.slice(0, 3);
   const podiumOrder = [1, 0, 2];
   $("#leaderboardPodium").innerHTML = podiumOrder
@@ -695,6 +779,14 @@ function renderLeaderboard() {
     </button>
   `).join("");
   $$("[data-public-id]").forEach((button) => button.addEventListener("click", () => openPublicPanel(button.dataset.publicId)));
+  $$('[data-faith-filter]').forEach((button) => button.addEventListener("click", () => {
+    $("#faithFilter").value = button.dataset.faithFilter;
+    renderLeaderboard();
+  }));
+  $$('[data-path-filter]').forEach((button) => button.addEventListener("click", () => {
+    $("#pathFilter").value = button.dataset.pathFilter;
+    renderLeaderboard();
+  }));
   renderScoreTargets();
 }
 
