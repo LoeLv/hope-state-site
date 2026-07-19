@@ -39,25 +39,25 @@ const godThemeSlugs = {
 // Each faith owns a material language as well as a palette. The mark is reused in
 // the live dossier and exported card so a believer's identity remains recognizable.
 const godThemeDetails = {
-  诞育: { mark: "孵", relic: "芽", title: "初生圣匣" },
-  繁荣: { mark: "蔓", relic: "冠", title: "常青冠庭" },
-  死亡: { mark: "冥", relic: "烛", title: "静寂墓刻" },
-  记忆: { mark: "匣", relic: "钥", title: "旧忆档案" },
-  时间: { mark: "晷", relic: "晷", title: "环刻时轮" },
-  秩序: { mark: "律", relic: "印", title: "律法圣格" },
-  真理: { mark: "棱", relic: "镜", title: "折光真镜" },
-  战争: { mark: "刃", relic: "旗", title: "战痕旌旗" },
-  欺诈: { mark: "面", relic: "骰", title: "倒影假面" },
-  命运: { mark: "轮", relic: "星", title: "星盘命轮" },
-  混乱: { mark: "裂", relic: "裂", title: "失序裂隙" },
-  沉默: { mark: "止", relic: "碑", title: "无声碑界" },
-  痴愚: { mark: "戏", relic: "铃", title: "错位戏台" },
-  污堕: { mark: "蚀", relic: "蚀", title: "侵蚀圣龛" },
-  腐朽: { mark: "枯", relic: "枝", title: "朽木年轮" },
-  湮灭: { mark: "空", relic: "环", title: "坍缩虚阙" }
+  诞育: { mark: "孵", relic: "芽", title: "初生圣匣", powerLabel: "创生权能" },
+  繁荣: { mark: "蔓", relic: "冠", title: "常青冠庭", powerLabel: "繁茂权能" },
+  死亡: { mark: "冥", relic: "烛", title: "静寂墓刻", powerLabel: "冥渡权能" },
+  记忆: { mark: "匣", relic: "钥", title: "旧忆档案", powerLabel: "旧忆权能" },
+  时间: { mark: "晷", relic: "晷", title: "环刻时轮", powerLabel: "时序权能" },
+  秩序: { mark: "律", relic: "印", title: "律法圣格", powerLabel: "律令权能" },
+  真理: { mark: "棱", relic: "镜", title: "折光真镜", powerLabel: "真知权能" },
+  战争: { mark: "刃", relic: "旗", title: "战痕旌旗", powerLabel: "征伐权能" },
+  欺诈: { mark: "面", relic: "骰", title: "倒影假面", powerLabel: "欺诈权能" },
+  命运: { mark: "轮", relic: "星", title: "星盘命轮", powerLabel: "命数权能" },
+  混乱: { mark: "裂", relic: "裂", title: "失序裂隙", powerLabel: "失序权能" },
+  沉默: { mark: "止", relic: "碑", title: "无声碑界", powerLabel: "静默权能" },
+  痴愚: { mark: "戏", relic: "铃", title: "错位戏台", powerLabel: "愚戏权能" },
+  污堕: { mark: "蚀", relic: "蚀", title: "侵蚀圣龛", powerLabel: "侵蚀权能" },
+  腐朽: { mark: "枯", relic: "枝", title: "朽木年轮", powerLabel: "衰败权能" },
+  湮灭: { mark: "空", relic: "环", title: "坍缩虚阙", powerLabel: "湮灭权能" }
 };
 
-const neutralGodThemeDetail = { mark: "未", relic: "·", title: "未定卷宗" };
+const neutralGodThemeDetail = { mark: "未", relic: "·", title: "未定卷宗", powerLabel: "权柄伤害" };
 
 const baseClassRules = {
   战士: {
@@ -292,6 +292,10 @@ function godThemeClass(profile) {
 
 function godThemeDetail(profile) {
   return godThemeDetails[getFaithGod(profile)] || neutralGodThemeDetail;
+}
+
+function faithPowerLabel(profile) {
+  return godThemeDetail(profile).powerLabel || "权柄伤害";
 }
 
 function applyFaithTheme(profile) {
@@ -931,7 +935,7 @@ function profileStats(profile) {
       <div><dt>信徒职业</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
       <div><dt>基础战斗职阶</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
       <div><dt>血量</dt><dd>${escapeHtml(hpLabelFor(profile))}</dd></div>
-      <div><dt>攻击</dt><dd>${escapeHtml(attackFor(profile))}</dd></div>
+      <div><dt>${escapeHtml(faithPowerLabel(profile))}</dt><dd>${escapeHtml(attackFor(profile))}</dd></div>
       <div><dt>登神分</dt><dd>${getAscension(profile)}</dd></div>
       <div><dt>觐见分</dt><dd>${getAudience(profile)}</dd></div>
     </dl>
@@ -1019,7 +1023,7 @@ function renderPrivatePanel(profile) {
           <div><dt>基础战斗职阶</dt><dd>${escapeHtml(baseClass)}</dd></div>
           <div><dt>信徒职业</dt><dd>${escapeHtml(profession)}</dd></div>
           <div><dt>本源生机</dt><dd>${escapeHtml(hpLabelFor(profile))}</dd></div>
-          <div><dt>权柄伤害</dt><dd>${attackFor(profile) || "-"}</dd></div>
+          <div><dt>${escapeHtml(faithPowerLabel(profile))}</dt><dd>${attackFor(profile) || "-"}</dd></div>
           <div><dt>试炼馈赐点数</dt><dd>${getAscension(profile)}</dd></div>
           <div><dt>神祇馈赐</dt><dd>${getAudience(profile)}</dd></div>
         </dl>
