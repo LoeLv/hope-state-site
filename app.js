@@ -99,8 +99,17 @@ const baseClassRules = {
 const fallbackProfessions = [
   { profession: "德鲁伊", faithGod: "繁荣", path: "生命", baseClass: "战士", featureText: "可以横跨多物种变换形体的尚战职业。" },
   { profession: "小丑", faithGod: "欺诈", path: "虚无", baseClass: "战士", featureText: "" },
+  { profession: "圣骑", faithGod: "命运", path: "虚无", baseClass: "战士", featureText: "每一轮队友受到伤害时可选择过去抵挡，自己和队友各承受一半伤害；3 轮只可抵挡一次。" },
   { profession: "织命师", faithGod: "命运", path: "虚无", baseClass: "战士", featureText: "" }
 ];
+
+const specialProfessionStats = {
+  圣骑: {
+    hpLabel: "220（+50）",
+    attackLabel: "7（+2）",
+    combatRule: "格挡 8 分钟 CD。"
+  }
+};
 
 let state = loadState();
 let rankMode = "total";
@@ -317,6 +326,25 @@ function baseRuleFor(profile) {
   };
 }
 
+function specialStatsFor(profile) {
+  return specialProfessionStats[getProfession(profile)] || null;
+}
+
+function combatRuleFor(profile) {
+  return profile.combatRule || profile.combat_rule || specialStatsFor(profile)?.combatRule || baseRuleFor(profile).combatRule || "";
+}
+
+function attackFor(profile) {
+  const special = specialStatsFor(profile);
+  if (special?.attackLabel) return special.attackLabel;
+  const attack = Number(profile.attack ?? profile.baseAttack ?? profile.base_attack);
+  return Number.isFinite(attack) && attack > 0 ? attack : baseRuleFor(profile).baseAttack || 0;
+}
+
+function hpLabelFor(profile) {
+  return specialStatsFor(profile)?.hpLabel || maxHp(profile) || "-";
+}
+
 function maxHp(profile) {
   const rule = baseRuleFor(profile);
   const bonus = Math.max(0, Math.floor((getAscension(profile) - 1000) / 100)) * 10;
@@ -527,7 +555,18 @@ function findProfession(professionName) {
   return professionLibrary.find((item) => keys.includes(normalizeProfessionName(item.profession)));
 }
 
-function normalizeProfileInput(profile, requireSecret) {
+function parseInitialProfileScore(value, label, fallback, required = false) {
+  const raw = value ?? "";
+  if (String(raw).trim() === "") {
+    if (required) throw new Error(`缺少${label}`);
+    return fallback;
+  }
+  const score = Number(raw);
+  if (!Number.isInteger(score) || score < 0) throw new Error(`${label}必须是非负整数`);
+  return score;
+}
+
+function normalizeProfileInput(profile, requireSecret, requireScores = false) {
   const name = normalizeCollectedName(profile.name || profile["昵称"]);
   const profession = normalizeName(profile.profession || profile.className || profile["职业"]);
   const secretPhrase = String(profile.secretPhrase ?? profile["暗语"] ?? "");
@@ -550,8 +589,8 @@ function normalizeProfileInput(profile, requireSecret) {
     publicNote: String(profile.publicNote ?? profile["公开短记"] ?? "").trim(),
     privateNote: String(profile.privateNote ?? profile["私密备注"] ?? "").trim(),
     talents: normalizeTalents(profile.talents ?? profile["天赋"] ?? ""),
-    ascension: Number(profile.ascension ?? profile.ascensionScore ?? profile["登神分"] ?? 1000),
-    audience: Number(profile.audience ?? profile.audienceScore ?? profile["觐见分"] ?? 0),
+    ascension: parseInitialProfileScore(profile.ascension ?? profile.ascensionScore ?? profile["登神分"], "登神分", 1000, requireScores),
+    audience: parseInitialProfileScore(profile.audience ?? profile.audienceScore ?? profile["觐见分"], "觐见分", 0, requireScores),
     isPublic: true
   };
 }
@@ -572,6 +611,10 @@ function toPublicProfile(profile) {
     baseClass,
     featureText: getFeatureText(profile) || info?.featureText || "",
     publicNote: profile.publicNote || profile.public_note || "",
+    baseHp: Number(profile.baseHp ?? profile.base_hp ?? 0),
+    attack: Number(profile.attack ?? profile.baseAttack ?? profile.base_attack ?? 0),
+    attackInterval: profile.attackInterval || profile.attack_interval || "",
+    combatRule: profile.combatRule || profile.combat_rule || "",
     ascension: getAscension(profile),
     audience: getAudience(profile),
     isPublic: true
@@ -818,7 +861,6 @@ function closePublicPanel() {
 }
 
 function profileStats(profile) {
-  const rule = baseRuleFor(profile);
   return `
     <dl class="stat-grid">
       <div><dt>总榜排名</dt><dd>#${getTotalRank(profile) || "-"}</dd></div>
@@ -827,8 +869,8 @@ function profileStats(profile) {
       <div><dt>命途</dt><dd>${escapeHtml(profile.path || "未定")}</dd></div>
       <div><dt>职业</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
       <div><dt>基础职业</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
-      <div><dt>血量</dt><dd>${maxHp(profile) || "-"}</dd></div>
-      <div><dt>攻击</dt><dd>${rule.baseAttack || "-"}</dd></div>
+      <div><dt>血量</dt><dd>${escapeHtml(hpLabelFor(profile))}</dd></div>
+      <div><dt>攻击</dt><dd>${escapeHtml(attackFor(profile))}</dd></div>
       <div><dt>登神分</dt><dd>${getAscension(profile)}</dd></div>
       <div><dt>觐见分</dt><dd>${getAudience(profile)}</dd></div>
     </dl>
@@ -836,7 +878,6 @@ function profileStats(profile) {
 }
 
 function publicProfileCard(profile, mode = "public") {
-  const rule = baseRuleFor(profile);
   return `
     <div class="profile-card profile-card--modal ${godThemeClass(profile)} ${mode === "private-public" ? "export-card-skin" : ""}" data-card="${mode}">
       <div class="profile-card__top">
@@ -857,7 +898,7 @@ function publicProfileCard(profile, mode = "public") {
       </section>
       <section class="talent-section">
         <h4>职业技能</h4>
-        <p>${escapeHtml(rule.combatRule)}</p>
+        <p>${escapeHtml(combatRuleFor(profile))}</p>
       </section>
     </div>
   `;
@@ -880,6 +921,10 @@ function renderPrivatePanel(profile) {
   const faithGod = getFaithGod(profile);
   const themeClass = godThemeClass(profile);
   const themeDetail = godThemeDetail(profile);
+  const pathLabel = profile.path || "未定";
+  const profession = getProfession(profile) || "未定职业";
+  const baseClass = getBaseClass(profile) || "未定";
+  const ruleTitle = `${profession}・${baseClass}・谕行规则`;
   applyFaithTheme(profile);
   const privatePanel = $("#privatePanel");
   privatePanel.className = `panel profile-preview profile-preview--wide dossier-card ${themeClass}`;
@@ -891,7 +936,7 @@ function renderPrivatePanel(profile) {
         <div>
           <p class="eyebrow">Believer Dossier</p>
           <h3>${escapeHtml(profile.name)}</h3>
-          <p>${escapeHtml(faithGod || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
+          <p>${escapeHtml(faithGod || "未定")} · ${escapeHtml(pathLabel)} · ${escapeHtml(profession)}</p>
           <div class="dossier-tags"><span>${escapeHtml(profile.path || "未定命途")}</span><span>${escapeHtml(faithGod || "未定神祇")}</span><span>试炼卷宗</span></div>
         </div>
         <span class="dossier-god-mark" aria-label="${escapeHtml(themeDetail.title)}" title="${escapeHtml(themeDetail.title)}">${themeDetail.mark}</span>
@@ -901,7 +946,7 @@ function renderPrivatePanel(profile) {
         <h4>诸神圣榜位次</h4>
         <dl class="dossier-grid dossier-grid--four">
           <div><dt>全洲试炼位次</dt><dd>#${getTotalRank(profile) || "-"}</dd></div>
-          <div><dt>虚无命途位次</dt><dd>#${getPathRank(profile) || "-"}</dd></div>
+          <div><dt>${escapeHtml(pathLabel)}命途位次</dt><dd>#${getPathRank(profile) || "-"}</dd></div>
           <div><dt>侍奉神祇</dt><dd>${escapeHtml(getFaithGod(profile) || "未定")}</dd></div>
           <div><dt>本源命途</dt><dd>${escapeHtml(profile.path || "未定")}</dd></div>
         </dl>
@@ -909,10 +954,10 @@ function renderPrivatePanel(profile) {
       <section class="dossier-section">
         <h4>职阶试炼本源</h4>
         <dl class="dossier-grid dossier-grid--two">
-          <div><dt>辅职阶</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
-          <div><dt>主职阶</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
+          <div><dt>辅职阶</dt><dd>${escapeHtml(baseClass)}</dd></div>
+          <div><dt>主职阶</dt><dd>${escapeHtml(profession)}</dd></div>
           <div><dt>本源生机</dt><dd>${maxHp(profile) || "-"}</dd></div>
-          <div><dt>欺瞒权能</dt><dd>${baseRuleFor(profile).baseAttack || "-"}</dd></div>
+          <div><dt>权柄伤害</dt><dd>${attackFor(profile) || "-"}</dd></div>
           <div><dt>试炼馈赐点数</dt><dd>${getAscension(profile)}</dd></div>
           <div><dt>神祇馈赐</dt><dd>${getAudience(profile)}</dd></div>
         </dl>
@@ -930,9 +975,9 @@ function renderPrivatePanel(profile) {
         <p>${escapeHtml(profile.privateNote || "")}</p>
       </section>
       <section class="dossier-section dossier-section--rule">
-        <h4>小丑牧师・枷锁谕行规则</h4>
+        <h4>${escapeHtml(ruleTitle)}</h4>
         <p>${highlightRuleNumbers(getFeatureText(profile) || "")}</p>
-        <p>${highlightRuleNumbers(baseRuleFor(profile).combatRule)}</p>
+        <p>${highlightRuleNumbers(combatRuleFor(profile))}</p>
       </section>
       <form class="self-edit-form dossier-edit-zone" id="selfEditForm">
         <div>
@@ -1368,7 +1413,7 @@ function parseBulkInput(text) {
     let row = {};
     try {
       row = parseBulkDataLine(line, activeHeaders);
-      rows.push(normalizeProfileInput(row, true));
+      rows.push(normalizeProfileInput(row, true, true));
     } catch (error) {
       errors.push({ row: index + (hasHeader ? 2 : 1), name: row["昵称"] || "", error: error.message });
     }
