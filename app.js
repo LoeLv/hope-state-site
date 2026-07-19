@@ -1362,7 +1362,14 @@ async function exportPanelImage(element, filename) {
       canvas = renderPortableDossierCanvas(element, filename);
     }
   }
-  await downloadCanvasImage(canvas, filename);
+  try {
+    await downloadCanvasImage(canvas, filename);
+  } catch (downloadError) {
+    // SVG textures can taint a foreignObject canvas in Chromium. The portable
+    // renderer has no external resources, so it remains exportable everywhere.
+    console.warn("图片编码失败，改用安全卷宗画布", downloadError);
+    await downloadCanvasImage(renderPortableDossierCanvas(element, filename), filename);
+  }
 }
 
 async function refreshPrivateChronicle(profile) {
