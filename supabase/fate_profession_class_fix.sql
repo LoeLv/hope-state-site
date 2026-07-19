@@ -1,7 +1,11 @@
 begin;
 
+-- Canonical corrections from the full profession matrix.
 update public.hope_professions
 set base_class = case profession
+  when '受害者' then '刺客'
+  when '驭兽师' then '猎人'
+  when '魔术师' then '歌者'
   when '今日勇士' then '战士'
   when '织命师' then '牧师'
   when '窃命之贼' then '刺客'
@@ -10,8 +14,7 @@ set base_class = case profession
   when '编剧' then '法师'
   else base_class
 end
-where faith_god = '命运'
-  and profession in ('今日勇士', '织命师', '窃命之贼', '终末之笔', '预言家', '编剧');
+where profession in ('受害者', '驭兽师', '魔术师', '今日勇士', '织命师', '窃命之贼', '终末之笔', '预言家', '编剧');
 
 update public.hope_profiles as profile
 set god = profession.faith_god,
@@ -31,6 +34,12 @@ select display_name, profession, base_class
 from public.hope_profiles
 where faith_god = '命运'
   and profession in ('今日勇士', '织命师', '窃命之贼', '终末之笔', '预言家', '编剧')
+order by profession, display_name;
+
+select display_name, profession, base_class
+from public.hope_profiles
+where faith_god = '欺诈'
+  and profession in ('受害者', '驭兽师', '魔术师')
 order by profession, display_name;
 
 select profile.display_name,
