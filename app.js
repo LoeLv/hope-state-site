@@ -877,8 +877,8 @@ function profileStats(profile) {
       <div><dt>命途排名</dt><dd>#${getPathRank(profile) || "-"}</dd></div>
       <div><dt>信仰神明</dt><dd>${escapeHtml(getFaithGod(profile) || "未定")}</dd></div>
       <div><dt>命途</dt><dd>${escapeHtml(profile.path || "未定")}</dd></div>
-      <div><dt>职业</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
-      <div><dt>基础职业</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
+      <div><dt>信徒职业</dt><dd>${escapeHtml(getProfession(profile) || "未定")}</dd></div>
+      <div><dt>基础战斗职阶</dt><dd>${escapeHtml(getBaseClass(profile) || "未定")}</dd></div>
       <div><dt>血量</dt><dd>${escapeHtml(hpLabelFor(profile))}</dd></div>
       <div><dt>攻击</dt><dd>${escapeHtml(attackFor(profile))}</dd></div>
       <div><dt>登神分</dt><dd>${getAscension(profile)}</dd></div>
@@ -903,11 +903,11 @@ function publicProfileCard(profile, mode = "public") {
       <p>${escapeHtml(profile.publicNote || "")}</p>
       </section>
       <section class="talent-section">
-        <h4>职业特性</h4>
+        <h4>${escapeHtml(getProfession(profile) || "未定职业")}・职业权能</h4>
         <p>${escapeHtml(getFeatureText(profile) || "")}</p>
       </section>
       <section class="talent-section">
-        <h4>职业技能</h4>
+        <h4>${escapeHtml(getBaseClass(profile) || "未定")}・基础战斗规则</h4>
         <p>${escapeHtml(combatRuleFor(profile))}</p>
       </section>
     </div>
@@ -934,7 +934,8 @@ function renderPrivatePanel(profile) {
   const pathLabel = profile.path || "未定";
   const profession = getProfession(profile) || "未定职业";
   const baseClass = getBaseClass(profile) || "未定";
-  const ruleTitle = `${profession}・${baseClass}・谕行规则`;
+  const ruleTitle = `${profession}・职业权能`;
+  const combatRuleTitle = `${baseClass}・基础战斗规则`;
   applyFaithTheme(profile);
   const privatePanel = $("#privatePanel");
   privatePanel.className = `panel profile-preview profile-preview--wide dossier-card ${themeClass}`;
@@ -964,8 +965,8 @@ function renderPrivatePanel(profile) {
       <section class="dossier-section">
         <h4>职阶试炼本源</h4>
         <dl class="dossier-grid dossier-grid--two">
-          <div><dt>辅职阶</dt><dd>${escapeHtml(baseClass)}</dd></div>
-          <div><dt>主职阶</dt><dd>${escapeHtml(profession)}</dd></div>
+          <div><dt>基础战斗职阶</dt><dd>${escapeHtml(baseClass)}</dd></div>
+          <div><dt>信徒职业</dt><dd>${escapeHtml(profession)}</dd></div>
           <div><dt>本源生机</dt><dd>${escapeHtml(hpLabelFor(profile))}</dd></div>
           <div><dt>权柄伤害</dt><dd>${attackFor(profile) || "-"}</dd></div>
           <div><dt>试炼馈赐点数</dt><dd>${getAscension(profile)}</dd></div>
@@ -987,6 +988,7 @@ function renderPrivatePanel(profile) {
       <section class="dossier-section dossier-section--rule">
         <h4>${escapeHtml(ruleTitle)}</h4>
         <p>${highlightRuleNumbers(getFeatureText(profile) || "")}</p>
+        <h5 class="dossier-rule-subtitle">${escapeHtml(combatRuleTitle)}</h5>
         <p>${highlightRuleNumbers(combatRuleFor(profile))}</p>
       </section>
       <form class="self-edit-form dossier-edit-zone" id="selfEditForm">
