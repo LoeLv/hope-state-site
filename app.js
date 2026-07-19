@@ -102,7 +102,12 @@ const fallbackProfessions = [
   { profession: "德鲁伊", faithGod: "繁荣", path: "生命", baseClass: "战士", featureText: "可以横跨多物种变换形体的尚战职业。" },
   { profession: "小丑", faithGod: "欺诈", path: "虚无", baseClass: "战士", featureText: "" },
   { profession: "圣骑", faithGod: "命运", path: "虚无", baseClass: "战士", featureText: "每一轮队友受到伤害时可选择过去抵挡，自己和队友各承受一半伤害；3 轮只可抵挡一次。" },
-  { profession: "织命师", faithGod: "命运", path: "虚无", baseClass: "战士", featureText: "" }
+  { profession: "今日勇士", faithGod: "命运", path: "虚无", baseClass: "战士", featureText: "" },
+  { profession: "织命师", faithGod: "命运", path: "虚无", baseClass: "牧师", featureText: "" },
+  { profession: "窃命之贼", faithGod: "命运", path: "虚无", baseClass: "刺客", featureText: "" },
+  { profession: "终末之笔", faithGod: "命运", path: "虚无", baseClass: "猎人", featureText: "" },
+  { profession: "预言家", faithGod: "命运", path: "虚无", baseClass: "歌者", featureText: "" },
+  { profession: "编剧", faithGod: "命运", path: "虚无", baseClass: "法师", featureText: "" }
 ];
 
 const specialProfessionStats = {
