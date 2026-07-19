@@ -817,6 +817,22 @@ input:focus, select:focus, textarea:focus {
     inset 0 -10px 28px rgba(72, 49, 18, .2);
 }
 
+.btn--unlock:disabled {
+  cursor: progress;
+  opacity: .78;
+  transform: none;
+  filter: saturate(.72) brightness(.94);
+}
+
+.btn--unlock.is-busy::after {
+  animation: unlock-busy-sweep 1.15s linear infinite;
+}
+
+@keyframes unlock-busy-sweep {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(120%); }
+}
+
 .btn--unlock::before,
 .dossier-export-primary::before,
 .self-edit-submit::before {

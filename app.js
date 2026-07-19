@@ -57,6 +57,8 @@ const godThemeDetails = {
   湮灭: { mark: "空", relic: "环", title: "坍缩虚阙" }
 };
 
+const neutralGodThemeDetail = { mark: "未", relic: "·", title: "未定卷宗" };
+
 const baseClassRules = {
   战士: {
     baseHp: 115,
@@ -115,6 +117,7 @@ let state = loadState();
 let rankMode = "total";
 let currentPrivateProfile = null;
 let currentPrivatePhrase = "";
+let secretSubmitInFlight = false;
 let professionLibrary = fallbackProfessions;
 // Add delegated operator names here when the settlement duty is handed over.
 const adminPanelOperators = new Set(["无我"]);
@@ -270,16 +273,16 @@ function getFaithGod(profile) {
 }
 
 function godThemeClass(profile) {
-  return `god-theme god-theme--${godThemeSlugs[getFaithGod(profile)] || "trickery"}`;
+  return `god-theme god-theme--${godThemeSlugs[getFaithGod(profile)] || "unbound"}`;
 }
 
 function godThemeDetail(profile) {
-  return godThemeDetails[getFaithGod(profile)] || godThemeDetails.欺诈;
+  return godThemeDetails[getFaithGod(profile)] || neutralGodThemeDetail;
 }
 
 function applyFaithTheme(profile) {
   const themeClass = godThemeClass(profile);
-  const slug = godThemeSlugs[getFaithGod(profile)] || "trickery";
+  const slug = godThemeSlugs[getFaithGod(profile)] || "unbound";
   document.body.dataset.faithTheme = slug;
   $("#secretForm").className = `panel access-panel access-panel--sealed ${themeClass}`;
 }
@@ -346,6 +349,8 @@ function hpLabelFor(profile) {
 }
 
 function maxHp(profile) {
+  const serverHp = Number(profile.hp ?? profile.maxHp ?? profile.max_hp);
+  if (Number.isFinite(serverHp) && serverHp > 0) return serverHp;
   const rule = baseRuleFor(profile);
   const bonus = Math.max(0, Math.floor((getAscension(profile) - 1000) / 100)) * 10;
   return Number(rule.baseHp || 0) + bonus;
@@ -612,6 +617,7 @@ function toPublicProfile(profile) {
     featureText: getFeatureText(profile) || info?.featureText || "",
     publicNote: profile.publicNote || profile.public_note || "",
     baseHp: Number(profile.baseHp ?? profile.base_hp ?? 0),
+    hp: Number(profile.hp ?? profile.maxHp ?? profile.max_hp ?? 0),
     attack: Number(profile.attack ?? profile.baseAttack ?? profile.base_attack ?? 0),
     attackInterval: profile.attackInterval || profile.attack_interval || "",
     combatRule: profile.combatRule || profile.combat_rule || "",
@@ -723,7 +729,7 @@ function renderLeaderboardObservatory(allProfiles, metric) {
     .map((path) => ({ path, count: allProfiles.filter((profile) => profile.path === path).length }))
     .sort((left, right) => right.count - left.count);
   const leader = ranked[0];
-  const leaderDetail = leader ? godThemeDetail(leader) : godThemeDetails.欺诈;
+  const leaderDetail = leader ? godThemeDetail(leader) : neutralGodThemeDetail;
   $("#leaderboardObservatory").innerHTML = `
     <div class="observatory-heading">
       <p class="eyebrow">Crown Observatory</p>
@@ -956,7 +962,7 @@ function renderPrivatePanel(profile) {
         <dl class="dossier-grid dossier-grid--two">
           <div><dt>辅职阶</dt><dd>${escapeHtml(baseClass)}</dd></div>
           <div><dt>主职阶</dt><dd>${escapeHtml(profession)}</dd></div>
-          <div><dt>本源生机</dt><dd>${maxHp(profile) || "-"}</dd></div>
+          <div><dt>本源生机</dt><dd>${escapeHtml(hpLabelFor(profile))}</dd></div>
           <div><dt>权柄伤害</dt><dd>${attackFor(profile) || "-"}</dd></div>
           <div><dt>试炼馈赐点数</dt><dd>${getAscension(profile)}</dd></div>
           <div><dt>神祇馈赐</dt><dd>${getAudience(profile)}</dd></div>
@@ -1133,16 +1139,40 @@ function clearAdminForm() {
 
 async function handleSecretSubmit(event) {
   event.preventDefault();
-  currentPrivatePhrase = $("#secretPhrase").value;
-  const result = await callAction("verifySecret", {
-    name: $("#secretName").value.trim(),
-    phrase: currentPrivatePhrase
-  });
-  if (result.error) return showToast(`验证失败：${result.error}`);
-  flashSealBreak();
-  renderPrivatePanel(toPrivateProfile(result.data.profile));
-  flashFaithAwakening();
-  showToast("已进入你的私密面板");
+  if (secretSubmitInFlight) return;
+  const form = event.currentTarget;
+  const submitButton = form.querySelector(".btn--unlock[type='submit']");
+  const originalLabel = submitButton?.textContent?.trim() || "启封天赋卷宗";
+  const phrase = $("#secretPhrase").value;
+  secretSubmitInFlight = true;
+  form.setAttribute("aria-busy", "true");
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.classList.add("is-busy");
+    submitButton.textContent = "启封中...";
+  }
+  try {
+    const result = await callAction("verifySecret", {
+      name: $("#secretName").value.trim(),
+      phrase
+    });
+    if (result.error) return showToast(`验证失败：${result.error}`);
+    currentPrivatePhrase = phrase;
+    flashSealBreak();
+    renderPrivatePanel(toPrivateProfile(result.data.profile));
+    flashFaithAwakening();
+    showToast("已进入你的私密面板");
+  } catch (error) {
+    showToast(`验证失败：${error instanceof Error ? error.message : "网络请求异常"}`);
+  } finally {
+    secretSubmitInFlight = false;
+    form.setAttribute("aria-busy", "false");
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.classList.remove("is-busy");
+      submitButton.textContent = originalLabel;
+    }
+  }
 }
 
 async function handleSelfEditSubmit(event) {
@@ -1526,7 +1556,7 @@ function bindEvents() {
     $("#secretName").classList.remove("is-secret-hidden");
     $("[data-toggle-secret='secretPhrase']").textContent = "遮蔽暗契";
     $("[data-toggle-secret='secretName']").textContent = "遮蔽法号";
-    $("#privatePanel").className = "panel profile-preview profile-preview--wide dossier-card dossier-card--empty god-theme god-theme--trickery";
+    $("#privatePanel").className = "panel profile-preview profile-preview--wide dossier-card dossier-card--empty god-theme god-theme--unbound";
     $("#privatePanel").dataset.god = "未定";
     $("#privatePanel").innerHTML = `
       <div class="dossier-head">
