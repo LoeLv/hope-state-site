@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>希望之州 | 诸神愚戏</title>
-  <link rel="stylesheet" href="styles.css?v=20260719-profession-clarity-1">
+  <link rel="stylesheet" href="styles.css?v=20260719-trial-chronicle-1">
 </head>
 <body>
   <div class="ambient" aria-hidden="true">
@@ -231,8 +231,8 @@
               </label>
             </div>
             <label>
-              结算理由
-              <textarea id="scoreReason" rows="5" maxlength="160"></textarea>
+              副本名称
+              <input id="scoreDungeonName" maxlength="120" required type="text">
             </label>
             <button class="btn btn--primary" type="submit">提交结算</button>
             <section class="bulk-score-box" aria-labelledby="bulkScoreTitle">
@@ -240,6 +240,10 @@
                 <p class="eyebrow">Mass Verdict</p>
                 <h3 id="bulkScoreTitle">群体结算</h3>
               </div>
+              <label>
+                副本名称
+                <input id="bulkScoreDungeonName" maxlength="120" required type="text">
+              </label>
               <textarea id="bulkScoreInput" rows="7"></textarea>
               <div class="form-actions">
                 <button class="btn btn--primary" type="button" id="bulkScorePreviewButton">检查结算</button>
@@ -273,6 +277,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=20260719-profession-clarity-1"></script>
+  <script src="app.js?v=20260719-trial-chronicle-1"></script>
 </body>
 </html>

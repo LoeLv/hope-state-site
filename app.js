@@ -204,6 +204,11 @@ function formatTalentName(item) {
   return `【${escapeHtml(text)}】`;
 }
 
+function talentGrade(item) {
+  const match = String(item || "").trim().match(/^([SABC])\s*(?:级)?\s*[·:：\-—]/i);
+  return match ? match[1].toUpperCase() : "";
+}
+
 function renderTalentCabinet(talents, themeDetail) {
   if (!talents.length) return '<p class="talent-cabinet__empty"></p>';
   return `
@@ -211,7 +216,8 @@ function renderTalentCabinet(talents, themeDetail) {
       ${talents.map((item, index) => `
         <li class="talent-seal" style="--talent-order:${index}">
           <span class="talent-seal__mark" aria-hidden="true">${themeDetail.relic}</span>
-          <span>${formatTalentName(item)}</span>
+          ${talentGrade(item) ? `<span class="talent-seal__grade">${talentGrade(item)}级</span>` : ""}
+          <span class="talent-seal__text">${formatTalentName(item)}</span>
         </li>
       `).join("")}
     </ul>
@@ -240,7 +246,7 @@ function renderTrialChronicle(profile, logs = []) {
           <span class="trial-chronicle__node" aria-hidden="true"></span>
           <div>
             <strong>登神 ${formatScoreDelta(entry.ascensionDelta ?? entry.ascension_delta)} · 觐见 ${formatScoreDelta(entry.audienceDelta ?? entry.audience_delta)}</strong>
-            <p>${escapeHtml(entry.reason || "试炼结算")}</p>
+            <p><span class="trial-chronicle__dungeon">副本</span>${escapeHtml(entry.reason || "未标注副本")}</p>
           </div>
           <time>${new Date(entry.createdAt || entry.created_at).toLocaleDateString("zh-CN")}</time>
         </li>
@@ -491,6 +497,8 @@ async function localAction(action, payload) {
   if (action === "submitScore") {
     const profile = state.profiles.find((item) => item.id === payload.profileId || item.name === payload.name);
     if (!profile) throw new Error("找不到结算对象");
+    const dungeonName = String(payload.dungeonName || "").trim();
+    if (!dungeonName) throw new Error("请填写副本名称");
     const ascensionDelta = clampNumber(payload.ascensionDelta, -20, 20);
     const audienceDelta = clampNumber(payload.audienceDelta, -3, 3);
     profile.ascension = Math.max(0, getAscension(profile) + ascensionDelta);
@@ -501,7 +509,7 @@ async function localAction(action, payload) {
       name: profile.name,
       ascensionDelta,
       audienceDelta,
-      reason: payload.reason || "",
+      reason: dungeonName,
       createdAt: new Date().toISOString()
     });
     saveState();
@@ -509,6 +517,8 @@ async function localAction(action, payload) {
   }
   if (action === "bulkSubmitScores") {
     const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    const dungeonName = String(payload.dungeonName || "").trim();
+    if (!dungeonName) throw new Error("请填写副本名称");
     const applied = [];
     const errors = [];
     entries.forEach((entry, index) => {
@@ -527,7 +537,7 @@ async function localAction(action, payload) {
         name: profile.name,
         ascensionDelta,
         audienceDelta,
-        reason: entry.reason || "批量分数结算",
+        reason: dungeonName,
         createdAt: new Date().toISOString()
       };
       state.settlements.unshift(log);
@@ -1014,7 +1024,7 @@ function renderPrivatePanel(profile) {
         </label>
         <label class="self-edit-textarea">
           权能缮写栏
-          <textarea id="selfTalents" rows="5">${escapeHtml(talents.join("\n"))}</textarea>
+          <textarea id="selfTalents" rows="12" maxlength="4800" placeholder="S级：权能名称与完整说明&#10;A级：权能名称与完整说明&#10;B级：权能名称与完整说明&#10;C级：权能名称与完整说明">${escapeHtml(talents.join("\n"))}</textarea>
         </label>
         <button class="btn btn--primary self-edit-submit" type="submit">保存自助修改</button>
       </form>
@@ -1135,8 +1145,8 @@ function renderSettlements(logs = state.settlements) {
   $("#settlementLog").innerHTML = logs.map((entry) => `
     <article class="log-item">
       <strong>${escapeHtml(entry.name || entry.target_name || "未知成员")}</strong>
-      <p>登神分 ${Number(entry.ascensionDelta ?? entry.ascension_delta) >= 0 ? "+" : ""}${entry.ascensionDelta ?? entry.ascension_delta}，觐见分 +${entry.audienceDelta ?? entry.audience_delta}</p>
-      <p>${escapeHtml(entry.reason || "")}</p>
+      <p>登神分 ${formatScoreDelta(entry.ascensionDelta ?? entry.ascension_delta)}，觐见分 ${formatScoreDelta(entry.audienceDelta ?? entry.audience_delta)}</p>
+      <p>副本：${escapeHtml(entry.reason || "未标注副本")}</p>
       <time>${new Date(entry.createdAt || entry.created_at).toLocaleString("zh-CN")}</time>
     </article>
   `).join("");
@@ -1242,10 +1252,10 @@ async function handleScoreSubmit(event) {
     profileId: profile.id,
     ascensionDelta: clampNumber($("#ascensionDelta").value, -20, 20),
     audienceDelta: clampNumber($("#audienceDelta").value, -3, 3),
-    reason: $("#scoreReason").value.trim()
+    dungeonName: $("#scoreDungeonName").value.trim()
   });
   if (result.error) return showToast(`结算失败：${result.error}`);
-  $("#scoreReason").value = "";
+  $("#scoreDungeonName").value = "";
   $("#ascensionDelta").value = 0;
   $("#audienceDelta").value = 0;
   showToast("结算已提交");
@@ -1277,14 +1287,12 @@ function parseBulkScoreLine(line, rowNumber) {
   const identityText = tokens.slice(0, -2).join(" ");
   const profile = findProfileByNameSuffix(identityText);
   if (!profile) throw new Error(`找不到昵称：${identityText}`);
-  const prefix = identityText.slice(0, Math.max(0, identityText.length - String(profile.name).length)).trim();
   return {
     row: rowNumber,
     profileId: profile.id,
     name: profile.name,
     ascensionDelta,
-    audienceDelta,
-    reason: prefix ? `批量分数结算：${prefix}` : "批量分数结算"
+    audienceDelta
   };
 }
 
@@ -1313,11 +1321,18 @@ function renderBulkScoreResult(result, applied = []) {
   `;
 }
 
+function bulkScoreDungeonName() {
+  return $("#bulkScoreDungeonName").value.trim();
+}
+
 function handleBulkScorePreview() {
+  if (!bulkScoreDungeonName()) return renderBulkScoreResult({ entries: [], errors: [{ row: 0, error: "请填写副本名称" }] });
   renderBulkScoreResult(parseBulkScoreInput($("#bulkScoreInput").value));
 }
 
 async function handleBulkScoreSubmit() {
+  const dungeonName = bulkScoreDungeonName();
+  if (!dungeonName) return showToast("请填写副本名称");
   const parsed = parseBulkScoreInput($("#bulkScoreInput").value);
   if (parsed.errors.length) {
     renderBulkScoreResult(parsed);
@@ -1325,11 +1340,13 @@ async function handleBulkScoreSubmit() {
   }
   const result = await callAction("bulkSubmitScores", {
     adminKey: $("#adminKey").value.trim(),
+    dungeonName,
     entries: parsed.entries
   });
   if (result.error) return showToast(`批量结算失败：${result.error}`);
   renderBulkScoreResult({ entries: parsed.entries, errors: result.data.errors || [] }, result.data.applied || []);
   showToast(`已提交 ${result.data.applied?.length || 0} 条结算`);
+  $("#bulkScoreDungeonName").value = "";
   await refreshPublicData();
   await refreshScoreLogs();
 }

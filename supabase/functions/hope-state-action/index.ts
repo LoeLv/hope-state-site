@@ -97,11 +97,12 @@ function professionSearchKeys(value: unknown) {
 }
 
 function cleanTalents(value: unknown) {
-  if (Array.isArray(value)) return value.map((item) => cleanText(item, 160)).filter(Boolean);
+  if (Array.isArray(value)) return value.map((item) => cleanText(item, 1200)).filter(Boolean).slice(0, 8);
   return String(value ?? "")
     .split(/\r?\n|；|;/)
-    .map((item) => cleanText(item, 160))
-    .filter(Boolean);
+    .map((item) => cleanText(item, 1200))
+    .filter(Boolean)
+    .slice(0, 8);
 }
 
 function parseInitialProfileScore(value: unknown, label: string, fallback: number, required = false) {
@@ -435,6 +436,8 @@ Deno.serve(async (request) => {
     if (action === "submitScore") {
       requireAdmin(payload);
       const profileId = cleanText(payload.profileId, 80);
+      const dungeonName = cleanText(payload.dungeonName, 120);
+      if (!dungeonName) return json({ error: "请填写副本名称" }, 400);
       const ascensionDelta = Math.max(-20, Math.min(20, Number(payload.ascensionDelta ?? 0)));
       const audienceDelta = Math.max(-3, Math.min(3, Number(payload.audienceDelta ?? 0)));
       const rows = await supabaseFetch(`hope_profiles?id=eq.${encodeURIComponent(profileId)}&select=*`);
@@ -453,7 +456,7 @@ Deno.serve(async (request) => {
           target_name: profile.display_name,
           ascension_delta: ascensionDelta,
           audience_delta: audienceDelta,
-          reason: cleanText(payload.reason, 240),
+          reason: dungeonName,
         }),
       });
       return json({ ok: true });
@@ -462,6 +465,8 @@ Deno.serve(async (request) => {
     if (action === "bulkSubmitScores") {
       requireAdmin(payload);
       const entries = Array.isArray(payload.entries) ? payload.entries as JsonRecord[] : [];
+      const dungeonName = cleanText(payload.dungeonName, 120);
+      if (!dungeonName) return json({ error: "请填写副本名称" }, 400);
       const applied: JsonRecord[] = [];
       const errors: JsonRecord[] = [];
       for (let index = 0; index < entries.length; index += 1) {
@@ -501,7 +506,7 @@ Deno.serve(async (request) => {
             target_name: profile.display_name,
             ascension_delta: ascensionDelta,
             audience_delta: audienceDelta,
-            reason: cleanText(entry.reason, 240) || "批量分数结算",
+            reason: dungeonName,
           }),
         });
         applied.push(logRows[0]);

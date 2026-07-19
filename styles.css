@@ -2215,6 +2215,24 @@ body[data-faith-theme] .settlement-workbench::after {
   text-shadow: 0 0 12px color-mix(in srgb, var(--faith-accent, var(--gold-main)) 34%, transparent);
 }
 
+.talent-seal__grade {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 3px 6px;
+  color: var(--faith-highlight, var(--gold-light));
+  border: 1px solid color-mix(in srgb, var(--faith-accent, var(--gold-main)) 45%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--faith-accent, var(--gold-main)) 12%, transparent);
+  font-size: .68rem;
+  line-height: 1;
+}
+
+.talent-seal__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+
 .talent-cabinet__empty,
 .trial-chronicle__empty {
   margin: 0;
@@ -2280,6 +2298,16 @@ body[data-faith-theme] .settlement-workbench::after {
   color: var(--faith-muted, var(--text-normal));
   font-size: .82rem;
   line-height: 1.45;
+}
+
+.trial-chronicle__dungeon {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 5px;
+  color: var(--faith-highlight, var(--gold-light));
+  border: 1px solid color-mix(in srgb, var(--faith-accent, var(--gold-main)) 28%, transparent);
+  border-radius: 3px;
+  font-size: .68rem;
 }
 
 .trial-chronicle time {
@@ -2406,6 +2434,12 @@ body[data-faith-theme] .settlement-workbench::after {
   box-shadow:
     inset 0 1px 10px rgba(0, 0, 0, .28),
     inset 0 0 0 1px rgba(0, 0, 0, .14);
+}
+
+.self-edit-form #selfTalents {
+  min-height: 250px;
+  resize: vertical;
+  line-height: 1.65;
 }
 
 .self-edit-form input:focus,
