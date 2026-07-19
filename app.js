@@ -1234,21 +1234,94 @@ function wrapCanvasText(context, text, maxWidth) {
   return lines.length ? lines : [" "];
 }
 
+const exportFaithPalettes = {
+  诞育: ["#244835", "#78b77c", "#ffe3b8"], 繁荣: ["#253b20", "#b9df69", "#f3dc75"],
+  死亡: ["#1e2c2a", "#c5d0c6", "#f0efd9"], 记忆: ["#222943", "#a99be8", "#d6cfff"],
+  时间: ["#14232f", "#6ea3aa", "#e2e5c8"], 秩序: ["#1c2b40", "#9fc2e8", "#e4edf5"],
+  真理: ["#12363c", "#70dade", "#ffeda6"], 战争: ["#401f22", "#f36b4c", "#ffcc7e"],
+  欺诈: ["#342344", "#e290e0", "#75e1c4"], 命运: ["#2f2847", "#d8bb66", "#f0da88"],
+  混乱: ["#3e2923", "#ffb25d", "#55ddc2"], 沉默: ["#243135", "#b8c5c2", "#e3eadc"],
+  痴愚: ["#44283a", "#e8649c", "#ffdc78"], 污堕: ["#283622", "#b1c754", "#e2d879"],
+  腐朽: ["#392c1c", "#d3a357", "#ecd09a"], 湮灭: ["#122f32", "#97d9d6", "#d9f1ee"],
+  未定: ["#17302b", "#c8b278", "#eae0bc"]
+};
+
+function roundedCanvasRect(context, x, y, width, height, radius) {
+  const corner = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + corner, y);
+  context.arcTo(x + width, y, x + width, y + height, corner);
+  context.arcTo(x + width, y + height, x, y + height, corner);
+  context.arcTo(x, y + height, x, y, corner);
+  context.arcTo(x, y, x + width, y, corner);
+  context.closePath();
+}
+
+function exportDossierSections(element) {
+  const sections = [...element.querySelectorAll(".dossier-section")].map((section) => {
+    const title = section.querySelector("h4")?.textContent.trim() || "卷宗记录";
+    const entries = [...section.querySelectorAll("dl > div")].map((entry) => ({
+      label: entry.querySelector("dt")?.textContent.trim() || "",
+      value: entry.querySelector("dd")?.textContent.trim() || "-"
+    })).filter((entry) => entry.label || entry.value);
+    const prose = [...section.querySelectorAll("p, .talent-entry, .trial-chronicle__item")]
+      .map((node) => node.textContent.replace(/\s+/g, " ").trim())
+      .filter(Boolean);
+    return { title, entries, prose };
+  });
+  if (sections.length) return sections;
+  return [{ title: "卷宗记录", entries: [], prose: String(element.innerText || "").split(/\n+/).map((line) => line.trim()).filter(Boolean) }];
+}
+
+function drawExportFaithMotif(context, faith, x, y, size, accent, highlight) {
+  context.save();
+  context.translate(x, y);
+  context.strokeStyle = accent;
+  context.fillStyle = highlight;
+  context.globalAlpha = .58;
+  context.lineWidth = 3;
+  if (["时间", "命运", "湮灭"].includes(faith)) {
+    context.beginPath(); context.arc(0, 0, size, 0, Math.PI * 2); context.stroke();
+    context.beginPath(); context.arc(0, 0, size * .64, 0, Math.PI * 2); context.stroke();
+    for (let index = 0; index < 12; index += 1) {
+      const angle = index * Math.PI / 6;
+      context.beginPath(); context.moveTo(Math.cos(angle) * size * .74, Math.sin(angle) * size * .74); context.lineTo(Math.cos(angle) * size, Math.sin(angle) * size); context.stroke();
+    }
+  } else if (faith === "欺诈") {
+    context.rotate(-.16); roundedCanvasRect(context, -size * .66, -size * .66, size * 1.32, size * 1.32, 16); context.stroke();
+    [[-.28, -.28], [.28, -.28], [0, 0], [-.28, .28], [.28, .28]].forEach(([dx, dy]) => { context.beginPath(); context.arc(dx * size * 2, dy * size * 2, 8, 0, Math.PI * 2); context.fill(); });
+  } else if (faith === "真理") {
+    context.beginPath(); context.moveTo(0, -size); context.lineTo(size, 0); context.lineTo(0, size); context.lineTo(-size, 0); context.closePath(); context.stroke();
+    context.beginPath(); context.moveTo(0, -size); context.lineTo(0, size); context.moveTo(-size, 0); context.lineTo(size, 0); context.stroke();
+  } else if (faith === "战争") {
+    context.beginPath(); context.moveTo(-size, -size); context.lineTo(size, size); context.moveTo(size, -size); context.lineTo(-size, size); context.stroke();
+  } else {
+    context.beginPath(); context.arc(0, 0, size, 0, Math.PI * 2); context.stroke();
+    context.beginPath(); context.moveTo(-size, 0); context.lineTo(size, 0); context.moveTo(0, -size); context.lineTo(0, size); context.stroke();
+  }
+  context.restore();
+}
+
 function renderPortableDossierCanvas(element, filename) {
-  const sourceLines = String(element.innerText || "")
-    .split(/\n+/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const title = sourceLines.shift() || filename.replace(/-(?:私密面板|公开职业面板)$/, "");
-  const width = 1200;
+  const faith = element.dataset.god || "未定";
+  const [deep, accent, highlight] = exportFaithPalettes[faith] || exportFaithPalettes.未定;
+  const detail = godThemeDetails[faith] || neutralGodThemeDetail;
+  const name = element.querySelector("h3, h4")?.textContent.trim() || filename.replace(/-(?:私密面板|公开职业面板)$/, "");
+  const identity = element.querySelector(".dossier-head > div:nth-child(2) > p:not(.eyebrow), .profile-card__top p")?.textContent.trim() || faith;
+  const sections = exportDossierSections(element);
+  const width = 1400;
   const padding = 72;
   const contentWidth = width - padding * 2;
   const measureCanvas = document.createElement("canvas");
   const measureContext = measureCanvas.getContext("2d");
   if (!measureContext) throw new Error("无法创建图片画布");
-  measureContext.font = "32px 'Microsoft YaHei', sans-serif";
-  const contentLines = sourceLines.flatMap((line) => wrapCanvasText(measureContext, line, contentWidth));
-  const height = Math.min(16384, Math.max(720, 220 + contentLines.length * 54 + 88));
+  measureContext.font = "28px 'Microsoft YaHei', sans-serif";
+  const plannedSections = sections.map((section) => ({
+    ...section,
+    proseLines: section.prose.flatMap((line) => wrapCanvasText(measureContext, line, contentWidth - 58))
+  }));
+  const sectionHeights = plannedSections.map((section) => 92 + (section.entries.length ? Math.ceil(section.entries.length / 2) * 124 + 28 : 0) + section.proseLines.length * 44 + (section.proseLines.length ? 34 : 0));
+  const height = Math.min(16384, Math.max(1120, 470 + sectionHeights.reduce((total, value) => total + value + 34, 0) + 100));
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -1256,44 +1329,49 @@ function renderPortableDossierCanvas(element, filename) {
   if (!context) throw new Error("无法创建图片画布");
 
   const background = context.createLinearGradient(0, 0, width, height);
-  background.addColorStop(0, "#071b1a");
-  background.addColorStop(.52, "#173a39");
-  background.addColorStop(1, "#0c2524");
-  context.fillStyle = background;
-  context.fillRect(0, 0, width, height);
-  context.strokeStyle = "#c8b278";
-  context.globalAlpha = .88;
-  context.lineWidth = 3;
-  context.strokeRect(24, 24, width - 48, height - 48);
-  context.lineWidth = 1;
-  context.strokeRect(38, 38, width - 76, height - 76);
+  background.addColorStop(0, deep); background.addColorStop(.56, "#091716"); background.addColorStop(1, deep);
+  context.fillStyle = background; context.fillRect(0, 0, width, height);
+  context.globalAlpha = .13; context.strokeStyle = accent; context.lineWidth = 1;
+  for (let x = -height; x < width; x += 82) { context.beginPath(); context.moveTo(x, 0); context.lineTo(x + height, height); context.stroke(); }
   context.globalAlpha = 1;
+  context.strokeStyle = accent; context.lineWidth = 3; roundedCanvasRect(context, 26, 26, width - 52, height - 52, 28); context.stroke();
+  context.globalAlpha = .5; context.lineWidth = 1; roundedCanvasRect(context, 42, 42, width - 84, height - 84, 20); context.stroke(); context.globalAlpha = 1;
 
-  context.fillStyle = "#c8b278";
-  context.font = "24px Georgia, 'Microsoft YaHei', serif";
-  context.fillText("HOPE STATE DOSSIER", padding, 88);
-  context.fillStyle = "#eae0bc";
-  context.font = "bold 52px Georgia, 'Microsoft YaHei', serif";
-  const titleLines = wrapCanvasText(context, title, contentWidth);
-  titleLines.forEach((line, index) => context.fillText(line, padding, 158 + index * 62));
-  const contentStart = 212 + (titleLines.length - 1) * 62;
-  context.strokeStyle = "rgba(200, 178, 120, .55)";
-  context.beginPath();
-  context.moveTo(padding, contentStart);
-  context.lineTo(width - padding, contentStart);
-  context.stroke();
+  const header = context.createLinearGradient(padding, 0, width - padding, 0);
+  header.addColorStop(0, deep); header.addColorStop(.52, accent); header.addColorStop(1, deep);
+  context.globalAlpha = .25; context.fillStyle = header; roundedCanvasRect(context, padding, 72, contentWidth, 300, 22); context.fill(); context.globalAlpha = 1;
+  drawExportFaithMotif(context, faith, width - 185, 210, 94, accent, highlight);
+  context.fillStyle = accent; context.font = "24px Georgia, 'Microsoft YaHei', serif"; context.fillText("BELIEVER DOSSIER · 希望之洲", padding + 34, 128);
+  context.fillStyle = highlight; context.font = "bold 64px Georgia, 'Microsoft YaHei', serif"; context.fillText(name, padding + 34, 218);
+  context.fillStyle = "#edf0e3"; context.font = "30px 'Microsoft YaHei', sans-serif"; wrapCanvasText(context, identity, contentWidth - 300).slice(0, 2).forEach((line, index) => context.fillText(line, padding + 34, 274 + index * 42));
+  context.fillStyle = accent; context.font = "bold 118px Georgia, 'Microsoft YaHei', serif"; context.fillText(detail.mark, padding + 34, 350);
+  context.fillStyle = highlight; context.font = "30px 'Microsoft YaHei', sans-serif"; context.fillText(detail.title, padding + 136, 340);
 
-  context.font = "32px 'Microsoft YaHei', sans-serif";
-  context.fillStyle = "#eae6d8";
-  let y = contentStart + 58;
-  for (const line of contentLines) {
-    if (y > height - 60) break;
-    context.fillText(line, padding, y);
-    y += 54;
+  let y = 410;
+  for (let index = 0; index < plannedSections.length; index += 1) {
+    const section = plannedSections[index];
+    if (y > height - 120) break;
+    const sectionHeight = sectionHeights[index];
+    context.globalAlpha = .32; context.fillStyle = "#071412"; roundedCanvasRect(context, padding, y, contentWidth, sectionHeight, 16); context.fill(); context.globalAlpha = 1;
+    context.fillStyle = highlight; context.font = "bold 34px Georgia, 'Microsoft YaHei', serif"; context.fillText(section.title, padding + 28, y + 52);
+    context.strokeStyle = accent; context.globalAlpha = .62; context.beginPath(); context.moveTo(padding + 30, y + 70); context.lineTo(width - padding - 30, y + 70); context.stroke(); context.globalAlpha = 1;
+    let contentY = y + 98;
+    if (section.entries.length) {
+      const cellWidth = (contentWidth - 56) / 2;
+      section.entries.forEach((entry, entryIndex) => {
+        const col = entryIndex % 2; const row = Math.floor(entryIndex / 2); const cellX = padding + 28 + col * cellWidth; const cellY = contentY + row * 124;
+        context.globalAlpha = .14; context.fillStyle = accent; roundedCanvasRect(context, cellX, cellY, cellWidth - 12, 106, 10); context.fill(); context.globalAlpha = 1;
+        context.fillStyle = "#cbd4cf"; context.font = "24px 'Microsoft YaHei', sans-serif"; context.fillText(entry.label, cellX + 20, cellY + 36);
+        context.fillStyle = highlight; context.font = "bold 34px 'Microsoft YaHei', sans-serif"; const valueLines = wrapCanvasText(context, entry.value, cellWidth - 52).slice(0, 2); valueLines.forEach((line, lineIndex) => context.fillText(line, cellX + 20, cellY + 78 + lineIndex * 30));
+      });
+      contentY += Math.ceil(section.entries.length / 2) * 124 + 16;
+    }
+    context.fillStyle = "#e8ece2"; context.font = "28px 'Microsoft YaHei', sans-serif";
+    section.proseLines.forEach((line) => { if (contentY < y + sectionHeight - 22) { context.fillText(line, padding + 30, contentY + 28); contentY += 44; } });
+    y += sectionHeight + 34;
   }
-  context.fillStyle = "#96824f";
-  context.font = "22px 'Microsoft YaHei', sans-serif";
-  context.fillText("希望之洲・神民档案室", padding, height - 56);
+  context.fillStyle = accent; context.font = "22px 'Microsoft YaHei', sans-serif"; context.fillText("希望之洲・神民档案室 · 封存卷宗", padding, height - 64);
+  context.fillStyle = highlight; context.font = "bold 30px Georgia, 'Microsoft YaHei', serif"; context.fillText(detail.relic, width - padding - 30, height - 60);
   return canvas;
 }
 
