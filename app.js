@@ -816,7 +816,7 @@ function renderLeaderboard() {
       `;
     }).join("");
   $("#leaderboardListHead").innerHTML = profiles.length > 3
-    ? "<span>位次 / 信徒</span><span>命途</span><span>登神分</span><span>觐见分</span><span>总评</span>"
+    ? "<span>位次 / 信徒</span><span>命途</span><span>登神分</span><span>觐见分</span><span>总分</span>"
     : "";
   $("#leaderboardList").innerHTML = profiles.slice(3).map((profile, index) => `
     <button class="rank-row rank-row--button ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}">
@@ -828,7 +828,7 @@ function renderLeaderboard() {
       <span class="rank-metric"><span>命途</span><strong>${escapeHtml(profile.path || "未定")}</strong></span>
       <span class="rank-metric"><span>登神分</span><strong>${getAscension(profile)}</strong></span>
       <span class="rank-metric"><span>觐见分</span><strong>${getAudience(profile)}</strong></span>
-      <span class="rank-metric rank-metric--total"><span>总评</span><strong>${totalScore(profile)}</strong></span>
+      <span class="rank-metric rank-metric--total"><span>总分</span><strong>${totalScore(profile)}</strong></span>
     </button>
   `).join("");
   $$("[data-public-id]").forEach((button) => button.addEventListener("click", () => openPublicPanel(button.dataset.publicId)));
