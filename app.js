@@ -1344,8 +1344,8 @@ function renderPortableDossierCanvas(element, filename) {
   context.fillStyle = accent; context.font = "24px Georgia, 'Microsoft YaHei', serif"; context.fillText("BELIEVER DOSSIER · 希望之洲", padding + 34, 128);
   context.fillStyle = highlight; context.font = "bold 64px Georgia, 'Microsoft YaHei', serif"; context.fillText(name, padding + 34, 218);
   context.fillStyle = "#edf0e3"; context.font = "30px 'Microsoft YaHei', sans-serif"; wrapCanvasText(context, identity, contentWidth - 300).slice(0, 2).forEach((line, index) => context.fillText(line, padding + 34, 274 + index * 42));
-  context.fillStyle = accent; context.font = "bold 118px Georgia, 'Microsoft YaHei', serif"; context.fillText(detail.mark, padding + 34, 350);
-  context.fillStyle = highlight; context.font = "30px 'Microsoft YaHei', sans-serif"; context.fillText(detail.title, padding + 136, 340);
+  context.globalAlpha = .36; context.fillStyle = accent; context.font = "bold 132px Georgia, 'Microsoft YaHei', serif"; context.fillText(detail.mark, width - 360, 344); context.globalAlpha = 1;
+  context.fillStyle = highlight; context.font = "30px 'Microsoft YaHei', sans-serif"; context.fillText(detail.title, padding + 34, 340);
 
   let y = 410;
   for (let index = 0; index < plannedSections.length; index += 1) {
