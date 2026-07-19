@@ -1813,6 +1813,18 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
 .settlement-workbench .score-inputs > label { min-width: 0; }
 .settlement-workbench .score-inputs input { color: var(--gold-light); font-size: 1.15rem; font-weight: 700; }
 
+.settlement-workbench .score-target-match {
+  display: block;
+  min-height: 1.35em;
+  margin-top: 7px;
+  color: var(--text-hint);
+  font-size: .78rem;
+  line-height: 1.4;
+}
+
+.settlement-workbench .score-target-match.is-matched { color: var(--gold-light); }
+.settlement-workbench .score-target-match.is-unmatched { color: #df8877; }
+
 .settlement-workbench > .btn--primary,
 .admin-grid--sanctum .form-actions .btn--primary {
   min-height: 46px;

@@ -860,9 +860,39 @@ function renderLeaderboard() {
 
 function renderScoreTargets() {
   const select = $("#scoreTarget");
+  const options = $("#scoreTargetOptions");
   const current = select.value;
   select.innerHTML = publicProfiles().map((profile) => `<option value="${profile.id}">${escapeHtml(profile.name)} · ${escapeHtml(getFaithGod(profile))}</option>`).join("");
+  options.innerHTML = publicProfiles().map((profile) => `<option value="${escapeHtml(profile.name)}" label="${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile))}"></option>`).join("");
   if (publicProfiles().some((profile) => profile.id === current)) select.value = current;
+  syncScoreTargetMatch();
+}
+
+function syncScoreTargetMatch() {
+  const input = $("#scoreTargetName");
+  const select = $("#scoreTarget");
+  const match = $("#scoreTargetMatch");
+  const query = normalizeName(input.value);
+  if (!query) {
+    select.value = "";
+    match.textContent = "";
+    match.className = "score-target-match";
+    return null;
+  }
+  const profiles = publicProfiles();
+  const exact = profiles.find((profile) => normalizeName(profile.name) === query);
+  const candidates = exact ? [exact] : profiles.filter((profile) => normalizeName(profile.name).includes(query));
+  if (candidates.length === 1) {
+    const profile = candidates[0];
+    select.value = profile.id;
+    match.textContent = `已锁定：${profile.name} · ${getFaithGod(profile)} · ${getProfession(profile)}`;
+    match.className = "score-target-match is-matched";
+    return profile;
+  }
+  select.value = "";
+  match.textContent = candidates.length ? `匹配到 ${candidates.length} 名信徒，请补全昵称` : "未找到匹配的信徒";
+  match.className = "score-target-match is-unmatched";
+  return null;
 }
 
 async function openPublicPanel(id) {
@@ -1343,8 +1373,8 @@ async function handleAdminProfileSubmit(event) {
 
 async function handleScoreSubmit(event) {
   event.preventDefault();
-  const profile = publicProfiles().find((item) => item.id === $("#scoreTarget").value);
-  if (!profile) return showToast("请先建立档案");
+  const profile = syncScoreTargetMatch();
+  if (!profile) return showToast("请填写可唯一匹配的信徒昵称");
   const result = await callAction("submitScore", {
     adminKey: $("#adminKey").value.trim(),
     profileId: profile.id,
@@ -1353,6 +1383,8 @@ async function handleScoreSubmit(event) {
     dungeonName: $("#scoreDungeonName").value.trim()
   });
   if (result.error) return showToast(`结算失败：${result.error}`);
+  $("#scoreTargetName").value = "";
+  syncScoreTargetMatch();
   $("#scoreDungeonName").value = "";
   $("#ascensionDelta").value = 0;
   $("#audienceDelta").value = 0;
@@ -1651,6 +1683,7 @@ function bindEvents() {
   $("#leaderboardSearch").addEventListener("input", renderLeaderboard);
   $("#pathFilter").addEventListener("change", renderLeaderboard);
   $("#faithFilter").addEventListener("change", renderLeaderboard);
+  $("#scoreTargetName").addEventListener("input", syncScoreTargetMatch);
   $("#secretForm").addEventListener("submit", handleSecretSubmit);
   bindGuardedForm("#adminProfileForm", "保存中...", handleAdminProfileSubmit);
   bindGuardedForm("#scoreForm", "结算中...", handleScoreSubmit);
