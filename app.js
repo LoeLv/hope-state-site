@@ -944,7 +944,7 @@ function profileStats(profile) {
 
 function publicProfileCard(profile, mode = "public") {
   return `
-    <div class="profile-card profile-card--modal ${godThemeClass(profile)} ${mode === "private-public" ? "export-card-skin" : ""}" data-card="${mode}">
+    <div class="profile-card profile-card--modal ${godThemeClass(profile)} ${mode === "private-public" ? "export-card-skin" : ""}" data-card="${mode}" data-god="${escapeHtml(getFaithGod(profile) || "未定")}">
       <div class="profile-card__top">
         <div>
           <h3>${escapeHtml(profile.name)}</h3>
@@ -1264,13 +1264,22 @@ function exportDossierSections(element) {
       label: entry.querySelector("dt")?.textContent.trim() || "",
       value: entry.querySelector("dd")?.textContent.trim() || "-"
     })).filter((entry) => entry.label || entry.value);
-    const prose = [...section.querySelectorAll("p, .talent-entry, .trial-chronicle__item")]
+    const prose = [...section.querySelectorAll("p, .talent-seal, .trial-chronicle__item")]
       .map((node) => node.textContent.replace(/\s+/g, " ").trim())
       .filter(Boolean);
     return { title, entries, prose };
   });
   if (sections.length) return sections;
-  return [{ title: "卷宗记录", entries: [], prose: String(element.innerText || "").split(/\n+/).map((line) => line.trim()).filter(Boolean) }];
+  const entries = [...element.querySelectorAll(".stat-grid > div")].map((entry) => ({
+    label: entry.querySelector("dt")?.textContent.trim() || "",
+    value: entry.querySelector("dd")?.textContent.trim() || "-"
+  })).filter((entry) => entry.label || entry.value);
+  const publicSections = [...element.querySelectorAll(".talent-section")].map((section) => ({
+    title: section.querySelector("h4")?.textContent.trim() || "卷宗记录",
+    entries: [],
+    prose: [...section.querySelectorAll("p")].map((node) => node.textContent.replace(/\s+/g, " ").trim()).filter(Boolean)
+  }));
+  return [{ title: "圣榜与职阶", entries, prose: [] }, ...publicSections];
 }
 
 function drawExportFaithMotif(context, faith, x, y, size, accent, highlight) {
