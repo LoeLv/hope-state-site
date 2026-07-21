@@ -279,6 +279,7 @@ function professionSearchKeys(value) {
   if (bracketMatch?.[1]) keys.add(normalizeProfessionName(bracketMatch[1]));
   const withoutBracket = normalized.replace(/[（(].*?[）)]/g, "");
   if (withoutBracket) keys.add(withoutBracket);
+  normalized.split(/[，,、/|]+/).map(normalizeProfessionName).filter(Boolean).forEach((item) => keys.add(item));
   return [...keys].filter(Boolean);
 }
 
@@ -579,7 +580,12 @@ function upsertLocalProfile(profile) {
 
 function findProfession(professionName) {
   const keys = professionSearchKeys(professionName);
-  return professionLibrary.find((item) => keys.includes(normalizeProfessionName(item.profession)));
+  return [...professionLibrary]
+    .sort((left, right) => normalizeProfessionName(right.profession).length - normalizeProfessionName(left.profession).length)
+    .find((item) => {
+      const candidate = normalizeProfessionName(item.profession);
+      return keys.some((key) => key === candidate || key.includes(candidate));
+    });
 }
 
 const maxStoredScore = 2147483647;
@@ -1729,6 +1735,25 @@ function normalizeBulkHeader(header) {
 }
 
 const defaultBulkHeaders = ["昵称", "暗语", "职业", "登神分", "觐见分", "公开短记", "私密备注", "天赋"];
+const excelCollectionHeaders = [
+  "填写序号", "昵称", "昵称(信仰+昵称)", "职业(命途职业)", "暗语(个人信息密码,不可公开)",
+  "个人宣言(类似签名,他人可看)", "私密备注(建议填写谕行词)", "天赋", "登神之路分数", "觐见之梯分数",
+  "开始时间", "提交时间", "答题时长"
+];
+
+function normalizeExcelCollectionHeader(value) {
+  return String(value || "")
+    .replace(/[\s_＿]/g, "")
+    .replace(/[（]/g, "(")
+    .replace(/[）]/g, ")")
+    .replace(/，/g, ",")
+    .trim();
+}
+
+function isExcelCollectionHeader(cells) {
+  return cells.length === excelCollectionHeaders.length
+    && cells.map(normalizeExcelCollectionHeader).every((header, index) => header === excelCollectionHeaders[index]);
+}
 
 function hasBulkHeader(headers) {
   const required = ["昵称", "暗语", "职业"];
@@ -1756,32 +1781,78 @@ function parseBulkDataLine(line, headers = defaultBulkHeaders) {
   return rowFromCells(cells, headers);
 }
 
+function collectTsvRecords(text, expectedColumns) {
+  const records = [];
+  const errors = [];
+  let buffered = "";
+  String(text || "").replace(/\r\n?/g, "\n").split("\n").forEach((line, index) => {
+    if (!buffered && !line.trim()) return;
+    buffered = buffered ? `${buffered}\n${line}` : line;
+    const cells = parseDelimitedLine(buffered);
+    if (cells.length === expectedColumns) {
+      records.push({ cells, row: index + 1 });
+      buffered = "";
+    } else if (cells.length > expectedColumns) {
+      errors.push({ row: index + 1, error: `列数应为 ${expectedColumns}，当前为 ${cells.length}` });
+      buffered = "";
+    }
+  });
+  if (buffered) errors.push({ row: records.length + 1, error: `列数应为 ${expectedColumns}，当前为 ${parseDelimitedLine(buffered).length}` });
+  return { records, errors };
+}
+
+function rowFromExcelCollectionCells(cells) {
+  return {
+    "昵称": normalizeCollectedName(cells[2]) || normalizeName(cells[1]),
+    "职业": cells[3] ?? "",
+    "暗语": cells[4] ?? "",
+    "公开短记": cells[5] ?? "",
+    "私密备注": cells[6] ?? "",
+    "天赋": cells[7] ?? "",
+    "登神分": cells[8] ?? "",
+    "觐见分": cells[9] ?? ""
+  };
+}
+
 function parseBulkInput(text) {
-  const lines = String(text || "").split(/\r?\n/).filter((line) => line.trim());
-  if (!lines.length) return { rows: [], errors: [{ row: 1, error: "没有可导入内容" }] };
-  if (!lines[0].includes("\t")) return { rows: [], errors: [{ row: 1, error: "档案录入只接受含表头的 8 列 TSV" }] };
-  const rawHeaders = parseDelimitedLine(lines[0]);
-  const headers = rawHeaders.map(normalizeBulkHeader);
-  const hasHeader = hasBulkHeader(headers);
-  if (!hasHeader) return { rows: [], errors: [{ row: 1, error: `必须粘贴 8 列表头：${defaultBulkHeaders.join("、")}` }] };
-  if (hasHeader) {
+  const firstLine = String(text || "").replace(/^\s+/, "").split(/\r?\n/, 1)[0] || "";
+  if (!firstLine.trim()) return { rows: [], errors: [{ row: 1, error: "没有可导入内容" }] };
+  if (!firstLine.includes("\t")) return { rows: [], errors: [{ row: 1, error: "档案录入只接受从 Excel 复制的 TSV 行" }] };
+  const firstCells = parseDelimitedLine(firstLine);
+  const firstLooksLikeStandardHeader = hasBulkHeader(firstCells.map(normalizeBulkHeader));
+  const tabCount = (String(text || "").match(/\t/g) || []).length;
+  const isExcelLayout = firstCells.length === excelCollectionHeaders.length || (!firstLooksLikeStandardHeader && tabCount >= excelCollectionHeaders.length - 1);
+  const expectedColumns = isExcelLayout ? excelCollectionHeaders.length : defaultBulkHeaders.length;
+  const collected = collectTsvRecords(text, expectedColumns);
+  const errors = [...collected.errors];
+  let records = collected.records;
+  let mapper = (cells) => rowFromCells(cells, defaultBulkHeaders);
+  let dataRowOffset = 0;
+  if (isExcelLayout) {
+    if (records.length && isExcelCollectionHeader(records[0].cells)) {
+      records = records.slice(1);
+      dataRowOffset = 1;
+    }
+    mapper = rowFromExcelCollectionCells;
+  } else {
+    const headers = firstCells.map(normalizeBulkHeader);
+    if (!hasBulkHeader(headers)) return { rows: [], errors: [{ row: 1, error: `请粘贴问卷 Excel 的 13 列数据行，或 8 列表头：${defaultBulkHeaders.join("、")}` }] };
     try {
       validateBulkHeaders(headers);
     } catch (error) {
       return { rows: [], errors: [{ row: 1, error: error.message }] };
     }
+    records = records.slice(1);
+    dataRowOffset = 1;
   }
-  const dataLines = hasHeader ? lines.slice(1) : lines;
-  const activeHeaders = hasHeader ? headers : defaultBulkHeaders;
   const rows = [];
-  const errors = [];
-  dataLines.forEach((line, index) => {
+  records.forEach((record, index) => {
     let row = {};
     try {
-      row = parseBulkDataLine(line, activeHeaders);
+      row = mapper(record.cells);
       rows.push(normalizeProfileInput(row, true, true));
     } catch (error) {
-      errors.push({ row: index + (hasHeader ? 2 : 1), name: row["昵称"] || "", error: error.message });
+      errors.push({ row: index + 1 + dataRowOffset, name: row["昵称"] || "", error: error.message });
     }
   });
   return { rows, errors };

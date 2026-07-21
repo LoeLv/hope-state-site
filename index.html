@@ -263,7 +263,7 @@
               <h3 id="bulkImportTitle">批量卷宗录入</h3>
             </div>
             <textarea id="bulkImportInput" rows="9"></textarea>
-            <p class="form-note">必须粘贴含表头的 8 列 TSV；先检查每行昵称、职业、登神分、觐见分无误，再导入。</p>
+            <p class="form-note">可直接从“个人信徒档案收集.xlsx”复制整行或多行；按问卷 13 列顺序读取，自动忽略序号和时间列。也兼容原 8 列标准 TSV。</p>
             <div class="form-actions">
               <button class="btn btn--primary" type="button" id="bulkPreviewButton">检查内容</button>
               <button class="btn btn--ghost" type="button" id="bulkImportButton">导入有效行</button>
@@ -282,6 +282,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="assets/html2canvas.min.js?v=1.4.1"></script>
-  <script src="app.js?v=20260720-export-structured-1"></script>
+  <script src="app.js?v=20260721-excel-import-1"></script>
 </body>
 </html>
