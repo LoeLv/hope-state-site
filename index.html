@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>希望之州 | 诸神愚戏</title>
-  <link rel="stylesheet" href="styles.css?v=20260722-leaderboard-archive-1">
+  <link rel="stylesheet" href="styles.css?v=20260722-divine-icons-1">
 </head>
 <body>
   <div class="ambient" aria-hidden="true">
@@ -14,7 +14,7 @@
 
   <header class="topbar">
     <a class="brand" href="#leaderboard" data-view-link="leaderboard" aria-label="希望之洲排行榜">
-      <img src="assets/hope-state-sigil.svg" alt="" class="brand__sigil">
+      <svg class="brand__sigil archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-brand"></use></svg>
       <span>
         <strong>希望之洲</strong>
         <small>诸神愚戏・洲民神谕档案室</small>
@@ -22,13 +22,13 @@
     </a>
     <nav class="nav" aria-label="主导航">
       <button class="nav__item is-active" type="button" data-view-link="leaderboard">
-        <span>诸神圣榜</span><small>全洲信徒试炼位次</small>
+        <span><svg class="archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-board"></use></svg>诸神圣榜</span><small>全洲信徒试炼位次</small>
       </button>
       <button class="nav__item" type="button" data-view-link="private">
-        <span>信徒档案</span><small>本人私藏卷宗</small>
+        <span><svg class="archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-believer"></use></svg>信徒档案</span><small>本人私藏卷宗</small>
       </button>
       <button class="nav__item" id="adminNavButton" type="button" data-view-link="admin" hidden>
-        <span>神谕司务</span><small>结算与录入</small>
+        <span><svg class="archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-trial"></use></svg>神谕司务</span><small>结算与录入</small>
       </button>
     </nav>
   </header>
@@ -41,11 +41,11 @@
       <span class="hero-panel__seal hero-panel__seal--br" aria-hidden="true"></span>
       <div>
         <p class="eyebrow">Divine Archive Registry</p>
-        <h1>希望之洲・神民档案室</h1>
+        <h1><svg class="title-icon archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-archive"></use></svg>希望之洲・神民档案室</h1>
         <p class="hero-panel__edict">【封印谕令】圣榜公示仅展露表层职阶，完整权柄卷宗受私藏暗语枷锁禁锢，唯信徒本人可解锁阅览</p>
       </div>
       <div class="status-card">
-        <span>试炼卷宗</span>
+        <span><svg class="archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-trial"></use></svg>试炼卷宗</span>
         <strong id="totalProfiles">0</strong>
         <small id="dataModeLabel"></small>
       </div>
@@ -55,7 +55,7 @@
       <div class="section-head">
         <div>
           <p class="eyebrow">Crown Registry</p>
-          <h2 id="leaderboardTitle">诸神圣榜</h2>
+          <h2 id="leaderboardTitle"><svg class="title-icon archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-board"></use></svg>诸神圣榜</h2>
         </div>
         <div class="segmented" role="group" aria-label="排行榜模式">
           <button class="is-active" type="button" data-rank-mode="total">总榜</button>
@@ -100,7 +100,7 @@
           <div class="access-panel__head">
             <div>
               <p class="eyebrow">Seal of Believer</p>
-              <h2 id="privateTitle">私藏暗语封印匣</h2>
+              <h2 id="privateTitle"><svg class="title-icon archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-archive"></use></svg>私藏暗语封印匣</h2>
             </div>
             <button class="mini-btn" type="button" id="logoutButton" hidden>切断神谕链接</button>
           </div>
@@ -136,7 +136,7 @@
       <div class="section-head admin-sanctum-head">
         <div>
           <p class="eyebrow">Oracle Stewardship</p>
-          <h2 id="adminTitle">神谕司务台</h2>
+          <h2 id="adminTitle"><svg class="title-icon archive-icon" aria-hidden="true"><use href="assets/divine-archive-icons.svg#icon-trial"></use></svg>神谕司务台</h2>
         </div>
         <div class="admin-operator-mark" aria-label="司务信徒标记"><span id="adminOperatorMark">司</span><small>神谕官</small></div>
         <button class="btn btn--ghost" type="button" id="refreshButton">刷新数据</button>
@@ -282,6 +282,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="assets/html2canvas.min.js?v=1.4.1"></script>
-  <script src="app.js?v=20260722-leaderboard-archive-1"></script>
+  <script src="app.js?v=20260722-divine-icons-1"></script>
 </body>
 </html>

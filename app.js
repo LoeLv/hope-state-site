@@ -180,6 +180,23 @@ function escapeHtml(text) {
   })[char]);
 }
 
+const archiveIconPathNames = {
+  生命: "life",
+  存在: "existence",
+  文明: "civilization",
+  虚无: "void",
+  混沌: "chaos",
+  沉沦: "fall",
+};
+
+function archiveIcon(name, className = "") {
+  return `<svg class="archive-icon ${className}" aria-hidden="true" focusable="false"><use href="assets/divine-archive-icons.svg#icon-${name}"></use></svg>`;
+}
+
+function pathArchiveIcon(path, className = "") {
+  return archiveIcon(`fate-${archiveIconPathNames[path] || "void"}`, className);
+}
+
 function normalizeName(value) {
   return String(value || "").trim();
 }
@@ -741,7 +758,7 @@ function renderFaithInfluence(allProfiles) {
         const percent = Math.max(8, Math.round((members.length / maxCount) * 100));
         return `
           <button class="faith-influence__cell faith-influence__cell--${escapeHtml(path)} god-theme god-theme--${slug} ${activeFilter === god ? "is-active" : ""}" type="button" data-faith-filter="${escapeHtml(god)}" ${members.length ? "" : "disabled"} style="--influence:${percent}%" aria-label="${escapeHtml(god)}，${members.length} 位信徒" aria-pressed="${activeFilter === god}">
-            <span class="faith-influence__sigil">${detail.relic}</span>
+            <span class="faith-influence__sigil">${pathArchiveIcon(path)}</span>
             <span class="faith-influence__god">${escapeHtml(god)}</span>
             <span class="faith-influence__count"><strong>${members.length}</strong><small>${escapeHtml(path)}</small></span>
           </button>
@@ -766,20 +783,20 @@ function renderLeaderboardObservatory(allProfiles, metric) {
   $("#leaderboardObservatory").innerHTML = `
     <div class="observatory-heading">
       <p class="eyebrow">Crown Observatory</p>
-      <h3>圣榜观测台</h3>
+      <h3>${archiveIcon("observatory", "module-icon")}圣榜观测台</h3>
     </div>
     ${leader ? `
       <button class="observatory-leader ${godThemeClass(leader)}" type="button" data-public-id="${leader.id}">
         <span class="observatory-leader__relic">${leaderDetail.relic}</span>
-        <span><small>冠冕持有者</small><strong>${escapeHtml(leader.name)}</strong><em>${escapeHtml(getFaithGod(leader))} · ${metric(leader).value}</em></span>
+        <span><small>${archiveIcon("rank-crown", "metric-icon")}冠冕持有者</small><strong>${escapeHtml(leader.name)}</strong><em>${escapeHtml(getFaithGod(leader))} · ${metric(leader).value}</em></span>
       </button>
     ` : ""}
       <div class="observatory-stats">
-        <div><span>在册信徒</span><strong>${allProfiles.length}</strong></div>
-        <div><span>活跃神祇</span><strong>${new Set(allProfiles.map(getFaithGod).filter(Boolean)).size}</strong></div>
-        <div><span>登神至高</span><strong>${highestAscension ? getAscension(highestAscension) : "-"}</strong><small>${escapeHtml(highestAscension?.name || "")}</small></div>
-        <div><span>觐见至高</span><strong>${highestAudience ? getAudience(highestAudience) : "-"}</strong><small>${escapeHtml(highestAudience?.name || "")}</small></div>
-        <div class="observatory-stats__path path-tone--${escapeHtml(dominantPath)}"><span>最盛命途</span><strong>${escapeHtml(dominantPath)}</strong><small>${dominantCount} 位</small><i class="observatory-path-ring" style="--path-share:${dominantShare}%"><b>${dominantShare}%</b></i></div>
+        <div><span>${archiveIcon("believer", "metric-icon")}在册信徒</span><strong>${allProfiles.length}</strong></div>
+        <div><span>${archiveIcon("archive", "metric-icon")}活跃神祇</span><strong>${new Set(allProfiles.map(getFaithGod).filter(Boolean)).size}</strong></div>
+        <div><span>${archiveIcon("score-deity", "metric-icon")}登神至高</span><strong>${highestAscension ? getAscension(highestAscension) : "-"}</strong><small>${escapeHtml(highestAscension?.name || "")}</small></div>
+        <div><span>${archiveIcon("score-worship", "metric-icon")}觐见至高</span><strong>${highestAudience ? getAudience(highestAudience) : "-"}</strong><small>${escapeHtml(highestAudience?.name || "")}</small></div>
+        <div class="observatory-stats__path path-tone--${escapeHtml(dominantPath)}"><span>${pathArchiveIcon(dominantPath, "metric-icon")}最盛命途</span><strong>${escapeHtml(dominantPath)}</strong><small>${dominantCount} 位</small><i class="observatory-path-ring" style="--path-share:${dominantShare}%"><b>${dominantShare}%</b></i></div>
       </div>
   `;
 }
@@ -791,7 +808,7 @@ function renderPathCorridor(allProfiles) {
   $("#pathCorridor").innerHTML = `
     <header class="path-corridor__head">
       <p class="eyebrow">Path Concourse</p>
-      <h3>命途回廊</h3>
+      <h3>${archiveIcon("corridor", "module-icon")}命途回廊</h3>
     </header>
     <div class="path-corridor__gates">
       ${paths.map((path) => {
@@ -799,7 +816,7 @@ function renderPathCorridor(allProfiles) {
         const leader = members[0];
         return `
           <button class="path-gate path-gate--${path} ${activePath === path ? "is-active" : ""}" type="button" data-path-filter="${path}" aria-pressed="${activePath === path}">
-            <span class="path-gate__title"><strong>${path}</strong><small>${members.length} 位信徒</small></span>
+            <span class="path-gate__title"><strong>${pathArchiveIcon(path, "path-icon")} ${path}</strong><small>${members.length} 位信徒</small></span>
             <span class="path-gate__faces">${members.slice(0, 3).map((profile) => `<i class="${godThemeClass(profile)}" title="${escapeHtml(profile.name)}">${escapeHtml((profile.name || "希").slice(0, 1))}</i>`).join("") || "<em>未启封</em>"}</span>
             <span class="path-gate__leader">${leader ? `冠首 ${escapeHtml(leader.name)}` : "尚无信徒"}</span>
           </button>
@@ -834,7 +851,7 @@ function renderLeaderboard() {
       const themeDetail = godThemeDetail(profile);
       return `
         <button class="podium-seat podium-seat--${index + 1} ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}">
-          <span class="podium-seat__crown" aria-hidden="true">${["冠", "冕", "环"][index]}</span>
+          <span class="podium-seat__crown" aria-hidden="true">${archiveIcon(["rank-crown", "rank-throne", "rank-stair"][index])}</span>
           <span class="podium-seat__rank">${["壹", "贰", "叁"][index]}</span>
           <span class="podium-shrine" aria-hidden="true">
             <span class="podium-portrait">${escapeHtml((profile.name || "希").slice(0, 1))}</span>
@@ -842,10 +859,10 @@ function renderLeaderboard() {
           </span>
           <span class="podium-seat__name">${escapeHtml(profile.name)}</span>
           <span class="podium-seat__identity">${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
-          <span class="podium-total"><strong>${totalScore(profile)}</strong><small>总分</small></span>
+          <span class="podium-total"><small>${archiveIcon("score-total", "metric-icon")}总分</small><strong>${totalScore(profile)}</strong></span>
           <span class="podium-score-breakdown" aria-label="分数明细">
-            <span><small>登神分</small><b>${getAscension(profile)}</b></span>
-            <span><small>觐见分</small><b>${getAudience(profile)}</b></span>
+            <span><small>${archiveIcon("score-deity", "metric-icon")}登神分</small><b>${getAscension(profile)}</b></span>
+            <span><small>${archiveIcon("score-worship", "metric-icon")}觐见分</small><b>${getAudience(profile)}</b></span>
           </span>
         </button>
       `;
@@ -858,15 +875,16 @@ function renderLeaderboard() {
     const tier = rank <= 12 ? "rank-row--tier-1" : rank >= 75 ? "rank-row--tier-3" : "rank-row--tier-2";
     return `
     <button class="rank-row rank-row--button ${tier} ${getAscension(profile) >= 1500 ? "is-ascension-high" : ""} ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}" data-path="${escapeHtml(profile.path || "未定")}">
-      <span class="rank-index">#${rank}</span>
+      <span class="rank-index">${archiveIcon("rank-seal", "rank-seal-icon")}#${rank}</span>
       <span class="rank-name">
+        <span class="rank-path-icon" aria-hidden="true">${pathArchiveIcon(profile.path)}</span>
         <span class="rank-faith-avatar" aria-hidden="true"><b>${escapeHtml((profile.name || "希").slice(0, 1))}</b><i>${godThemeDetail(profile).relic}</i></span>
         <span class="rank-name__copy"><strong>${escapeHtml(profile.name)}</strong><span>${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span></span>
       </span>
       <span class="rank-metric"><span>命途</span><strong>${escapeHtml(profile.path || "未定")}</strong></span>
-      <span class="rank-metric rank-metric--ascension"><span>登神分</span><strong>${getAscension(profile)}</strong></span>
-      <span class="rank-metric"><span>觐见分</span><strong>${getAudience(profile)}</strong></span>
-      <span class="rank-metric rank-metric--total"><span>总分</span><strong>${totalScore(profile)}</strong></span>
+      <span class="rank-metric rank-metric--ascension"><span>${archiveIcon("score-deity", "metric-icon")}登神分</span><strong>${getAscension(profile)}</strong></span>
+      <span class="rank-metric"><span>${archiveIcon("score-worship", "metric-icon")}觐见分</span><strong>${getAudience(profile)}</strong></span>
+      <span class="rank-metric rank-metric--total"><span>${archiveIcon("score-total", "metric-icon")}总分</span><strong>${totalScore(profile)}</strong></span>
     </button>
   `;
   }).join("");

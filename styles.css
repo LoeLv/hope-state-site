@@ -4256,3 +4256,111 @@ body[data-faith-theme="decay"] .dossier-relic { border-radius: 20% 4% 30% 4%; }
   #leaderboardView .path-gate { min-height: 126px; padding: 12px; }
   #leaderboardView .rank-row::before { width: 3px; }
 }
+
+/* Divine Archive icon system */
+.archive-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  vertical-align: -.14em;
+  overflow: visible;
+  color: currentColor;
+  fill: none;
+  stroke: currentColor;
+}
+
+.brand__sigil.archive-icon {
+  width: 44px;
+  height: 44px;
+  padding: 6px;
+  color: var(--gold-light);
+  border: 1px solid rgba(212, 184, 120, .5);
+  border-radius: 8px;
+  background: radial-gradient(circle, rgba(200, 178, 120, .12), rgba(6, 22, 19, .92) 68%);
+  box-shadow: inset 0 0 0 2px rgba(200, 178, 120, .1), 0 0 15px rgba(200, 178, 120, .11);
+}
+
+.nav__item > span,
+.status-card > span,
+.podium-total > small,
+.podium-score-breakdown small,
+.observatory-leader small,
+.observatory-stats span,
+.rank-metric > span {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.nav__item > span .archive-icon { color: currentColor; font-size: 1rem; }
+.title-icon { margin-right: 10px; color: var(--gold-main); font-size: .78em; }
+.hero-panel h1 { display: flex; align-items: center; }
+.status-card > span .archive-icon { color: var(--gold-main); font-size: .9rem; }
+
+.module-icon {
+  margin-right: 8px;
+  color: var(--gold-main);
+  font-size: 1.05em;
+  filter: drop-shadow(0 0 5px rgba(212, 184, 120, .15));
+}
+
+.metric-icon { color: var(--gold-main); font-size: .92em; }
+
+#leaderboardView .faith-influence__sigil {
+  display: grid;
+  min-height: 22px;
+  place-items: center;
+  color: var(--path-a, var(--gold-main));
+}
+#leaderboardView .faith-influence__sigil .archive-icon { width: 21px; height: 21px; }
+
+#leaderboardView .path-gate__title strong { display: inline-flex; gap: 7px; align-items: center; }
+#leaderboardView .path-icon { color: var(--path-a); font-size: 1.05rem; }
+
+#leaderboardView .podium-seat__crown {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  color: var(--gold-light);
+  border: 1px solid rgba(212, 184, 120, .38);
+  clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  background: rgba(10, 21, 19, .75);
+}
+#leaderboardView .podium-seat__crown .archive-icon { width: 19px; height: 19px; }
+#leaderboardView .podium-total > small { justify-content: center; }
+#leaderboardView .podium-score-breakdown small { justify-content: center; }
+
+#leaderboardView .rank-index {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+#leaderboardView .rank-seal-icon { color: var(--path-a, var(--gold-main)); font-size: .92rem; }
+#leaderboardView .rank-path-icon {
+  display: grid;
+  flex: 0 0 23px;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  color: var(--path-a, var(--gold-main));
+  border: 1px solid color-mix(in srgb, var(--path-a, var(--gold-main)) 42%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--path-a, var(--gold-main)) 10%, rgba(5, 19, 17, .72));
+}
+#leaderboardView .rank-path-icon .archive-icon { width: 15px; height: 15px; }
+#leaderboardView .rank-metric > span { justify-content: flex-end; }
+
+@media (max-width: 960px) {
+  .brand__sigil.archive-icon { width: 40px; height: 40px; }
+  #leaderboardView .rank-path-icon { display: none; }
+}
+
+@media (max-width: 520px) {
+  .hero-panel h1 { align-items: flex-start; }
+  .title-icon { margin-top: .17em; }
+  #leaderboardView .rank-index .rank-seal-icon { display: none; }
+  #leaderboardView .rank-metric > span { justify-content: flex-start; }
+}
