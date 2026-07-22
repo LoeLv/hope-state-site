@@ -127,8 +127,8 @@ let currentPrivateProfile = null;
 let currentPrivatePhrase = "";
 let secretSubmitInFlight = false;
 let professionLibrary = fallbackProfessions;
-// Add delegated operator names here when the settlement duty is handed over.
-const adminPanelOperators = new Set(["无我"]);
+// Authorized believers may open the stewardship console after unlocking their own dossier.
+const adminPanelOperators = new Set(["无我", "墨水", "早安"]);
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
