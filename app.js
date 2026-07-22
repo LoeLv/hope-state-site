@@ -740,11 +740,10 @@ function renderFaithInfluence(allProfiles) {
         const detail = godThemeDetails[god] || godThemeDetails.欺诈;
         const percent = Math.max(8, Math.round((members.length / maxCount) * 100));
         return `
-          <button class="faith-influence__cell god-theme god-theme--${slug} ${activeFilter === god ? "is-active" : ""}" type="button" data-faith-filter="${escapeHtml(god)}" ${members.length ? "" : "disabled"} style="--influence:${percent}%">
+          <button class="faith-influence__cell faith-influence__cell--${escapeHtml(path)} god-theme god-theme--${slug} ${activeFilter === god ? "is-active" : ""}" type="button" data-faith-filter="${escapeHtml(god)}" ${members.length ? "" : "disabled"} style="--influence:${percent}%" aria-label="${escapeHtml(god)}，${members.length} 位信徒" aria-pressed="${activeFilter === god}">
             <span class="faith-influence__sigil">${detail.relic}</span>
             <span class="faith-influence__god">${escapeHtml(god)}</span>
-            <strong>${members.length}</strong>
-            <small>${escapeHtml(path)}</small>
+            <span class="faith-influence__count"><strong>${members.length}</strong><small>${escapeHtml(path)}</small></span>
           </button>
         `;
       }).join("")}
@@ -761,6 +760,9 @@ function renderLeaderboardObservatory(allProfiles, metric) {
     .sort((left, right) => right.count - left.count);
   const leader = ranked[0];
   const leaderDetail = leader ? godThemeDetail(leader) : neutralGodThemeDetail;
+  const dominantPath = pathCounts[0]?.path || "未定";
+  const dominantCount = pathCounts[0]?.count || 0;
+  const dominantShare = allProfiles.length ? Math.round((dominantCount / allProfiles.length) * 100) : 0;
   $("#leaderboardObservatory").innerHTML = `
     <div class="observatory-heading">
       <p class="eyebrow">Crown Observatory</p>
@@ -772,13 +774,13 @@ function renderLeaderboardObservatory(allProfiles, metric) {
         <span><small>冠冕持有者</small><strong>${escapeHtml(leader.name)}</strong><em>${escapeHtml(getFaithGod(leader))} · ${metric(leader).value}</em></span>
       </button>
     ` : ""}
-    <div class="observatory-stats">
-      <div><span>在册信徒</span><strong>${allProfiles.length}</strong></div>
-      <div><span>活跃神祇</span><strong>${new Set(allProfiles.map(getFaithGod).filter(Boolean)).size}</strong></div>
-      <div><span>登神至高</span><strong>${highestAscension ? getAscension(highestAscension) : "-"}</strong><small>${escapeHtml(highestAscension?.name || "")}</small></div>
-      <div><span>觐见至高</span><strong>${highestAudience ? getAudience(highestAudience) : "-"}</strong><small>${escapeHtml(highestAudience?.name || "")}</small></div>
-      <div class="observatory-stats__path"><span>最盛命途</span><strong>${escapeHtml(pathCounts[0]?.path || "-")}</strong><small>${pathCounts[0]?.count || 0} 位</small></div>
-    </div>
+      <div class="observatory-stats">
+        <div><span>在册信徒</span><strong>${allProfiles.length}</strong></div>
+        <div><span>活跃神祇</span><strong>${new Set(allProfiles.map(getFaithGod).filter(Boolean)).size}</strong></div>
+        <div><span>登神至高</span><strong>${highestAscension ? getAscension(highestAscension) : "-"}</strong><small>${escapeHtml(highestAscension?.name || "")}</small></div>
+        <div><span>觐见至高</span><strong>${highestAudience ? getAudience(highestAudience) : "-"}</strong><small>${escapeHtml(highestAudience?.name || "")}</small></div>
+        <div class="observatory-stats__path path-tone--${escapeHtml(dominantPath)}"><span>最盛命途</span><strong>${escapeHtml(dominantPath)}</strong><small>${dominantCount} 位</small><i class="observatory-path-ring" style="--path-share:${dominantShare}%"><b>${dominantShare}%</b></i></div>
+      </div>
   `;
 }
 
@@ -794,10 +796,12 @@ function renderPathCorridor(allProfiles) {
     <div class="path-corridor__gates">
       ${paths.map((path) => {
         const members = ranked.filter((profile) => profile.path === path);
+        const leader = members[0];
         return `
-          <button class="path-gate path-gate--${path} ${activePath === path ? "is-active" : ""}" type="button" data-path-filter="${path}">
-            <span class="path-gate__title"><strong>${path}</strong><small>${members.length} 位</small></span>
+          <button class="path-gate path-gate--${path} ${activePath === path ? "is-active" : ""}" type="button" data-path-filter="${path}" aria-pressed="${activePath === path}">
+            <span class="path-gate__title"><strong>${path}</strong><small>${members.length} 位信徒</small></span>
             <span class="path-gate__faces">${members.slice(0, 3).map((profile) => `<i class="${godThemeClass(profile)}" title="${escapeHtml(profile.name)}">${escapeHtml((profile.name || "希").slice(0, 1))}</i>`).join("") || "<em>未启封</em>"}</span>
+            <span class="path-gate__leader">${leader ? `冠首 ${escapeHtml(leader.name)}` : "尚无信徒"}</span>
           </button>
         `;
       }).join("")}
@@ -849,19 +853,23 @@ function renderLeaderboard() {
   $("#leaderboardListHead").innerHTML = profiles.length > 3
     ? "<span>位次 / 信徒</span><span>命途</span><span>登神分</span><span>觐见分</span><span>总分</span>"
     : "";
-  $("#leaderboardList").innerHTML = profiles.slice(3).map((profile, index) => `
-    <button class="rank-row rank-row--button ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}">
-      <span class="rank-index">#${index + 4}</span>
+  $("#leaderboardList").innerHTML = profiles.slice(3).map((profile, index) => {
+    const rank = index + 4;
+    const tier = rank <= 12 ? "rank-row--tier-1" : rank >= 75 ? "rank-row--tier-3" : "rank-row--tier-2";
+    return `
+    <button class="rank-row rank-row--button ${tier} ${getAscension(profile) >= 1500 ? "is-ascension-high" : ""} ${godThemeClass(profile)}" type="button" data-public-id="${profile.id}" data-path="${escapeHtml(profile.path || "未定")}">
+      <span class="rank-index">#${rank}</span>
       <span class="rank-name">
         <span class="rank-faith-avatar" aria-hidden="true"><b>${escapeHtml((profile.name || "希").slice(0, 1))}</b><i>${godThemeDetail(profile).relic}</i></span>
         <span class="rank-name__copy"><strong>${escapeHtml(profile.name)}</strong><span>${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span></span>
       </span>
       <span class="rank-metric"><span>命途</span><strong>${escapeHtml(profile.path || "未定")}</strong></span>
-      <span class="rank-metric"><span>登神分</span><strong>${getAscension(profile)}</strong></span>
+      <span class="rank-metric rank-metric--ascension"><span>登神分</span><strong>${getAscension(profile)}</strong></span>
       <span class="rank-metric"><span>觐见分</span><strong>${getAudience(profile)}</strong></span>
       <span class="rank-metric rank-metric--total"><span>总分</span><strong>${totalScore(profile)}</strong></span>
     </button>
-  `).join("");
+  `;
+  }).join("");
   $$("[data-public-id]").forEach((button) => button.addEventListener("click", () => openPublicPanel(button.dataset.publicId)));
   $$('[data-faith-filter]').forEach((button) => button.addEventListener("click", () => {
     $("#faithFilter").value = button.dataset.faithFilter;
@@ -871,6 +879,14 @@ function renderLeaderboard() {
     $("#pathFilter").value = button.dataset.pathFilter;
     renderLeaderboard();
   }));
+  $$('[data-path-filter]').forEach((button) => {
+    const previewPath = () => $$(".rank-row").forEach((row) => row.classList.toggle("is-path-preview", row.dataset.path === button.dataset.pathFilter));
+    const clearPreview = () => $$(".rank-row").forEach((row) => row.classList.remove("is-path-preview"));
+    button.addEventListener("pointerenter", previewPath);
+    button.addEventListener("pointerleave", clearPreview);
+    button.addEventListener("focus", previewPath);
+    button.addEventListener("blur", clearPreview);
+  });
   renderScoreTargets();
 }
 
