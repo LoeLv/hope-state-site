@@ -1395,7 +1395,7 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
 
 .leaderboard-list-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) repeat(4, minmax(76px, auto));
+  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(76px, auto));
   gap: .85rem;
   padding: 0 1rem 9px;
   color: var(--text-hint);
@@ -1408,7 +1408,7 @@ dd { margin: .15rem 0 0; color: var(--gold-light); font-family: var(--font-sans)
 
 .leaderboard .rank-row {
   position: relative;
-  grid-template-columns: 62px minmax(0, 1fr) repeat(4, minmax(76px, auto));
+  grid-template-columns: 62px minmax(0, 1fr) repeat(3, minmax(76px, auto));
   min-height: 76px;
   border-color: color-mix(in srgb, var(--god-a, var(--gold-main)) 23%, transparent);
   background:
@@ -4255,6 +4255,22 @@ body[data-faith-theme="decay"] .dossier-relic { border-radius: 20% 4% 30% 4%; }
   #leaderboardView .faith-influence__god { font-size: .65rem; }
   #leaderboardView .path-gate { min-height: 126px; padding: 12px; }
   #leaderboardView .rank-row::before { width: 3px; }
+}
+
+@media (max-width: 960px) {
+  .leaderboard .rank-row {
+    grid-template-columns: 48px minmax(0, 1fr) repeat(3, minmax(62px, auto));
+  }
+  .leaderboard .rank-metric:nth-of-type(3) { grid-column: 2; grid-row: 2; }
+  .leaderboard .rank-metric:nth-of-type(4) { grid-column: 3; grid-row: 2; }
+  .leaderboard .rank-metric:nth-of-type(5) { grid-column: 4; grid-row: 2; }
+}
+
+@media (max-width: 640px) {
+  .leaderboard .rank-row { grid-template-columns: 44px minmax(0, 1fr) repeat(2, minmax(58px, auto)); }
+  .leaderboard .rank-metric:nth-of-type(3) { grid-column: 2; grid-row: 2; }
+  .leaderboard .rank-metric:nth-of-type(4) { grid-column: 3; grid-row: 2; }
+  .leaderboard .rank-metric:nth-of-type(5) { grid-column: 4; grid-row: 2; }
 }
 
 /* Divine Archive icon system */

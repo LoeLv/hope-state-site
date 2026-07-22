@@ -122,7 +122,7 @@ const specialProfessionStats = {
 };
 
 let state = loadState();
-let rankMode = "total";
+let rankMode = "ascension";
 let currentPrivateProfile = null;
 let currentPrivatePhrase = "";
 let secretSubmitInFlight = false;
@@ -348,10 +348,6 @@ function getAudience(profile) {
   return Number(profile.audience ?? profile.audience_score ?? 0);
 }
 
-function totalScore(profile) {
-  return getAscension(profile) + getAudience(profile) * 10;
-}
-
 function publicProfiles() {
   return state.profiles;
 }
@@ -392,15 +388,15 @@ function maxHp(profile) {
   return Number(rule.baseHp || 0) + bonus;
 }
 
-function getTotalRank(profile) {
-  const ranked = [...publicProfiles()].sort((a, b) => totalScore(b) - totalScore(a) || getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a));
+function getOverallRank(profile) {
+  const ranked = [...publicProfiles()].sort((a, b) => getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a));
   return ranked.findIndex((item) => item.id === profile.id || item.name === profile.name) + 1;
 }
 
 function getPathRank(profile) {
   const ranked = publicProfiles()
     .filter((item) => item.path === profile.path)
-    .sort((a, b) => totalScore(b) - totalScore(a) || getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a));
+    .sort((a, b) => getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a));
   return ranked.findIndex((item) => item.id === profile.id || item.name === profile.name) + 1;
 }
 
@@ -408,7 +404,7 @@ function getRankedProfiles() {
   return [...publicProfiles()].sort((a, b) => {
     if (rankMode === "ascension") return getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a);
     if (rankMode === "audience") return getAudience(b) - getAudience(a) || getAscension(b) - getAscension(a);
-    return totalScore(b) - totalScore(a) || getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a);
+    return getAscension(b) - getAscension(a) || getAudience(b) - getAudience(a);
   });
 }
 
@@ -836,7 +832,7 @@ function renderLeaderboard() {
   const metric = (profile) => {
     if (rankMode === "ascension") return { label: "登神分", value: getAscension(profile) };
     if (rankMode === "audience") return { label: "觐见分", value: getAudience(profile) };
-    return { label: "总评", value: totalScore(profile) };
+    return { label: "登神分", value: getAscension(profile) };
   };
   renderLeaderboardObservatory(allProfiles, metric);
   renderFaithInfluence(allProfiles);
@@ -859,7 +855,7 @@ function renderLeaderboard() {
           </span>
           <span class="podium-seat__name">${escapeHtml(profile.name)}</span>
           <span class="podium-seat__identity">${escapeHtml(getFaithGod(profile))} · ${escapeHtml(getProfession(profile) || "未定职业")}</span>
-          <span class="podium-total"><small>${archiveIcon("score-total", "metric-icon")}总分</small><strong>${totalScore(profile)}</strong></span>
+          <span class="podium-total"><small>${archiveIcon(rankMode === "audience" ? "score-worship" : "score-deity", "metric-icon")}${score.label}</small><strong>${score.value}</strong></span>
           <span class="podium-score-breakdown" aria-label="分数明细">
             <span><small>${archiveIcon("score-deity", "metric-icon")}登神分</small><b>${getAscension(profile)}</b></span>
             <span><small>${archiveIcon("score-worship", "metric-icon")}觐见分</small><b>${getAudience(profile)}</b></span>
@@ -868,7 +864,7 @@ function renderLeaderboard() {
       `;
     }).join("");
   $("#leaderboardListHead").innerHTML = profiles.length > 3
-    ? "<span>位次 / 信徒</span><span>命途</span><span>登神分</span><span>觐见分</span><span>总分</span>"
+    ? "<span>位次 / 信徒</span><span>命途</span><span>登神分</span><span>觐见分</span>"
     : "";
   $("#leaderboardList").innerHTML = profiles.slice(3).map((profile, index) => {
     const rank = index + 4;
@@ -884,7 +880,6 @@ function renderLeaderboard() {
       <span class="rank-metric"><span>命途</span><strong>${escapeHtml(profile.path || "未定")}</strong></span>
       <span class="rank-metric rank-metric--ascension"><span>${archiveIcon("score-deity", "metric-icon")}登神分</span><strong>${getAscension(profile)}</strong></span>
       <span class="rank-metric"><span>${archiveIcon("score-worship", "metric-icon")}觐见分</span><strong>${getAudience(profile)}</strong></span>
-      <span class="rank-metric rank-metric--total"><span>${archiveIcon("score-total", "metric-icon")}总分</span><strong>${totalScore(profile)}</strong></span>
     </button>
   `;
   }).join("");
@@ -968,7 +963,7 @@ function closePublicPanel() {
 function profileStats(profile) {
   return `
     <dl class="stat-grid">
-      <div><dt>总榜排名</dt><dd>#${getTotalRank(profile) || "-"}</dd></div>
+      <div><dt>全洲位次</dt><dd>#${getOverallRank(profile) || "-"}</dd></div>
       <div><dt>命途排名</dt><dd>#${getPathRank(profile) || "-"}</dd></div>
       <div><dt>信仰神明</dt><dd>${escapeHtml(getFaithGod(profile) || "未定")}</dd></div>
       <div><dt>命途</dt><dd>${escapeHtml(profile.path || "未定")}</dd></div>
@@ -990,7 +985,6 @@ function publicProfileCard(profile, mode = "public") {
           <h3>${escapeHtml(profile.name)}</h3>
           <p>${escapeHtml(getFaithGod(profile) || "未定")} · ${escapeHtml(profile.path || "未定")} · ${escapeHtml(getProfession(profile) || "未定职业")}</p>
         </div>
-        <span class="badge">总评 ${totalScore(profile)}</span>
       </div>
       ${profileStats(profile)}
       <section class="talent-section">
